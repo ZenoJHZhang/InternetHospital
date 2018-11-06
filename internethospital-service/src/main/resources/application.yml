@@ -1,0 +1,18 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/internet_hospital?useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: root
+    password: 123456
+    druid:
+      aop-patterns: com.zjh.internethospitalservice.controller.*
+      max-active: 20
+      initial-size: 1
+      max-wait: 60000
+      min-evictable-idle-time-millis: 300000
+      test-on-return: false
+      test-on-borrow: false
+      test-while-idle: true
+      pool-prepared-statements: true
+      max-open-prepared-statements: 20
+      async-init: true
