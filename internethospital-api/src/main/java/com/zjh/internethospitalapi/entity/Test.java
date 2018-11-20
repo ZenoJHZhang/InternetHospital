@@ -1,22 +1,39 @@
 package com.zjh.internethospitalapi.entity;
 
-import lombok.Data;
+import javax.persistence.*;
 
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-
-/**
- * 类的说明
- *
- * @version 1.00
- * @author: 张江浩
- * @date: 2018/11/6 14:50
- */
-@Data
 public class Test {
     @Id
-    @GeneratedValue(generator = "JDBC")
-    Integer id;
-    String name;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    private String name;
+
+    /**
+     * @return id
+     */
+    public Integer getId() {
+        return id;
+    }
+
+    /**
+     * @param id
+     */
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    /**
+     * @return name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * @param name
+     */
+    public void setName(String name) {
+        this.name = name;
+    }
 }

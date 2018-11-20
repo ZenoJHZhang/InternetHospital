@@ -16,3 +16,17 @@ spring:
       pool-prepared-statements: true
       max-open-prepared-statements: 20
       async-init: true
+pagehelper:
+  page-size-zero: true
+  reasonable: true
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
+swagger:
+  docket:
+    app:
+        title: 蜗牛医疗API
+        contact:
+          name: Zeno
+          email: zeno.jh.zhang@gmail.com
+        base-package: com.zjh.internethospitalservice.controller.app
