@@ -26,7 +26,7 @@
         <javaClientGenerator targetPackage="com.zjh.internethospitalservice.mapper" targetProject="src/main/java"
                              type="ANNOTATEDMAPPER"/>
 
-        <table tableName="%" >
+        <table tableName="role" >
             <generatedKey column="id" sqlStatement="Mysql" identity="true"/>
         </table>
     </context>
