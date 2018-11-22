@@ -19,9 +19,6 @@ spring:
 pagehelper:
   page-size-zero: true
   reasonable: true
-mybatis:
-  configuration:
-    map-underscore-to-camel-case: true
 swagger:
   docket:
     app:
@@ -30,3 +27,7 @@ swagger:
           name: Zeno
           email: zeno.jh.zhang@gmail.com
         base-package: com.zjh.internethospitalservice.controller.app
+mapper:
+  style: camelhumpAndLowercase
+  not-empty: true
+  check-example-entity-class: true

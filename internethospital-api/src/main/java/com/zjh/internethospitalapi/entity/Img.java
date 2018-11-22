@@ -27,11 +27,6 @@ public class Img {
     private String imgUuid;
 
     /**
-     * 图片基地址
-     */
-    private String basePath;
-
-    /**
      * 图片后缀
      */
     private String suffix;

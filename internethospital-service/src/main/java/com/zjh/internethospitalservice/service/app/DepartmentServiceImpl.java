@@ -80,7 +80,9 @@ public class DepartmentServiceImpl implements DepartmentService {
 
     private JSONObject generateImgPath(JSONObject o){
         StringBuilder imgPath = new StringBuilder();
-        imgPath.append(o.get("base_path").toString()).append(o.get("img_uuid").toString()).append(".").append(o.get("suffix"));
+        imgPath
+                .append(o.get("img_uuid").toString())
+                .append(".").append(o.get("suffix").toString());
         o.put("img_path",imgPath);
         return o;
     }
