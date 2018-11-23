@@ -11,12 +11,12 @@ import com.zjh.internethospitalapi.entity.User;
  */
 public interface UserService {
     /**
-     * 用户登录
+     * 用户登录,返回是否正确登录
      * @param phone
      * @param password
      * @return
      */
-    String userLogin(String phone,String password);
+    boolean userLogin(String phone,String password);
 
     /**
      * 用户注册，仅需 phone ，password

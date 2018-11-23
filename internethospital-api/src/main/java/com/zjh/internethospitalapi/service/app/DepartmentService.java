@@ -22,5 +22,4 @@ public interface DepartmentService {
      * @return
      */
     PageInfo<JSONObject> listDepartmentScheduleOfDay(String date, Integer pageNo, Integer pageSize);
-
 }

@@ -34,11 +34,10 @@ public class UserController {
     @ApiOperation(value = "用户登录，返回token和phone")
     @GetMapping("/login")
     public ResponseEntity<ApiResponse> userLogin(@RequestParam(value = "phone") @ApiParam(required = true, value = "用户手机号") String phone,
-                                                 @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password) throws UnsupportedEncodingException {
-        String md5Password = DigestUtils.md5DigestAsHex(password.getBytes("UTF-8"));
-        String realPassword = userService.userLogin(phone,md5Password);
+                                                 @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password){
+        boolean isCorrectUser = userService.userLogin(phone,password);
         JSONObject jsonObject = new JSONObject();
-        if (realPassword == null) {
+        if (!isCorrectUser) {
             return ApiResponse.loginFail("用户不存在或密码不正确");
         } else {
             jsonObject.put("token", JWTUtil.createToken(phone));
@@ -50,7 +49,7 @@ public class UserController {
     @ApiOperation(value = "用户注册")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> userRegister(@RequestParam(value = "phone") @ApiParam(required = true, value = "用户手机号") String phone,
-                                                    @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password) throws UnsupportedEncodingException {
+                                                    @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password) {
 
         String passwordPattern = "^(?:(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])).{8,16}$";
         String phonePattern = "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$";
@@ -62,13 +61,7 @@ public class UserController {
         if (!isPhoneMatch) {
             return ApiResponse.commonResponse(400, "手机号格式错误", null);
         }
-        String md5Password = null;
         int result = 0;
-        /**
-         * 加密后的password
-         */
-        md5Password = DigestUtils.md5DigestAsHex(password.getBytes("UTF-8"));
-
         /**
          * true : 重复 ; false：未重复
          */
@@ -76,7 +69,7 @@ public class UserController {
         if (isSameFlag) {
             return ApiResponse.commonResponse(400, "手机号已注册", result);
         } else {
-            result = userService.userRegister(phone, md5Password);
+            result = userService.userRegister(phone, password);
             return ApiResponse.successResponse(result);
         }
     }

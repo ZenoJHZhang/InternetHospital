@@ -1,8 +1,7 @@
 package com.zjh.internethospitalapi.entity;
 
-import java.math.BigDecimal;
-import java.util.Date;
 import javax.persistence.*;
+import java.util.Date;
 
 @Table(name = "user_reservation")
 public class UserReservation {
@@ -10,17 +9,14 @@ public class UserReservation {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "visit_id")
-    private String visitId;
-
     /**
-     * 用户中心id
+     * 用户id
      */
     @Column(name = "user_id")
-    private String userId;
+    private Integer userId;
 
     /**
-     * 常用就诊人id
+     * 就诊人id
      */
     @Column(name = "patient_id")
     private Integer patientId;
@@ -29,7 +25,7 @@ public class UserReservation {
      * 医院id
      */
     @Column(name = "hospital_id")
-    private String hospitalId;
+    private Integer hospitalId;
 
     /**
      * 排班ID
@@ -55,21 +51,15 @@ public class UserReservation {
     private String idCard;
 
     /**
-     * 就诊卡
-     */
-    @Column(name = "treatment_card")
-    private String treatmentCard;
-
-    /**
      *  预约类型 1普通预约  2 专家预约 3普通挂号 4专家挂号
      */
     private String type;
 
     /**
-     * 医生工号
+     * 医生id
      */
-    @Column(name = "doctor_number")
-    private String doctorNumber;
+    @Column(name = "doctor_id")
+    private String doctorId;
 
     /**
      * 医生姓名
@@ -80,26 +70,20 @@ public class UserReservation {
     /**
      * 科室id
      */
-    @Column(name = "dept_id")
-    private Integer deptId;
+    @Column(name = "depart_id")
+    private Integer departId;
 
     /**
      * 科室名称
      */
-    @Column(name = "dept_name")
-    private String deptName;
+    @Column(name = "depart_name")
+    private String departName;
 
     /**
-     * 就诊序号
+     * 就诊序号(该科室总的就诊序号)
      */
     @Column(name = "reg_no")
     private String regNo;
-
-    /**
-     * 预约Id
-     */
-    @Column(name = "reg_id")
-    private String regId;
 
     /**
      * 就诊时间
@@ -125,32 +109,16 @@ public class UserReservation {
     private String timeType;
 
     /**
-     * 金额
-     */
-    private String fee;
-
-    /**
-     * 就诊地址
-     */
-    @Column(name = "reg_address")
-    private String regAddress;
-
-    /**
      * 取号返回的错误信息（预约/挂号）
      */
     @Column(name = "erro_msg")
     private String erroMsg;
 
     /**
-     * 问诊来源 1web端 2android 3ios
+     * 病情描述图片id
      */
-    private String source;
-
-    /**
-     * 附件ID
-     */
-    @Column(name = "file_id")
-    private String fileId;
+    @Column(name = "img_id")
+    private String imgId;
 
     /**
      * 是否被点击查看0未被，1已被点击
@@ -165,22 +133,40 @@ public class UserReservation {
     private String isEvaluate;
 
     /**
-     * 检验预约状态 0未预约1已预约
+     * 挂号费支付状态
      */
-    @Column(name = "jy_status")
-    private String jyStatus;
-
-    /**
-     * 检查预约状态 0未预约1已预约
-     */
-    @Column(name = "jc_status")
-    private String jcStatus;
+    @Column(name = "clinic_pay_status")
+    private String clinicPayStatus;
 
     /**
      * 处方支付状态 0未支付 1已支付
      */
-    @Column(name = "cf_pay_status")
-    private String cfPayStatus;
+    @Column(name = "recipe_pay_status")
+    private String recipePayStatus;
+
+    /**
+     * 挂号费
+     */
+    @Column(name = "clinic_price")
+    private Long clinicPrice;
+
+    /**
+     * 问诊包含的处方单数量
+     */
+    @Column(name = "recipe_number")
+    private Integer recipeNumber;
+
+    /**
+     * 处方费（所有处方的总费用）
+     */
+    @Column(name = "recipe_price")
+    private Long recipePrice;
+
+    /**
+     * 总费用(挂号处方)
+     */
+    @Column(name = "total_price")
+    private String totalPrice;
 
     /**
      * 处方是否审核  0未审核，1已审核
@@ -213,20 +199,9 @@ public class UserReservation {
     private Date createTime;
 
     /**
-     * 总费用(医嘱检查检验)
-     */
-    private String totalfee;
-
-    /**
      * 处方审核不通过的原因
      */
     private String reason;
-
-    /**
-     * ca图片地址
-     */
-    @Column(name = "ca_url")
-    private String caUrl;
 
     /**
      * 医生设置过号的原因
@@ -253,20 +228,6 @@ public class UserReservation {
     private Date finishTime;
 
     /**
-     * emr系统患者id
-     */
-    @Column(name = "emr_pid")
-    private Integer emrPid;
-
-    /**
-     * 管理员是否已点击。0未点击，1已点击（四川）
-     */
-    @Column(name = "is_click_admin")
-    private String isClickAdmin;
-
-    private String remark;
-
-    /**
      * 1拒绝退款，0未拒绝
      */
     private String repulse;
@@ -278,58 +239,10 @@ public class UserReservation {
     private String cancelReason;
 
     /**
-     * 诊疗价格(张同泰医院专有)
+     * 订单id
      */
-    @Column(name = "treatment_price")
-    private BigDecimal treatmentPrice;
-
-    /**
-     * 咨询费(张同泰医院专有)
-     */
-    @Column(name = "consulting_price")
-    private BigDecimal consultingPrice;
-
-    /**
-     * 挂号费
-     */
-    @Column(name = "clinic_price")
-    private BigDecimal clinicPrice;
-
-    /**
-     * 医院的排班id
-     */
-    @Column(name = "his_schedule_id")
-    private String hisScheduleId;
-
-    /**
-     * 医院的分时id
-     */
-    @Column(name = "his_time_id")
-    private String hisTimeId;
-
-    /**
-     * 医院的数字订单id
-     */
-    @Column(name = "order_number")
-    private String orderNumber;
-
-    /**
-     * 是否为自由排班
-     */
-    @Column(name = "is_free_type")
-    private String isFreeType;
-
-    /**
-     * 挂号流水号
-     */
-    @Column(name = "order_flow")
-    private String orderFlow;
-
-    /**
-     * 快速问诊医生回复
-     */
-    @Column(name = "doctor_reply")
-    private String doctorReply;
+    @Column(name = "order_id")
+    private String orderId;
 
     /**
      * 患者年龄
@@ -342,34 +255,16 @@ public class UserReservation {
     private String sex;
 
     /**
-     * 诊断类型 1门诊诊断  2药师门诊 3诊断意见
-     */
-    @Column(name = "clinic_type")
-    private String clinicType;
-
-    /**
-     * 科室问卷系统发送位置 0无 1挂号前 2挂号后
-     */
-    @Column(name = "dept_survey_type")
-    private String deptSurveyType;
-
-    /**
-     * 问卷库问卷系统发送位置 0无 1挂号前 2挂号后
-     */
-    @Column(name = "lib_survey_type")
-    private String libSurveyType;
-
-    /**
-     * HIS交易唯一流水号
-     */
-    @Column(name = "his_pay_flow_no")
-    private String hisPayFlowNo;
-
-    /**
      * 是否第一次进入候诊间 0不是 1是
      */
     @Column(name = "first_waitroom")
     private String firstWaitroom;
+
+    /**
+     * 诊断意见（0：医师诊断 ，1：药师诊断，2：门诊诊断）
+     */
+    @Column(name = "clinic_type")
+    private String clinicType;
 
     /**
      * 病情描述
@@ -392,50 +287,36 @@ public class UserReservation {
     }
 
     /**
-     * @return visit_id
-     */
-    public String getVisitId() {
-        return visitId;
-    }
-
-    /**
-     * @param visitId
-     */
-    public void setVisitId(String visitId) {
-        this.visitId = visitId;
-    }
-
-    /**
-     * 获取用户中心id
+     * 获取用户id
      *
-     * @return user_id - 用户中心id
+     * @return user_id - 用户id
      */
-    public String getUserId() {
+    public Integer getUserId() {
         return userId;
     }
 
     /**
-     * 设置用户中心id
+     * 设置用户id
      *
-     * @param userId 用户中心id
+     * @param userId 用户id
      */
-    public void setUserId(String userId) {
+    public void setUserId(Integer userId) {
         this.userId = userId;
     }
 
     /**
-     * 获取常用就诊人id
+     * 获取就诊人id
      *
-     * @return patient_id - 常用就诊人id
+     * @return patient_id - 就诊人id
      */
     public Integer getPatientId() {
         return patientId;
     }
 
     /**
-     * 设置常用就诊人id
+     * 设置就诊人id
      *
-     * @param patientId 常用就诊人id
+     * @param patientId 就诊人id
      */
     public void setPatientId(Integer patientId) {
         this.patientId = patientId;
@@ -446,7 +327,7 @@ public class UserReservation {
      *
      * @return hospital_id - 医院id
      */
-    public String getHospitalId() {
+    public Integer getHospitalId() {
         return hospitalId;
     }
 
@@ -455,7 +336,7 @@ public class UserReservation {
      *
      * @param hospitalId 医院id
      */
-    public void setHospitalId(String hospitalId) {
+    public void setHospitalId(Integer hospitalId) {
         this.hospitalId = hospitalId;
     }
 
@@ -532,24 +413,6 @@ public class UserReservation {
     }
 
     /**
-     * 获取就诊卡
-     *
-     * @return treatment_card - 就诊卡
-     */
-    public String getTreatmentCard() {
-        return treatmentCard;
-    }
-
-    /**
-     * 设置就诊卡
-     *
-     * @param treatmentCard 就诊卡
-     */
-    public void setTreatmentCard(String treatmentCard) {
-        this.treatmentCard = treatmentCard;
-    }
-
-    /**
      * 获取 预约类型 1普通预约  2 专家预约 3普通挂号 4专家挂号
      *
      * @return type -  预约类型 1普通预约  2 专家预约 3普通挂号 4专家挂号
@@ -568,21 +431,21 @@ public class UserReservation {
     }
 
     /**
-     * 获取医生工号
+     * 获取医生id
      *
-     * @return doctor_number - 医生工号
+     * @return doctor_id - 医生id
      */
-    public String getDoctorNumber() {
-        return doctorNumber;
+    public String getDoctorId() {
+        return doctorId;
     }
 
     /**
-     * 设置医生工号
+     * 设置医生id
      *
-     * @param doctorNumber 医生工号
+     * @param doctorId 医生id
      */
-    public void setDoctorNumber(String doctorNumber) {
-        this.doctorNumber = doctorNumber;
+    public void setDoctorId(String doctorId) {
+        this.doctorId = doctorId;
     }
 
     /**
@@ -606,73 +469,55 @@ public class UserReservation {
     /**
      * 获取科室id
      *
-     * @return dept_id - 科室id
+     * @return depart_id - 科室id
      */
-    public Integer getDeptId() {
-        return deptId;
+    public Integer getDepartId() {
+        return departId;
     }
 
     /**
      * 设置科室id
      *
-     * @param deptId 科室id
+     * @param departId 科室id
      */
-    public void setDeptId(Integer deptId) {
-        this.deptId = deptId;
+    public void setDepartId(Integer departId) {
+        this.departId = departId;
     }
 
     /**
      * 获取科室名称
      *
-     * @return dept_name - 科室名称
+     * @return depart_name - 科室名称
      */
-    public String getDeptName() {
-        return deptName;
+    public String getDepartName() {
+        return departName;
     }
 
     /**
      * 设置科室名称
      *
-     * @param deptName 科室名称
+     * @param departName 科室名称
      */
-    public void setDeptName(String deptName) {
-        this.deptName = deptName;
+    public void setDepartName(String departName) {
+        this.departName = departName;
     }
 
     /**
-     * 获取就诊序号
+     * 获取就诊序号(该科室总的就诊序号)
      *
-     * @return reg_no - 就诊序号
+     * @return reg_no - 就诊序号(该科室总的就诊序号)
      */
     public String getRegNo() {
         return regNo;
     }
 
     /**
-     * 设置就诊序号
+     * 设置就诊序号(该科室总的就诊序号)
      *
-     * @param regNo 就诊序号
+     * @param regNo 就诊序号(该科室总的就诊序号)
      */
     public void setRegNo(String regNo) {
         this.regNo = regNo;
-    }
-
-    /**
-     * 获取预约Id
-     *
-     * @return reg_id - 预约Id
-     */
-    public String getRegId() {
-        return regId;
-    }
-
-    /**
-     * 设置预约Id
-     *
-     * @param regId 预约Id
-     */
-    public void setRegId(String regId) {
-        this.regId = regId;
     }
 
     /**
@@ -748,42 +593,6 @@ public class UserReservation {
     }
 
     /**
-     * 获取金额
-     *
-     * @return fee - 金额
-     */
-    public String getFee() {
-        return fee;
-    }
-
-    /**
-     * 设置金额
-     *
-     * @param fee 金额
-     */
-    public void setFee(String fee) {
-        this.fee = fee;
-    }
-
-    /**
-     * 获取就诊地址
-     *
-     * @return reg_address - 就诊地址
-     */
-    public String getRegAddress() {
-        return regAddress;
-    }
-
-    /**
-     * 设置就诊地址
-     *
-     * @param regAddress 就诊地址
-     */
-    public void setRegAddress(String regAddress) {
-        this.regAddress = regAddress;
-    }
-
-    /**
      * 获取取号返回的错误信息（预约/挂号）
      *
      * @return erro_msg - 取号返回的错误信息（预约/挂号）
@@ -802,39 +611,21 @@ public class UserReservation {
     }
 
     /**
-     * 获取问诊来源 1web端 2android 3ios
+     * 获取病情描述图片id
      *
-     * @return source - 问诊来源 1web端 2android 3ios
+     * @return img_id - 病情描述图片id
      */
-    public String getSource() {
-        return source;
+    public String getImgId() {
+        return imgId;
     }
 
     /**
-     * 设置问诊来源 1web端 2android 3ios
+     * 设置病情描述图片id
      *
-     * @param source 问诊来源 1web端 2android 3ios
+     * @param imgId 病情描述图片id
      */
-    public void setSource(String source) {
-        this.source = source;
-    }
-
-    /**
-     * 获取附件ID
-     *
-     * @return file_id - 附件ID
-     */
-    public String getFileId() {
-        return fileId;
-    }
-
-    /**
-     * 设置附件ID
-     *
-     * @param fileId 附件ID
-     */
-    public void setFileId(String fileId) {
-        this.fileId = fileId;
+    public void setImgId(String imgId) {
+        this.imgId = imgId;
     }
 
     /**
@@ -874,57 +665,111 @@ public class UserReservation {
     }
 
     /**
-     * 获取检验预约状态 0未预约1已预约
+     * 获取挂号费支付状态
      *
-     * @return jy_status - 检验预约状态 0未预约1已预约
+     * @return clinic_pay_status - 挂号费支付状态
      */
-    public String getJyStatus() {
-        return jyStatus;
+    public String getClinicPayStatus() {
+        return clinicPayStatus;
     }
 
     /**
-     * 设置检验预约状态 0未预约1已预约
+     * 设置挂号费支付状态
      *
-     * @param jyStatus 检验预约状态 0未预约1已预约
+     * @param clinicPayStatus 挂号费支付状态
      */
-    public void setJyStatus(String jyStatus) {
-        this.jyStatus = jyStatus;
-    }
-
-    /**
-     * 获取检查预约状态 0未预约1已预约
-     *
-     * @return jc_status - 检查预约状态 0未预约1已预约
-     */
-    public String getJcStatus() {
-        return jcStatus;
-    }
-
-    /**
-     * 设置检查预约状态 0未预约1已预约
-     *
-     * @param jcStatus 检查预约状态 0未预约1已预约
-     */
-    public void setJcStatus(String jcStatus) {
-        this.jcStatus = jcStatus;
+    public void setClinicPayStatus(String clinicPayStatus) {
+        this.clinicPayStatus = clinicPayStatus;
     }
 
     /**
      * 获取处方支付状态 0未支付 1已支付
      *
-     * @return cf_pay_status - 处方支付状态 0未支付 1已支付
+     * @return recipe_pay_status - 处方支付状态 0未支付 1已支付
      */
-    public String getCfPayStatus() {
-        return cfPayStatus;
+    public String getRecipePayStatus() {
+        return recipePayStatus;
     }
 
     /**
      * 设置处方支付状态 0未支付 1已支付
      *
-     * @param cfPayStatus 处方支付状态 0未支付 1已支付
+     * @param recipePayStatus 处方支付状态 0未支付 1已支付
      */
-    public void setCfPayStatus(String cfPayStatus) {
-        this.cfPayStatus = cfPayStatus;
+    public void setRecipePayStatus(String recipePayStatus) {
+        this.recipePayStatus = recipePayStatus;
+    }
+
+    /**
+     * 获取挂号费
+     *
+     * @return clinic_price - 挂号费
+     */
+    public Long getClinicPrice() {
+        return clinicPrice;
+    }
+
+    /**
+     * 设置挂号费
+     *
+     * @param clinicPrice 挂号费
+     */
+    public void setClinicPrice(Long clinicPrice) {
+        this.clinicPrice = clinicPrice;
+    }
+
+    /**
+     * 获取问诊包含的处方单数量
+     *
+     * @return recipe_number - 问诊包含的处方单数量
+     */
+    public Integer getRecipeNumber() {
+        return recipeNumber;
+    }
+
+    /**
+     * 设置问诊包含的处方单数量
+     *
+     * @param recipeNumber 问诊包含的处方单数量
+     */
+    public void setRecipeNumber(Integer recipeNumber) {
+        this.recipeNumber = recipeNumber;
+    }
+
+    /**
+     * 获取处方费（所有处方的总费用）
+     *
+     * @return recipe_price - 处方费（所有处方的总费用）
+     */
+    public Long getRecipePrice() {
+        return recipePrice;
+    }
+
+    /**
+     * 设置处方费（所有处方的总费用）
+     *
+     * @param recipePrice 处方费（所有处方的总费用）
+     */
+    public void setRecipePrice(Long recipePrice) {
+        this.recipePrice = recipePrice;
+    }
+
+    /**
+     * 获取总费用(挂号处方)
+     *
+     * @return total_price - 总费用(挂号处方)
+     */
+    public String getTotalPrice() {
+        return totalPrice;
+    }
+
+    /**
+     * 设置总费用(挂号处方)
+     *
+     * @param totalPrice 总费用(挂号处方)
+     */
+    public void setTotalPrice(String totalPrice) {
+        this.totalPrice = totalPrice;
     }
 
     /**
@@ -1018,24 +863,6 @@ public class UserReservation {
     }
 
     /**
-     * 获取总费用(医嘱检查检验)
-     *
-     * @return totalfee - 总费用(医嘱检查检验)
-     */
-    public String getTotalfee() {
-        return totalfee;
-    }
-
-    /**
-     * 设置总费用(医嘱检查检验)
-     *
-     * @param totalfee 总费用(医嘱检查检验)
-     */
-    public void setTotalfee(String totalfee) {
-        this.totalfee = totalfee;
-    }
-
-    /**
      * 获取处方审核不通过的原因
      *
      * @return reason - 处方审核不通过的原因
@@ -1051,24 +878,6 @@ public class UserReservation {
      */
     public void setReason(String reason) {
         this.reason = reason;
-    }
-
-    /**
-     * 获取ca图片地址
-     *
-     * @return ca_url - ca图片地址
-     */
-    public String getCaUrl() {
-        return caUrl;
-    }
-
-    /**
-     * 设置ca图片地址
-     *
-     * @param caUrl ca图片地址
-     */
-    public void setCaUrl(String caUrl) {
-        this.caUrl = caUrl;
     }
 
     /**
@@ -1144,56 +953,6 @@ public class UserReservation {
     }
 
     /**
-     * 获取emr系统患者id
-     *
-     * @return emr_pid - emr系统患者id
-     */
-    public Integer getEmrPid() {
-        return emrPid;
-    }
-
-    /**
-     * 设置emr系统患者id
-     *
-     * @param emrPid emr系统患者id
-     */
-    public void setEmrPid(Integer emrPid) {
-        this.emrPid = emrPid;
-    }
-
-    /**
-     * 获取管理员是否已点击。0未点击，1已点击（四川）
-     *
-     * @return is_click_admin - 管理员是否已点击。0未点击，1已点击（四川）
-     */
-    public String getIsClickAdmin() {
-        return isClickAdmin;
-    }
-
-    /**
-     * 设置管理员是否已点击。0未点击，1已点击（四川）
-     *
-     * @param isClickAdmin 管理员是否已点击。0未点击，1已点击（四川）
-     */
-    public void setIsClickAdmin(String isClickAdmin) {
-        this.isClickAdmin = isClickAdmin;
-    }
-
-    /**
-     * @return remark
-     */
-    public String getRemark() {
-        return remark;
-    }
-
-    /**
-     * @param remark
-     */
-    public void setRemark(String remark) {
-        this.remark = remark;
-    }
-
-    /**
      * 获取1拒绝退款，0未拒绝
      *
      * @return repulse - 1拒绝退款，0未拒绝
@@ -1230,165 +989,21 @@ public class UserReservation {
     }
 
     /**
-     * 获取诊疗价格(张同泰医院专有)
+     * 获取订单id
      *
-     * @return treatment_price - 诊疗价格(张同泰医院专有)
+     * @return order_id - 订单id
      */
-    public BigDecimal getTreatmentPrice() {
-        return treatmentPrice;
+    public String getOrderId() {
+        return orderId;
     }
 
     /**
-     * 设置诊疗价格(张同泰医院专有)
+     * 设置订单id
      *
-     * @param treatmentPrice 诊疗价格(张同泰医院专有)
+     * @param orderId 订单id
      */
-    public void setTreatmentPrice(BigDecimal treatmentPrice) {
-        this.treatmentPrice = treatmentPrice;
-    }
-
-    /**
-     * 获取咨询费(张同泰医院专有)
-     *
-     * @return consulting_price - 咨询费(张同泰医院专有)
-     */
-    public BigDecimal getConsultingPrice() {
-        return consultingPrice;
-    }
-
-    /**
-     * 设置咨询费(张同泰医院专有)
-     *
-     * @param consultingPrice 咨询费(张同泰医院专有)
-     */
-    public void setConsultingPrice(BigDecimal consultingPrice) {
-        this.consultingPrice = consultingPrice;
-    }
-
-    /**
-     * 获取挂号费
-     *
-     * @return clinic_price - 挂号费
-     */
-    public BigDecimal getClinicPrice() {
-        return clinicPrice;
-    }
-
-    /**
-     * 设置挂号费
-     *
-     * @param clinicPrice 挂号费
-     */
-    public void setClinicPrice(BigDecimal clinicPrice) {
-        this.clinicPrice = clinicPrice;
-    }
-
-    /**
-     * 获取医院的排班id
-     *
-     * @return his_schedule_id - 医院的排班id
-     */
-    public String getHisScheduleId() {
-        return hisScheduleId;
-    }
-
-    /**
-     * 设置医院的排班id
-     *
-     * @param hisScheduleId 医院的排班id
-     */
-    public void setHisScheduleId(String hisScheduleId) {
-        this.hisScheduleId = hisScheduleId;
-    }
-
-    /**
-     * 获取医院的分时id
-     *
-     * @return his_time_id - 医院的分时id
-     */
-    public String getHisTimeId() {
-        return hisTimeId;
-    }
-
-    /**
-     * 设置医院的分时id
-     *
-     * @param hisTimeId 医院的分时id
-     */
-    public void setHisTimeId(String hisTimeId) {
-        this.hisTimeId = hisTimeId;
-    }
-
-    /**
-     * 获取医院的数字订单id
-     *
-     * @return order_number - 医院的数字订单id
-     */
-    public String getOrderNumber() {
-        return orderNumber;
-    }
-
-    /**
-     * 设置医院的数字订单id
-     *
-     * @param orderNumber 医院的数字订单id
-     */
-    public void setOrderNumber(String orderNumber) {
-        this.orderNumber = orderNumber;
-    }
-
-    /**
-     * 获取是否为自由排班
-     *
-     * @return is_free_type - 是否为自由排班
-     */
-    public String getIsFreeType() {
-        return isFreeType;
-    }
-
-    /**
-     * 设置是否为自由排班
-     *
-     * @param isFreeType 是否为自由排班
-     */
-    public void setIsFreeType(String isFreeType) {
-        this.isFreeType = isFreeType;
-    }
-
-    /**
-     * 获取挂号流水号
-     *
-     * @return order_flow - 挂号流水号
-     */
-    public String getOrderFlow() {
-        return orderFlow;
-    }
-
-    /**
-     * 设置挂号流水号
-     *
-     * @param orderFlow 挂号流水号
-     */
-    public void setOrderFlow(String orderFlow) {
-        this.orderFlow = orderFlow;
-    }
-
-    /**
-     * 获取快速问诊医生回复
-     *
-     * @return doctor_reply - 快速问诊医生回复
-     */
-    public String getDoctorReply() {
-        return doctorReply;
-    }
-
-    /**
-     * 设置快速问诊医生回复
-     *
-     * @param doctorReply 快速问诊医生回复
-     */
-    public void setDoctorReply(String doctorReply) {
-        this.doctorReply = doctorReply;
+    public void setOrderId(String orderId) {
+        this.orderId = orderId;
     }
 
     /**
@@ -1428,78 +1043,6 @@ public class UserReservation {
     }
 
     /**
-     * 获取诊断类型 1门诊诊断  2药师门诊 3诊断意见
-     *
-     * @return clinic_type - 诊断类型 1门诊诊断  2药师门诊 3诊断意见
-     */
-    public String getClinicType() {
-        return clinicType;
-    }
-
-    /**
-     * 设置诊断类型 1门诊诊断  2药师门诊 3诊断意见
-     *
-     * @param clinicType 诊断类型 1门诊诊断  2药师门诊 3诊断意见
-     */
-    public void setClinicType(String clinicType) {
-        this.clinicType = clinicType;
-    }
-
-    /**
-     * 获取科室问卷系统发送位置 0无 1挂号前 2挂号后
-     *
-     * @return dept_survey_type - 科室问卷系统发送位置 0无 1挂号前 2挂号后
-     */
-    public String getDeptSurveyType() {
-        return deptSurveyType;
-    }
-
-    /**
-     * 设置科室问卷系统发送位置 0无 1挂号前 2挂号后
-     *
-     * @param deptSurveyType 科室问卷系统发送位置 0无 1挂号前 2挂号后
-     */
-    public void setDeptSurveyType(String deptSurveyType) {
-        this.deptSurveyType = deptSurveyType;
-    }
-
-    /**
-     * 获取问卷库问卷系统发送位置 0无 1挂号前 2挂号后
-     *
-     * @return lib_survey_type - 问卷库问卷系统发送位置 0无 1挂号前 2挂号后
-     */
-    public String getLibSurveyType() {
-        return libSurveyType;
-    }
-
-    /**
-     * 设置问卷库问卷系统发送位置 0无 1挂号前 2挂号后
-     *
-     * @param libSurveyType 问卷库问卷系统发送位置 0无 1挂号前 2挂号后
-     */
-    public void setLibSurveyType(String libSurveyType) {
-        this.libSurveyType = libSurveyType;
-    }
-
-    /**
-     * 获取HIS交易唯一流水号
-     *
-     * @return his_pay_flow_no - HIS交易唯一流水号
-     */
-    public String getHisPayFlowNo() {
-        return hisPayFlowNo;
-    }
-
-    /**
-     * 设置HIS交易唯一流水号
-     *
-     * @param hisPayFlowNo HIS交易唯一流水号
-     */
-    public void setHisPayFlowNo(String hisPayFlowNo) {
-        this.hisPayFlowNo = hisPayFlowNo;
-    }
-
-    /**
      * 获取是否第一次进入候诊间 0不是 1是
      *
      * @return first_waitroom - 是否第一次进入候诊间 0不是 1是
@@ -1515,6 +1058,24 @@ public class UserReservation {
      */
     public void setFirstWaitroom(String firstWaitroom) {
         this.firstWaitroom = firstWaitroom;
+    }
+
+    /**
+     * 获取诊断意见（0：医师诊断 ，1：药师诊断，2：门诊诊断）
+     *
+     * @return clinic_type - 诊断意见（0：医师诊断 ，1：药师诊断，2：门诊诊断）
+     */
+    public String getClinicType() {
+        return clinicType;
+    }
+
+    /**
+     * 设置诊断意见（0：医师诊断 ，1：药师诊断，2：门诊诊断）
+     *
+     * @param clinicType 诊断意见（0：医师诊断 ，1：药师诊断，2：门诊诊断）
+     */
+    public void setClinicType(String clinicType) {
+        this.clinicType = clinicType;
     }
 
     /**
