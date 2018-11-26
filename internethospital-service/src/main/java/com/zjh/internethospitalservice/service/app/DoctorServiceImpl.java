@@ -1,7 +1,5 @@
 package com.zjh.internethospitalservice.service.app;
 
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.service.app.DoctorService;
 import org.springframework.stereotype.Service;
 
@@ -14,8 +12,5 @@ import org.springframework.stereotype.Service;
  */
 @Service("doctorService")
 public class DoctorServiceImpl implements DoctorService {
-    @Override
-    public PageInfo<JSONObject> listExpertDoctor(Integer departmentId, String scheduleTime, String scheduleDate) {
-        return null;
-    }
+
 }

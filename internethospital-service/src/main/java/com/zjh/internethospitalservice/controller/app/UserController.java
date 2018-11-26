@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  */
 @RestController
 @RequestMapping("/user")
-@Api(value = "用户API")
+@Api(tags = "用户API")
 public class UserController {
     @Autowired
     UserService userService;

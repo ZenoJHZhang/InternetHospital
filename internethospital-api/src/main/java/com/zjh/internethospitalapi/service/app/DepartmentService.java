@@ -2,8 +2,10 @@ package com.zjh.internethospitalapi.service.app;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageInfo;
+import com.zjh.internethospitalapi.entity.Department;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类的说明
@@ -15,11 +17,17 @@ import java.util.Date;
 public interface DepartmentService {
 
     /**
-     * 获取当日普通科室排班及科室信息
+     * 分页获取当日普通科室排班及科室信息
      * @param date
      * @param pageNo
      * @param pageSize
      * @return
      */
     PageInfo<JSONObject> listDepartmentScheduleOfDay(String date, Integer pageNo, Integer pageSize);
+
+    /**
+     * 获取所有的专家科室
+     * @return
+     */
+    List<Department> listExpertDepartment();
 }

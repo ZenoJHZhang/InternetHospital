@@ -12,5 +12,5 @@ import com.github.pagehelper.PageInfo;
  */
 public interface DoctorService {
 
-    PageInfo<JSONObject> listExpertDoctor(Integer departmentId,String scheduleTime,String scheduleDate);
+
 }

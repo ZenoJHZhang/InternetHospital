@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50642
 File Encoding         : 65001
 
-Date: 2018-11-23 17:16:14
+Date: 2018-11-26 17:25:03
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -57,7 +57,7 @@ CREATE TABLE `department` (
   `dept_type` char(1) DEFAULT '0' COMMENT '科室类型1为专家科室0为普通科室',
   `sort` int(11) DEFAULT '0' COMMENT '排序  越大越前面',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for diagnose
@@ -87,11 +87,11 @@ CREATE TABLE `doctor` (
   `hospital_id` int(11) DEFAULT NULL COMMENT '所属医院ID',
   `doctor_number` varchar(255) NOT NULL COMMENT '医生工号',
   `doctor_name` varchar(64) DEFAULT NULL COMMENT '医生真实姓名',
-  `doctor_idcard` varchar(255) DEFAULT NULL COMMENT '医生身份证',
+  `doctor_id_card` varchar(255) DEFAULT NULL COMMENT '医生身份证',
   `phone` varchar(11) DEFAULT NULL COMMENT '手机号(登录账号)',
   `password` varchar(255) DEFAULT NULL COMMENT '用户登录密码',
   `doctor_title` varchar(64) DEFAULT NULL COMMENT '医生职称（医师-医师）',
-  `doctor_img_id` varchar(255) DEFAULT NULL COMMENT '医生头像uuid',
+  `img_id` varchar(255) DEFAULT NULL COMMENT '医生头像id',
   `goodat` varchar(512) DEFAULT '' COMMENT '擅长',
   `dept_num` varchar(32) DEFAULT NULL COMMENT '医生所属科室数量',
   `sort` int(11) DEFAULT '0' COMMENT '排序  越大越前面',
@@ -100,7 +100,7 @@ CREATE TABLE `doctor` (
   `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   KEY `idx_doctor_num` (`doctor_number`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for doctor_department
@@ -185,7 +185,7 @@ CREATE TABLE `img` (
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for medical
@@ -423,7 +423,7 @@ CREATE TABLE `schedule_department` (
   PRIMARY KEY (`id`),
   KEY `hosID` (`hospital_id`),
   KEY `time` (`schedule_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for schedule_doctor
@@ -432,11 +432,13 @@ DROP TABLE IF EXISTS `schedule_doctor`;
 CREATE TABLE `schedule_doctor` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `schedule_department_id` int(11) DEFAULT NULL COMMENT '科室排班id',
+  `department_id` int(10) DEFAULT NULL COMMENT '科室id',
+  `department_name` varchar(255) DEFAULT NULL COMMENT '科室名字',
   `doctor_id` int(11) DEFAULT NULL COMMENT '医生id',
   `doctor_morning_has` varchar(255) DEFAULT NULL,
   `doctor_afternoon_has` varchar(255) DEFAULT NULL,
   `doctor_night_has` varchar(255) DEFAULT NULL,
-  `doctor_schedule_time` varchar(255) DEFAULT NULL,
+  `schedule_time` varchar(255) DEFAULT NULL COMMENT '排班时间',
   `doctor_morning_number` int(10) DEFAULT NULL,
   `doctor_afternoon_number` int(10) DEFAULT NULL,
   `doctor_night_number` int(10) DEFAULT NULL,
@@ -446,7 +448,7 @@ CREATE TABLE `schedule_doctor` (
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for season_time
@@ -474,16 +476,6 @@ CREATE TABLE `season_time` (
   `tmp3` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=21406 DEFAULT CHARSET=utf8;
-
--- ----------------------------
--- Table structure for test
--- ----------------------------
-DROP TABLE IF EXISTS `test`;
-CREATE TABLE `test` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(255) CHARACTER SET latin1 DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user

@@ -20,7 +20,7 @@ import java.util.Date;
 @Service("userService")
 public class UserServiceImpl implements UserService {
     @Autowired
-    UserMapper userMapper;
+    private UserMapper userMapper;
     @Override
     public boolean userLogin(String phone, String password) {
         Example example = new Example(User.class);
