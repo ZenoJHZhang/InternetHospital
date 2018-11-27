@@ -26,6 +26,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>com.zjh</groupId>
+            <artifactId>internethospital-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
@@ -48,11 +54,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>com.zjh</groupId>
-            <artifactId>internethospital-api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
 
         <dependency>
             <groupId>tk.mybatis</groupId>

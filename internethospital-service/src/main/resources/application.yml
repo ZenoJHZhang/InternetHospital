@@ -1,7 +1,7 @@
 spring:
   datasource:
     driver-class-name: com.mysql.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/internet_hospital?useUnicode=true&characterEncoding=utf8&useSSL=false
+    url: jdbc:mysql://47.100.241.49:3306/internet_hospital?useUnicode=true&characterEncoding=utf8&useSSL=false
     username: root
     password: 123456
     druid:

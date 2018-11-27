@@ -1,7 +1,6 @@
 package com.zjh.internethospitalapi.entity;
 
 import lombok.Data;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.*;
 import java.util.Date;
