@@ -1,7 +1,5 @@
 package com.zjh.internethospitalapi.service.app;
 
-import com.zjh.internethospitalapi.entity.User;
-
 /**
  * 类的说明
  *
@@ -12,6 +10,7 @@ import com.zjh.internethospitalapi.entity.User;
 public interface UserService {
     /**
      * 用户登录,返回是否正确登录
+     * required:roleId = 1
      * @param phone
      * @param password
      * @return
@@ -19,7 +18,8 @@ public interface UserService {
     boolean userLogin(String phone,String password);
 
     /**
-     * 用户注册，仅需 phone ，password
+     * 普通用户注册，仅需 phone ，password
+     * 注册后 roleId = 1
      * @param phone
      * @param password
      * @return
@@ -27,9 +27,11 @@ public interface UserService {
     Integer userRegister(String phone, String password);
 
     /**
-     * 判断用户手机号是否重复 true: 重复 false：不重复
+     * 判断相同权限下，是否有用户手机号重复
+     * true: 重复 false：不重复
      * @param phone
+     * @param roleId
      * @return
      */
-    boolean isSameUserPhone(String phone);
+    boolean isSameUserPhone(String phone,Integer roleId);
 }

@@ -1,5 +1,6 @@
 package com.zjh.internethospitalapi.entity;
 
+import com.zjh.internethospitalapi.dto.DoctorDto;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -68,8 +69,6 @@ public class ScheduleDoctor {
     @Column(name = "update_time")
     private Date updateTime;
 
-    @Transient
-    private Doctor doctor;
     /**
      * 特定时段所剩号源
      */
@@ -77,4 +76,7 @@ public class ScheduleDoctor {
     private Integer timeIntervalNumber;
     @Transient
     private Department department;
+    @Transient
+    private DoctorDto doctorDto;
+
 }

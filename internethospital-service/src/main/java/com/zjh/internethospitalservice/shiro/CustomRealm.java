@@ -1,6 +1,7 @@
 package com.zjh.internethospitalservice.shiro;
 
 import com.zjh.internethospitalapi.entity.User;
+import com.zjh.internethospitalservice.mapper.RoleMapper;
 import com.zjh.internethospitalservice.mapper.UserMapper;
 import com.zjh.internethospitalservice.util.JWTUtil;
 import org.apache.shiro.authc.AuthenticationException;
@@ -28,10 +29,11 @@ import java.util.Set;
 @Component
 public class CustomRealm extends AuthorizingRealm {
     private final UserMapper userMapper;
-
+    private final RoleMapper roleMapper;
     @Autowired
-    public CustomRealm(UserMapper userMapper) {
+    public CustomRealm(UserMapper userMapper,RoleMapper roleMapper) {
         this.userMapper = userMapper;
+        this.roleMapper = roleMapper;
     }
 
     /**
@@ -74,7 +76,8 @@ public class CustomRealm extends AuthorizingRealm {
         user.setPhone(phone);
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         //获得该用户角色
-        String role = userMapper.selectOne(user).getRole();
+        Integer roleId = userMapper.selectOne(user).getRoleId();
+        String role = roleMapper.selectByPrimaryKey(roleId).getRole();
         Set<String> roleSet = new HashSet<>();
         //需要将 role,封装到 Set 作为 info.setRoles()
         roleSet.add(role);

@@ -47,9 +47,9 @@ public class User {
     private Integer sex;
 
     /**
-     * 用户权限
+     * 用户权限id
      */
-    private String role;
+    private Integer roleId;
 
     @Column(name = "create_time")
     private Date createTime;

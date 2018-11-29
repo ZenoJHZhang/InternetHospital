@@ -2,8 +2,11 @@ package com.zjh.internethospitalapi.entity;
 
 import lombok.Data;
 
+import javax.persistence.Column;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.util.Date;
-import javax.persistence.*;
 
 @Data
 public class Doctor {
@@ -13,6 +16,11 @@ public class Doctor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    /**
+     * 用户表id
+     */
+    private Integer userId;
 
     /**
      * 所属医院ID
@@ -43,10 +51,6 @@ public class Doctor {
      */
     private String phone;
 
-    /**
-     * 用户登录密码
-     */
-    private String password;
 
     /**
      * 医生职称（医师-医师）
@@ -93,10 +97,4 @@ public class Doctor {
      */
     @Column(name = "update_time")
     private Date updateTime;
-
-    /**
-     * 图片地址
-     */
-    @Transient
-    private String imgPath;
 }

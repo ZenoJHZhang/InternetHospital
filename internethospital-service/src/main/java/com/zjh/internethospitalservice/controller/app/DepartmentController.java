@@ -5,6 +5,7 @@ import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,8 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class DepartmentController {
     @Autowired
     DepartmentService departmentService;
+
     @GetMapping("/scheduleOfDay")
     @ApiOperation(value = "获取当日诊室信息及其排班信息")
+    @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> listDepartmentScheduleOfDay(
             @RequestParam @ApiParam(required = true,value = "日期格式 2018-11-20") String date,
             @RequestParam @ApiParam(value = "页码",required = true,example = "1") Integer pageNo,

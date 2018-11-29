@@ -8,10 +8,12 @@ import com.zjh.internethospitalapi.entity.Doctor;
 import com.zjh.internethospitalapi.entity.Img;
 import com.zjh.internethospitalapi.entity.ScheduleDoctor;
 import com.zjh.internethospitalapi.service.app.ScheduleDoctorService;
+import com.zjh.internethospitalapi.dto.DoctorDto;
 import com.zjh.internethospitalservice.mapper.DepartmentMapper;
 import com.zjh.internethospitalservice.mapper.DoctorMapper;
 import com.zjh.internethospitalservice.mapper.ImgMapper;
 import com.zjh.internethospitalservice.mapper.ScheduleDoctorMapper;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
@@ -64,11 +66,13 @@ public class ScheduleDoctorServiceImpl implements ScheduleDoctorService {
         for (int i = 0; i < scheduleDoctorList.size(); i++) {
             ScheduleDoctor scheduleDoctor = scheduleDoctorList.get(i);
             Doctor doctor = doctorMapper.selectByPrimaryKey(scheduleDoctor.getDoctorId());
+            DoctorDto doctorDto = new DoctorDto();
+            BeanUtils.copyProperties(doctor,doctorDto);
             Department department = departmentMapper.selectByPrimaryKey(scheduleDoctor.getDepartmentId());
             StringBuilder imgPath = new StringBuilder();
             Img img = imgMapper.selectByPrimaryKey(doctor.getImgId());
             imgPath.append(img.getImgUuid()).append(".").append(img.getSuffix());
-            doctor.setImgPath(imgPath.toString());
+            doctorDto.setImgPath(imgPath.toString());
             if (timeIntervalIndex == 1){
                 timeIntervalNumber = scheduleDoctor.getDoctorMorningTotalNumber() - scheduleDoctor.getDoctorMorningNumber();
             }
@@ -78,7 +82,7 @@ public class ScheduleDoctorServiceImpl implements ScheduleDoctorService {
             else if (timeIntervalIndex == 3){
                 timeIntervalNumber = scheduleDoctor.getDoctorNightTotalNumber() - scheduleDoctor.getDoctorNightNumber();
             }
-            scheduleDoctor.setDoctor(doctor);
+            scheduleDoctor.setDoctorDto(doctorDto);
             scheduleDoctor.setDepartment(department);
             scheduleDoctor.setTimeIntervalNumber(timeIntervalNumber);
         }

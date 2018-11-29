@@ -49,7 +49,9 @@ public class UserController {
     @ApiOperation(value = "用户注册")
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> userRegister(@RequestParam(value = "phone") @ApiParam(required = true, value = "用户手机号") String phone,
-                                                    @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password) {
+                                                    @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password,
+                                                    @RequestParam(value = "roleId") @ApiParam(required = true, value = "用户权限Id") Integer roleId) {
+
 
         String passwordPattern = "^(?:(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])).{8,16}$";
         String phonePattern = "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$";
@@ -65,7 +67,7 @@ public class UserController {
         /**
          * true : 重复 ; false：未重复
          */
-        boolean isSameFlag = userService.isSameUserPhone(phone);
+        boolean isSameFlag = userService.isSameUserPhone(phone,roleId);
         if (isSameFlag) {
             return ApiResponse.commonResponse(400, "手机号已注册", result);
         } else {
