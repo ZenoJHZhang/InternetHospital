@@ -39,7 +39,7 @@ public class UserController {
         boolean isCorrectUser = userService.userLogin(phone, password,roleId);
         JSONObject jsonObject = new JSONObject();
         if (!isCorrectUser) {
-            return ApiResponse.loginFail("用户不存在或密码不正确");
+            return ApiResponse.errorResponse("用户不存在或密码不正确",null);
         } else {
             jsonObject.put("token", JWTUtil.createToken(phone,roleId));
             jsonObject.put("phone", phone);
@@ -70,7 +70,7 @@ public class UserController {
          */
         boolean isSameFlag = userService.isSameUserPhone(phone, roleId);
         if (isSameFlag) {
-            return ApiResponse.commonResponse(400, "手机号已注册", result);
+            return ApiResponse.errorResponse( "手机号已注册",result);
         } else {
             result = userService.userRegister(phone, password);
             return ApiResponse.successResponse(result);

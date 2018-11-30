@@ -48,7 +48,6 @@ public class CustomRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
-        System.out.println("————身份认证方法————");
         String token = (String) authenticationToken.getCredentials();
         User user = new User();
         // 解密获得phone，用于和数据库进行对比
@@ -71,7 +70,6 @@ public class CustomRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        System.out.println("————权限认证————");
         User user = new User();
         String phone = JWTUtil.getPhone(principals.toString());
         user.setPhone(phone);

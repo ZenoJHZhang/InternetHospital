@@ -14,7 +14,7 @@ public interface DepartmentMapper extends Mapper<Department> {
      * @param date
      * @return
      */
-    @Select("SELECT department.*,morning_has,afternoon_has,night_has,schedule_time,department_id,img.* " +
+    @Select("SELECT department.*,schedule_department.id as schedule_department_id,morning_has,afternoon_has,night_has,schedule_time,department_id,img.* " +
             "from `schedule_department`,department,img " +
             "where department_id = department.id and dept_type = 0 and schedule_time = #{date} and img_id = img.id")
     List<JSONObject> listDepartmentScheduleOfDay(String date);

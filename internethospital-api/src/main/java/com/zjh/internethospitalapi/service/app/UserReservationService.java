@@ -1,5 +1,7 @@
 package com.zjh.internethospitalapi.service.app;
 
+import com.alibaba.fastjson.JSONObject;
+import com.zjh.internethospitalapi.dto.UserReservationDto;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -11,4 +13,11 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface UserReservationService {
     Integer insertReservationImg(MultipartFile img);
+
+    /**
+     * 用户挂号，预约普通科室
+     * @param userReservationDto
+     * @return
+     */
+    JSONObject insertNormalUserReservation(UserReservationDto userReservationDto);
 }

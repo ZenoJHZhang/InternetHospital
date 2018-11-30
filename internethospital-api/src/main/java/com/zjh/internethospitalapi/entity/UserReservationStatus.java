@@ -1,9 +1,12 @@
 package com.zjh.internethospitalapi.entity;
 
-import java.util.Date;
+import lombok.Data;
+
 import javax.persistence.*;
+import java.util.Date;
 
 @Table(name = "user_reservation_status")
+@Data
 public class UserReservationStatus {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

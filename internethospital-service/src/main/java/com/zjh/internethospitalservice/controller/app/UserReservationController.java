@@ -1,5 +1,6 @@
 package com.zjh.internethospitalservice.controller.app;
 
+import io.swagger.annotations.Api;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,7 @@ import java.nio.file.Paths;
  */
 @RestController
 @RequestMapping("/userReservation")
+@Api(tags = "用户就诊记录API")
 public class UserReservationController {
 
     @PostMapping("/insertReservationImg")

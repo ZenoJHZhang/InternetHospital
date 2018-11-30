@@ -17,8 +17,8 @@ import java.io.UnsupportedEncodingException;
  */
 @RestController
 public class IndexController {
-//    @RequestMapping(path = "/unauthorized")
-//    public ResponseEntity<ApiResponse> unauthorized(@PathVariable String message) throws UnsupportedEncodingException {
-//        return ApiResponse.failAuthentication("需要token认证");
-//    }
+    @RequestMapping(value = "/unauthorized/*")
+    public ResponseEntity<ApiResponse> unauthorized() {
+        return ApiResponse.failAuthentication("token认证失败");
+    }
 }
