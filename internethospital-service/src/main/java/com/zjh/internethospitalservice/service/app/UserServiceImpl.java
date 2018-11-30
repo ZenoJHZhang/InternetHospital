@@ -22,9 +22,9 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserMapper userMapper;
     @Override
-    public boolean userLogin(String phone, String password) {
+    public boolean userLogin(String phone, String password,Integer roleId) {
         Example example = new Example(User.class);
-        example.createCriteria().andEqualTo("phone",phone).andEqualTo("roleId",1);
+        example.createCriteria().andEqualTo("phone",phone).andEqualTo("roleId",roleId);
         /**
          * 获得数据库中原先加盐加密后的密码，进行解码，判断是否正确登录
          */

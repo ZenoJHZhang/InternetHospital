@@ -34,13 +34,14 @@ public class UserController {
     @ApiOperation(value = "用户登录，返回token和phone")
     @GetMapping("/login")
     public ResponseEntity<ApiResponse> userLogin(@RequestParam(value = "phone") @ApiParam(required = true, value = "用户手机号") String phone,
-                                                 @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password){
-        boolean isCorrectUser = userService.userLogin(phone,password);
+                                                 @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password,
+                                                 @RequestParam(value = "roleId") @ApiParam(required = true,value = "权限Id") Integer roleId) {
+        boolean isCorrectUser = userService.userLogin(phone, password,roleId);
         JSONObject jsonObject = new JSONObject();
         if (!isCorrectUser) {
             return ApiResponse.loginFail("用户不存在或密码不正确");
         } else {
-            jsonObject.put("token", JWTUtil.createToken(phone));
+            jsonObject.put("token", JWTUtil.createToken(phone,roleId));
             jsonObject.put("phone", phone);
             return ApiResponse.successResponse(jsonObject);
         }
@@ -67,7 +68,7 @@ public class UserController {
         /**
          * true : 重复 ; false：未重复
          */
-        boolean isSameFlag = userService.isSameUserPhone(phone,roleId);
+        boolean isSameFlag = userService.isSameUserPhone(phone, roleId);
         if (isSameFlag) {
             return ApiResponse.commonResponse(400, "手机号已注册", result);
         } else {

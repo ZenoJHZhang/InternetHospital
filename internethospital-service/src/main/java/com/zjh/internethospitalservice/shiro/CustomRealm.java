@@ -19,9 +19,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA
  *
- * @Author yuanhaoyue swithaoy@gmail.com
+ * @Author 张江浩
  * @Description 自定义 Realm
  * @Date 2018-04-09
  * @Time 16:58
@@ -53,16 +52,18 @@ public class CustomRealm extends AuthorizingRealm {
         String token = (String) authenticationToken.getCredentials();
         User user = new User();
         // 解密获得phone，用于和数据库进行对比
-        String phone = JWTUtil.getUsername(token);
+        String phone = JWTUtil.getPhone(token);
+        Integer roleId= JWTUtil.getRoleId(token);
         user.setPhone(phone);
-        if (phone == null || !JWTUtil.verify(token, phone)) {
+        user.setRoleId(roleId);
+        if (phone == null || !JWTUtil.verify(token, phone,roleId)) {
             throw new AuthenticationException("token认证失败！");
         }
         String password = userMapper.selectOne(user).getPassword();
         if (password == null) {
             throw new AuthenticationException("该用户不存在！");
         }
-        return new SimpleAuthenticationInfo(token, token, "MyRealm");
+        return new SimpleAuthenticationInfo(token, token, "customRealm");
     }
 
     /**
@@ -72,7 +73,7 @@ public class CustomRealm extends AuthorizingRealm {
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
         System.out.println("————权限认证————");
         User user = new User();
-        String phone = JWTUtil.getUsername(principals.toString());
+        String phone = JWTUtil.getPhone(principals.toString());
         user.setPhone(phone);
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         //获得该用户角色

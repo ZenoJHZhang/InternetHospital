@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTDecodeException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import io.swagger.models.auth.In;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
@@ -32,12 +33,13 @@ public class JWTUtil {
      * @param phone 手机号
      * @return 加密的token
      */
-    public static String createToken(String phone) {
+    public static String createToken(String phone,Integer roleId) {
         Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME);
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
         // 附带username信息
         return JWT.create()
                 .withClaim("phone", phone)
+                .withClaim("roleId",roleId)
                 //到期时间
                 .withExpiresAt(date)
                 //创建一个新的JWT，并使用给定的算法进行标记
@@ -51,12 +53,13 @@ public class JWTUtil {
      * @param phone 手机号
      * @return 是否正确
      */
-    public static boolean verify(String token, String phone) {
+    public static boolean verify(String token, String phone, Integer roleId) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(SECRET);
             //在token中附带了username信息
             JWTVerifier verifier = JWT.require(algorithm)
                     .withClaim("phone", phone)
+                    .withClaim("roleId",roleId)
                     .build();
             //验证 token
             verifier.verify(token);
@@ -69,12 +72,26 @@ public class JWTUtil {
     /**
      * 获得token中的信息，无需secret解密也能获得
      *
-     * @return token中包含的用户名
+     * @return token中包含的手机号
      */
-    public static String getUsername(String token) {
+    public static String getPhone(String token) {
         try {
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getClaim("phone").asString();
+        } catch (JWTDecodeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 获得token中的信息，无需secret解密也能获得
+     *
+     * @return token中包含的权限id
+     */
+    public static Integer getRoleId(String token) {
+        try {
+            DecodedJWT jwt = JWT.decode(token);
+            return jwt.getClaim("roleId").asInt();
         } catch (JWTDecodeException e) {
             return null;
         }

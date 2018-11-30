@@ -10,12 +10,12 @@ package com.zjh.internethospitalapi.service.app;
 public interface UserService {
     /**
      * 用户登录,返回是否正确登录
-     * required:roleId = 1
      * @param phone
      * @param password
+     * @param roleId
      * @return
      */
-    boolean userLogin(String phone,String password);
+    boolean userLogin(String phone,String password,Integer roleId);
 
     /**
      * 普通用户注册，仅需 phone ，password

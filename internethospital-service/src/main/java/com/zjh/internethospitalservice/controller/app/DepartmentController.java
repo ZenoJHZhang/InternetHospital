@@ -29,7 +29,6 @@ public class DepartmentController {
 
     @GetMapping("/scheduleOfDay")
     @ApiOperation(value = "获取当日诊室信息及其排班信息")
-    @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> listDepartmentScheduleOfDay(
             @RequestParam @ApiParam(required = true,value = "日期格式 2018-11-20") String date,
             @RequestParam @ApiParam(value = "页码",required = true,example = "1") Integer pageNo,
