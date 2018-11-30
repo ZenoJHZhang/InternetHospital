@@ -7,14 +7,13 @@ import com.zjh.internethospitalservice.util.JWTUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.UsernamePasswordToken;
+import org.apache.shiro.subject.Subject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.DigestUtils;
-import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.BufferedInputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.regex.Pattern;
 
 /**
@@ -38,7 +37,7 @@ public class UserController {
         boolean isCorrectUser = userService.userLogin(phone,password);
         JSONObject jsonObject = new JSONObject();
         if (!isCorrectUser) {
-            return ApiResponse.loginFail("用户不存在或密码不正确");
+            return ApiResponse.commonResponse(401,"用户不存在或密码错误",null);
         } else {
             jsonObject.put("token", JWTUtil.createToken(phone));
             jsonObject.put("phone", phone);
@@ -50,7 +49,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> userRegister(@RequestParam(value = "phone") @ApiParam(required = true, value = "用户手机号") String phone,
                                                     @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password,
-                                                    @RequestParam(value = "roleId") @ApiParam(required = true, value = "用户权限Id") Integer roleId) {
+                                                    @RequestParam(value = "roleId") @ApiParam(required = true, value = "用户权限Id",example = "1") Integer roleId) {
 
 
         String passwordPattern = "^(?:(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])).{8,16}$";

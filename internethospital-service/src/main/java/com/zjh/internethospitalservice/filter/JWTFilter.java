@@ -20,7 +20,7 @@ import java.net.URLEncoder;
 /**
  * Created with IntelliJ IDEA
  *
- * @Author yuanhaoyue swithaoy@gmail.com
+ * @Author 张江浩
  * @Description preHandle->isAccessAllowed->isLoginAttempt->executeLogin
  * @Date 2018-04-08
  * @Time 12:36
@@ -65,7 +65,8 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
     @Override
     protected boolean executeLogin(ServletRequest request, ServletResponse response) throws Exception {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        String token = httpServletRequest.getHeader("Token");
+        String token = httpServletRequest.getHeader("Authorization");
+//        Integer roleId = Integer.valueOf(httpServletRequest.getHeader("roleId"));
         JWTToken jwtToken = new JWTToken(token);
         // 提交给realm进行登入，如果错误他会抛出异常并被捕获
         getSubject(request, response).login(jwtToken);

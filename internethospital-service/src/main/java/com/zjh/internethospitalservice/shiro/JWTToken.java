@@ -3,18 +3,17 @@ package com.zjh.internethospitalservice.shiro;
 import org.apache.shiro.authc.AuthenticationToken;
 
 /**
- * Created with IntelliJ IDEA
- *
- * @Author yuanhaoyue swithaoy@gmail.com
+ * @Author 张江浩
  * @Description token
  * @Date 2018-04-09
  * @Time 16:54
  */
 public class JWTToken implements AuthenticationToken {
     private String token;
-
-    public JWTToken(String token) {
+    private Integer roleId;
+    public JWTToken(String token,Integer roleId) {
         this.token = token;
+        this.roleId = roleId;
     }
 
     @Override
@@ -24,6 +23,6 @@ public class JWTToken implements AuthenticationToken {
 
     @Override
     public Object getCredentials() {
-        return token;
+        return roleId;
     }
 }

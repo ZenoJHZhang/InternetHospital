@@ -10,7 +10,6 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 /**
- * Created with IntelliJ IDEA
  *
  * @Author 张江浩
  * @Description JWT 工具类

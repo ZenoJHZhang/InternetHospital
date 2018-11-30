@@ -41,8 +41,6 @@ public class ShiroConfig {
         filterMap.put("jwt", new JWTFilter());
         factoryBean.setFilters(filterMap);
         factoryBean.setSecurityManager(securityManager);
-//        // 设置无权限时跳转的 url;
-//        factoryBean.setUnauthorizedUrl("/unauthorized");
         Map<String, String> filterRuleMap = new HashMap<>();
         // 所有请求通过我们自己的JWT Filter
         filterRuleMap.put("/**", "jwt");

@@ -51,9 +51,4 @@ public class ApiResponse implements Serializable {
         return response(401, returnMsg, null);
     }
 
-    public static ResponseEntity<ApiResponse> loginFail(String returnMsg){
-        return commonResponse(401,returnMsg,null);
-    }
-
-
 }

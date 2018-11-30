@@ -19,9 +19,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * Created with IntelliJ IDEA
  *
- * @Author yuanhaoyue swithaoy@gmail.com
+ * @Author 张江浩
  * @Description 自定义 Realm
  * @Date 2018-04-09
  * @Time 16:58
