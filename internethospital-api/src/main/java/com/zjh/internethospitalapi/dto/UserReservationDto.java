@@ -12,18 +12,34 @@ import lombok.Data;
 @Data
 public class UserReservationDto {
 
+    /**
+     * 疾病详情
+     */
     private String accentDetail;
 
-    private String accentVisit;
-
+    /**
+     * 科室id
+     */
     private Integer departmentId;
 
+    /**
+     * 科室名
+     */
     private String departmentName;
 
+    /**
+     * 科室类型
+     */
     private String deptType;
 
+    /**
+     * 医生id
+     */
     private Integer doctorId;
 
+    /**
+     * 医生名字
+     */
     private String doctorName;
 
     private Integer hospitalId;
@@ -34,10 +50,21 @@ public class UserReservationDto {
 
     private Integer scheduleDoctorId;
 
+    /**
+     * 就诊日期 数据库里的 clinic_date
+     */
     private String scheduleTime;
 
+    /**
+     * 预约时间段 上午  下午 晚上',
+     */
     private String timeInterval;
 
     private String scheduleDepartmentId;
+
+    /**
+     * 预约类型 1普通预约 2普通挂号 3 专家预约
+     */
+    private String type;
 
 }

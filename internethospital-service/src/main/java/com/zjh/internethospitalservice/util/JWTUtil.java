@@ -28,7 +28,7 @@ public class JWTUtil {
     private static final String SECRET = "WNYL+ZJH";
 
     /**
-     * 生成 token, 5min后过期
+     * 生成 token, 24小时后过期
      *
      * @param phone 手机号
      * @return 加密的token
