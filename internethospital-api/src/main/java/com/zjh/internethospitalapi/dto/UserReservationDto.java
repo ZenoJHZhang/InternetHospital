@@ -18,6 +18,11 @@ public class UserReservationDto {
     private String accentDetail;
 
     /**
+     * 初诊复诊
+     */
+    private String accentVisit;
+
+    /**
      * 科室id
      */
     private Integer departmentId;

@@ -2,7 +2,10 @@ package com.zjh.internethospitalservice.mapper;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zjh.internethospitalapi.entity.Department;
+import com.zjh.internethospitalservice.mapper.sqlprovider.DepartmentMapperSqlProvider;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.SelectProvider;
 import tk.mybatis.mapper.common.Mapper;
 
 import java.util.List;
@@ -10,12 +13,11 @@ import java.util.List;
 public interface DepartmentMapper extends Mapper<Department> {
 
     /**
-     * 查找当日诊室信息及排班信息
-     * @param date
+     * 查找当日,该时段诊室信息及排班信息
+     * @param scheduleTime
+     * @param timeInterval
      * @return
      */
-    @Select("SELECT department.*,schedule_department.id as schedule_department_id,morning_has,afternoon_has,night_has,schedule_time,department_id,img.* " +
-            "from `schedule_department`,department,img " +
-            "where department_id = department.id and dept_type = 0 and schedule_time = #{date} and img_id = img.id")
-    List<JSONObject> listDepartmentScheduleOfDay(String date);
+    @SelectProvider(type = DepartmentMapperSqlProvider.class,method = "listDepartmentScheduleOfDaySql")
+    List<JSONObject> listDepartmentScheduleOfDay(@Param("scheduleTime") String scheduleTime, @Param("timeInterval") String timeInterval);
 }

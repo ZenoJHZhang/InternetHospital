@@ -11,11 +11,11 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 
 /**
- * Created with IntelliJ IDEA
+ * JWT工具类
  *
- * @Author 张江浩
- * @Description JWT 工具类
- * @Date 2018-11-21
+ * @version 1.00
+ * @author: 张江浩
+ * @date: 2018/11/23 15:00
  */
 public class JWTUtil {
     /**

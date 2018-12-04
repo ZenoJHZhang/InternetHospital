@@ -43,7 +43,7 @@ public class UserReservation {
     private Integer scheduleDoctorId;
 
     /**
-     *  预约类型 1普通预约 2普通挂号 3 专家预约 
+     *  预约类型 1普通挂号 2普通预约 3 专家预约
      */
     private String type;
 
@@ -72,6 +72,7 @@ public class UserReservation {
     private String departName;
 
     /**
+     * 就诊序号(对应医生就诊序号)
      * 就诊序号(对应医生就诊序号)
      */
     @Column(name = "reg_no")

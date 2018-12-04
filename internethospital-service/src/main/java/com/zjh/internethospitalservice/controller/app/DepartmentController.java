@@ -28,12 +28,13 @@ public class DepartmentController {
     DepartmentService departmentService;
 
     @GetMapping("/scheduleOfDay")
-    @ApiOperation(value = "获取当日诊室信息及其排班信息")
+    @ApiOperation(value = "获取当日,该时段诊室信息及其排班信息")
     public ResponseEntity<ApiResponse> listDepartmentScheduleOfDay(
             @RequestParam @ApiParam(required = true,value = "日期格式 2018-11-20") String date,
+            @RequestParam @ApiParam(required = true,value = "时间段") String timeInterval,
             @RequestParam @ApiParam(value = "页码",required = true,example = "1") Integer pageNo,
             @RequestParam @ApiParam(value = "页容量",required = true,example = "5") Integer pageSize){
-        return ApiResponse.successResponse(departmentService.listDepartmentScheduleOfDay(date,pageNo,pageSize));
+        return ApiResponse.successResponse(departmentService.listDepartmentScheduleOfDay(date,timeInterval,pageNo,pageSize));
     }
 
     @GetMapping("/listExpertDepartment")

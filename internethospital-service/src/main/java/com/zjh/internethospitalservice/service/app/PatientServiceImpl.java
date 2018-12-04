@@ -2,6 +2,7 @@ package com.zjh.internethospitalservice.service.app;
 
 import com.zjh.internethospitalapi.entity.Patient;
 import com.zjh.internethospitalapi.service.app.PatientService;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ import java.util.List;
  * @author: 张江浩
  * @date: 2018/11/29 16:04
  */
+@Service("patientService")
 public class PatientServiceImpl implements PatientService {
     @Override
     public List<Patient> listPatient(Integer userId) {

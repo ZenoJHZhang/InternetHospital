@@ -17,8 +17,12 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @Service("userReservation")
 public class UserReservationServiceImpl implements UserReservationService {
+    private final PatientMapper patientMapper;
+
     @Autowired
-    private PatientMapper patientMapper;
+    public UserReservationServiceImpl(PatientMapper patientMapper) {
+        this.patientMapper = patientMapper;
+    }
 
     @Override
     public Integer insertReservationImg(MultipartFile img) {

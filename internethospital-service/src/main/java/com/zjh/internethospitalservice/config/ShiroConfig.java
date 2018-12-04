@@ -19,12 +19,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created with IntelliJ IDEA
+ * Shiro 配置
  *
- * @Author yuanhaoyue swithaoy@gmail.com
- * @Description
- * @Date 2018-04-09
- * @Time 16:56
+ * @version 1.00
+ * @author: 张江浩
+ * @date: 2018/11/23 15:00
  */
 @Configuration
 public class ShiroConfig {

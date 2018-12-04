@@ -19,8 +19,13 @@ import java.util.Date;
  */
 @Service("userService")
 public class UserServiceImpl implements UserService {
+    private final UserMapper userMapper;
+
     @Autowired
-    private UserMapper userMapper;
+    public UserServiceImpl(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
+
     @Override
     public boolean userLogin(String phone, String password,Integer roleId) {
         Example example = new Example(User.class);

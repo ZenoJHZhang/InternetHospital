@@ -3,11 +3,11 @@ package com.zjh.internethospitalservice.shiro;
 import org.apache.shiro.authc.AuthenticationToken;
 
 /**
+ * Token
  *
- * @Author 张江浩
- * @Description token
- * @Date 2018-04-09
- * @Time 16:54
+ * @version 1.00
+ * @author: 张江浩
+ * @date: 2018/11/23 15:00
  */
 public class JWTToken implements AuthenticationToken {
     private String token;

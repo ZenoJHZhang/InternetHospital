@@ -19,11 +19,12 @@ public interface DepartmentService {
     /**
      * 分页获取当日普通科室排班及科室信息
      * @param date
+     * @param timeInterval
      * @param pageNo
      * @param pageSize
      * @return
      */
-    PageInfo<JSONObject> listDepartmentScheduleOfDay(String date, Integer pageNo, Integer pageSize);
+    PageInfo<JSONObject> listDepartmentScheduleOfDay(String date, String timeInterval,Integer pageNo, Integer pageSize);
 
     /**
      * 获取所有的专家科室

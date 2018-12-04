@@ -19,11 +19,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
+ * 自定义Realm
  *
- * @Author 张江浩
- * @Description 自定义 Realm
- * @Date 2018-04-09
- * @Time 16:58
+ * @version 1.00
+ * @author: 张江浩
+ * @date: 2018/11/23 15:00
  */
 @Component
 public class CustomRealm extends AuthorizingRealm {

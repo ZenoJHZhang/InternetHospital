@@ -29,14 +29,19 @@ import java.util.List;
  */
 @Service("/scheduleDoctorService")
 public class ScheduleDoctorServiceImpl implements ScheduleDoctorService {
+    private final ScheduleDoctorMapper scheduleDoctorMapper;
+    private final DoctorMapper doctorMapper;
+    private final ImgMapper imgMapper;
+    private final DepartmentMapper departmentMapper;
+
     @Autowired
-    private ScheduleDoctorMapper scheduleDoctorMapper;
-    @Autowired
-    private DoctorMapper doctorMapper;
-    @Autowired
-    private ImgMapper imgMapper;
-    @Autowired
-    private DepartmentMapper departmentMapper;
+    public ScheduleDoctorServiceImpl(ScheduleDoctorMapper scheduleDoctorMapper, DoctorMapper doctorMapper, ImgMapper imgMapper, DepartmentMapper departmentMapper) {
+        this.scheduleDoctorMapper = scheduleDoctorMapper;
+        this.doctorMapper = doctorMapper;
+        this.imgMapper = imgMapper;
+        this.departmentMapper = departmentMapper;
+    }
+
     @Override
     public PageInfo<ScheduleDoctor> listExpertDoctor(String departmentName, String scheduleTime, String timeInterval, Integer pageSize, Integer pageNo) {
         /**
@@ -86,7 +91,6 @@ public class ScheduleDoctorServiceImpl implements ScheduleDoctorService {
             scheduleDoctor.setDepartment(department);
             scheduleDoctor.setTimeIntervalNumber(timeIntervalNumber);
         }
-        PageInfo<ScheduleDoctor> pageInfo = new PageInfo<>(scheduleDoctorList);
-        return pageInfo;
+        return new PageInfo<>(scheduleDoctorList);
     }
 }
