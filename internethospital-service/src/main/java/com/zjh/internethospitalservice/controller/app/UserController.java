@@ -51,7 +51,7 @@ public class UserController {
     @PostMapping("/register")
     public ResponseEntity<ApiResponse> userRegister(@RequestParam(value = "phone") @ApiParam(required = true, value = "用户手机号") String phone,
                                                     @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password,
-                                                    @RequestParam(value = "roleId") @ApiParam(required = true, value = "用户权限Id") Integer roleId) {
+                                                    @RequestParam(value = "roleId") @ApiParam(required = true, value = "用户权限Id",example = "1") Integer roleId) {
 
 
         String passwordPattern = "^(?:(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])).{8,16}$";

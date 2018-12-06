@@ -52,7 +52,7 @@ public class ApiResponse implements Serializable {
     }
 
     public static ResponseEntity<ApiResponse> errorResponse(String returnMsg,Object returnData){
-        return commonResponse(400,returnMsg,null);
+        return commonResponse(400,returnMsg,returnData);
     }
 
 

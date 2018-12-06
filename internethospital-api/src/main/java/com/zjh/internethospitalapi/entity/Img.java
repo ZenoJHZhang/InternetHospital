@@ -36,6 +36,11 @@ public class Img {
      */
     private String description;
 
+    /**
+     * 类型，0 默认图片 1 用户上传图片
+     */
+    private String type;
+
     @Column(name = "create_time")
     private Date createTime;
 

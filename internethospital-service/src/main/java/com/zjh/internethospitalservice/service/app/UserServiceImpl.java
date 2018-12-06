@@ -39,11 +39,13 @@ public class UserServiceImpl implements UserService {
         }
         boolean isCorrectUser =  PasswordUtil.verify(password,user.getPassword());
         /**
-         * 重新生产新的加盐加密后的密码，更新数据库内原先密码
+         * 正确的账号，密码；重新生产新的加盐加密后的密码，更新数据库内原先密码
          */
-        String newMd5Password = PasswordUtil.generate(password);
-        user.setPassword(newMd5Password);
-        userMapper.updateByPrimaryKeySelective(user);
+        if (isCorrectUser){
+            String newMd5Password = PasswordUtil.generate(password);
+            user.setPassword(newMd5Password);
+            userMapper.updateByPrimaryKeySelective(user);
+        }
         return isCorrectUser;
     }
 
