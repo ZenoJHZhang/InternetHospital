@@ -35,7 +35,7 @@ public class UserController {
     @GetMapping("/login")
     public ResponseEntity<ApiResponse> userLogin(@RequestParam(value = "phone") @ApiParam(required = true, value = "用户手机号") String phone,
                                                  @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password,
-                                                 @RequestParam(value = "roleId") @ApiParam(required = true,value = "权限Id") Integer roleId) {
+                                                 @RequestParam(value = "roleId") @ApiParam(required = true,value = "权限Id",example = "1") Integer roleId) {
         boolean isCorrectUser = userService.userLogin(phone, password,roleId);
         JSONObject jsonObject = new JSONObject();
         if (!isCorrectUser) {

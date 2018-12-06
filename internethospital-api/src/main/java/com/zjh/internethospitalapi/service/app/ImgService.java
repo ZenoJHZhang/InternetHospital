@@ -13,5 +13,10 @@ import java.util.List;
  */
 public interface ImgService {
 
+    /**
+     * 获取首页轮播图
+     * @return
+     */
+    List<Img> listIndexCarousel();
 
 }

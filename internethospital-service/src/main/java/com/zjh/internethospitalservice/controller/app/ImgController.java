@@ -1,12 +1,14 @@
 package com.zjh.internethospitalservice.controller.app;
 
+import com.zjh.internethospitalapi.service.app.ImgService;
+import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import java.util.List;
 
 /**
  * 类的说明
@@ -20,10 +22,16 @@ import java.util.List;
 @Api(tags = "图片相关API")
 public class ImgController {
 
-    @PostMapping("/listIndexImg")
-    @ApiOperation(value = "获得首页轮播图")
-    public List<String> listIndexImg() {
+    private final ImgService imgService;
 
-        return null;
+    @Autowired
+    public ImgController(ImgService imgService) {
+        this.imgService = imgService;
+    }
+
+    @GetMapping("/listIndexImg")
+    @ApiOperation(value = "获得首页轮播图")
+    public ResponseEntity<ApiResponse> listIndexImg() {
+        return ApiResponse.successResponse(imgService.listIndexCarousel());
     }
 }
