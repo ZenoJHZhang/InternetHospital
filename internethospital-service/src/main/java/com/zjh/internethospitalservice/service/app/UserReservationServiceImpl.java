@@ -3,6 +3,7 @@ package com.zjh.internethospitalservice.service.app;
 import com.alibaba.fastjson.JSONObject;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
 import com.zjh.internethospitalapi.service.app.UserReservationService;
+import com.zjh.internethospitalservice.mapper.ImgMapper;
 import com.zjh.internethospitalservice.mapper.PatientMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,10 +19,12 @@ import org.springframework.web.multipart.MultipartFile;
 @Service("userReservation")
 public class UserReservationServiceImpl implements UserReservationService {
     private final PatientMapper patientMapper;
+    private final ImgMapper imgMapper;
 
     @Autowired
-    public UserReservationServiceImpl(PatientMapper patientMapper) {
+    public UserReservationServiceImpl(PatientMapper patientMapper, ImgMapper imgMapper) {
         this.patientMapper = patientMapper;
+        this.imgMapper = imgMapper;
     }
 
     @Override
@@ -32,7 +35,7 @@ public class UserReservationServiceImpl implements UserReservationService {
     @Override
     public JSONObject insertNormalUserReservation(UserReservationDto userReservationDto) {
         Integer patientId = userReservationDto.getPatientId();
-        String  patientName = patientMapper.selectByPrimaryKey(patientId).getRealName();
+        String patientName = patientMapper.selectByPrimaryKey(patientId).getRealName();
         return null;
     }
 }

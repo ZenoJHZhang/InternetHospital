@@ -6,8 +6,10 @@ import com.zjh.internethospitalapi.service.app.ImgService;
 import com.zjh.internethospitalservice.mapper.ImgMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -35,11 +37,18 @@ public class ImgServiceImpl implements ImgService {
         for (Img img:imgList
              ) {
             StringBuilder path = new StringBuilder();
-            path.append(Constants.IMG_BASE_URL).append(img.getType()).append("/")
+            path.append(Constants.IMG_DOWNLOAD_BASE_URL).append(img.getType()).append("/")
                     .append(img.getImgUuid()).append(".").append(img.getSuffix());
             img.setPath(path.toString());
         }
         return imgList;
+    }
+
+    @Override
+    public Integer insertIndexCarousel(Img img) {
+        img.setCreateTime(new Date());
+        img.setUpdateTime(new Date());
+        return imgMapper.insert(img);
     }
 }
 

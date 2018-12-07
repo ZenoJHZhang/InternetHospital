@@ -27,7 +27,7 @@ public class UserReservationController {
     @PostMapping("/insertReservationImg")
     public ResponseEntity<ApiResponse> insertReservationImg(@RequestParam(value = "file") MultipartFile file) {
         String fileName = file.getOriginalFilename();
-        String filePath = "C:/img/inde/";
+        String filePath = "C:/img/index/";
         File dest = new File(filePath,fileName);
         try {
             file.transferTo(dest);
@@ -35,6 +35,7 @@ public class UserReservationController {
             e.printStackTrace();
             throw new RuntimeException("文件上传失败");
         }
+
         return ApiResponse.successResponse("文件上传成功");
     }
 

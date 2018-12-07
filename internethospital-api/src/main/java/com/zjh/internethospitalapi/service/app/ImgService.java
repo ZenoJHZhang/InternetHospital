@@ -1,6 +1,7 @@
 package com.zjh.internethospitalapi.service.app;
 
 import com.zjh.internethospitalapi.entity.Img;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -18,5 +19,12 @@ public interface ImgService {
      * @return
      */
     List<Img> listIndexCarousel();
+
+    /**
+     * 添加首页轮播图
+     * @param img
+     * @return
+     */
+    Integer insertIndexCarousel(Img img);
 
 }

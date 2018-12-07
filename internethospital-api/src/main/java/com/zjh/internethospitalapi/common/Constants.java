@@ -24,9 +24,13 @@ public final class Constants {
     public static final String IS_Ture  = "1";
 
     /**
-     * 图片基地址
+     * 图片上传服务器基地址
      */
-    public static final String IMG_BASE_URL = "C:/img/";
+    public static final String IMG_UPLOAD_BASE_URL = "C:/image/";
+    /**
+     * 从服务器获取图片基地址
+     */
+    public static final String IMG_DOWNLOAD_BASE_URL = "http://47.100.241.49/image/";
     /**
      * 图片二级文件夹名字
      *
@@ -38,5 +42,6 @@ public final class Constants {
      * userReservation：用户就诊描述图片
      */
     public static final String IMG_TYPE_INDEX = "index";
+    public static final String IMH_TYPE_userReservation = "userReservation";
 
 }

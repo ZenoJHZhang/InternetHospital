@@ -12,6 +12,11 @@ import org.springframework.web.multipart.MultipartFile;
  * @date: 2018/11/29 13:23
  */
 public interface UserReservationService {
+    /**
+     * 用户就诊信息图片上传
+     * @param img
+     * @return
+     */
     Integer insertReservationImg(MultipartFile img);
 
     /**
