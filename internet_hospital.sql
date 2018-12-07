@@ -1,16 +1,16 @@
 /*
 Navicat MySQL Data Transfer
 
-Source Server         : localhost_3306
+Source Server         : 云服务器
 Source Server Version : 50642
-Source Host           : 127.0.0.1:3306
+Source Host           : 47.100.241.49:3306
 Source Database       : internet_hospital
 
 Target Server Type    : MYSQL
 Target Server Version : 50642
 File Encoding         : 65001
 
-Date: 2018-11-26 17:25:03
+Date: 2018-12-07 15:37:35
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -84,12 +84,12 @@ CREATE TABLE `diagnose` (
 DROP TABLE IF EXISTS `doctor`;
 CREATE TABLE `doctor` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `user_id` int(11) DEFAULT NULL COMMENT '用户表id',
   `hospital_id` int(11) DEFAULT NULL COMMENT '所属医院ID',
   `doctor_number` varchar(255) NOT NULL COMMENT '医生工号',
   `doctor_name` varchar(64) DEFAULT NULL COMMENT '医生真实姓名',
   `doctor_id_card` varchar(255) DEFAULT NULL COMMENT '医生身份证',
   `phone` varchar(11) DEFAULT NULL COMMENT '手机号(登录账号)',
-  `password` varchar(255) DEFAULT NULL COMMENT '用户登录密码',
   `doctor_title` varchar(64) DEFAULT NULL COMMENT '医生职称（医师-医师）',
   `img_id` varchar(255) DEFAULT NULL COMMENT '医生头像id',
   `goodat` varchar(512) DEFAULT '' COMMENT '擅长',
@@ -182,10 +182,11 @@ CREATE TABLE `img` (
   `img_uuid` varchar(255) NOT NULL COMMENT '图片uuid',
   `suffix` varchar(255) DEFAULT NULL COMMENT '图片后缀',
   `description` varchar(255) DEFAULT NULL COMMENT '图片描述',
+  `type` varchar(255) DEFAULT '0' COMMENT '类型 对应文件夹',
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for medical
@@ -271,10 +272,12 @@ CREATE TABLE `patient` (
   `id_card` varchar(255) NOT NULL COMMENT '身份证号',
   `real_name` varchar(255) NOT NULL COMMENT '真实姓名',
   `phone` varchar(255) NOT NULL COMMENT '手机号码',
+  `age` int(11) DEFAULT NULL COMMENT '年龄',
+  `sex` int(11) DEFAULT NULL COMMENT '0 ：男 ；1： 女',
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for recipe
@@ -395,7 +398,7 @@ CREATE TABLE `role` (
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for schedule_department
@@ -423,7 +426,7 @@ CREATE TABLE `schedule_department` (
   PRIMARY KEY (`id`),
   KEY `hosID` (`hospital_id`),
   KEY `time` (`schedule_time`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for schedule_doctor
@@ -488,12 +491,12 @@ CREATE TABLE `user` (
   `id_card` varchar(255) DEFAULT NULL COMMENT '身份证',
   `real_name` varchar(255) DEFAULT NULL COMMENT '真实姓名',
   `email` varchar(255) DEFAULT NULL COMMENT '邮箱',
-  `sex` int(255) DEFAULT NULL COMMENT '0 ：男 ；1： 女',
-  `role` varchar(255) DEFAULT 'user' COMMENT '用户权限',
+  `sex` int(11) DEFAULT NULL COMMENT '0 ：男 ；1： 女',
+  `role_id` int(11) DEFAULT NULL COMMENT '用户权限id',
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user_reservation
@@ -503,24 +506,24 @@ CREATE TABLE `user_reservation` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) DEFAULT NULL COMMENT '用户id',
   `patient_id` int(11) DEFAULT NULL COMMENT '就诊人id',
-  `hospital_id` int(11) DEFAULT NULL COMMENT '医院id',
-  `schedule_id` int(11) DEFAULT NULL COMMENT '排班ID',
   `patient_name` varchar(32) DEFAULT NULL COMMENT '患者姓名',
-  `phone` varchar(16) DEFAULT NULL COMMENT '电话号码',
-  `id_card` varchar(32) DEFAULT NULL COMMENT '身份证',
-  `type` varchar(5) DEFAULT NULL COMMENT ' 预约类型 1普通预约  2 专家预约 3普通挂号 4专家挂号',
+  `hospital_id` int(11) DEFAULT NULL COMMENT '医院id',
+  `schedule_doctor_id` int(11) DEFAULT NULL COMMENT '排班的医生ID',
+  `type` varchar(5) DEFAULT NULL COMMENT ' 预约类型 1普通挂号 2普通预约 3 专家预约 ',
   `doctor_id` varchar(64) DEFAULT NULL COMMENT '医生id',
   `doctor_name` varchar(128) DEFAULT NULL COMMENT '医生姓名',
   `depart_id` int(11) DEFAULT NULL COMMENT '科室id',
   `depart_name` varchar(128) DEFAULT NULL COMMENT '科室名称',
-  `reg_no` varchar(11) DEFAULT NULL COMMENT '就诊序号(该科室总的就诊序号)',
-  `clinic_time` varchar(128) DEFAULT NULL COMMENT '就诊时间',
+  `reg_no` varchar(11) DEFAULT NULL COMMENT '就诊序号(对应医生就诊序号)',
+  `clinic_time` varchar(128) DEFAULT NULL COMMENT '就诊时间,根据令时得出（12:00-18:00）',
   `clinic_date` varchar(128) DEFAULT NULL COMMENT '就诊日期',
-  `condition_desc` text CHARACTER SET utf8mb4 COMMENT '病情描述',
+  `time_interval` varchar(255) DEFAULT NULL COMMENT '预约时间段 上午  下午 晚上',
+  `start_time` datetime DEFAULT NULL COMMENT '问诊开始时间',
+  `finish_time` datetime DEFAULT NULL COMMENT '问诊结束时间',
   `status` char(2) DEFAULT '1' COMMENT '问诊状态 1已预约未支付 2用户取消 3超时支付取消 4已付款等待视频 5已付款已过号 6申请退款中 7已退款 8拒绝退款 9退款中 10完成就诊待评价 11已评价 12就诊中 13同意退款 14历史未就诊 15未审方 16审方通过（患者未查看待取药） 17未通过 18患者已查看（待取药）',
-  `time_type` char(1) DEFAULT NULL COMMENT '预约时间 1 上午 2 下午 3 晚上',
+  `condition_desc` text CHARACTER SET utf8mb4 COMMENT '病情描述',
   `erro_msg` varchar(256) DEFAULT NULL COMMENT '取号返回的错误信息（预约/挂号）',
-  `img_id` varchar(64) DEFAULT NULL COMMENT '病情描述图片id',
+  `user_reservation_img_id` varchar(64) DEFAULT NULL COMMENT '就诊记录图片id',
   `is_click` varchar(255) DEFAULT '0' COMMENT '是否被点击查看0未被，1已被点击',
   `is_evaluate` varchar(255) DEFAULT '0' COMMENT '是否评价，0未评价，1已评价',
   `clinic_pay_status` varchar(255) DEFAULT '0' COMMENT '挂号费支付状态',
@@ -532,23 +535,31 @@ CREATE TABLE `user_reservation` (
   `is_audit` varchar(255) DEFAULT '0' COMMENT '处方是否审核  0未审核，1已审核',
   `audit_status` varchar(255) DEFAULT '1' COMMENT '处方审核状态 1不通过 2已通过',
   `is_read` varchar(255) DEFAULT '0' COMMENT '是否可以编辑处方 1可以 0不可以',
-  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
   `reason` varchar(512) DEFAULT NULL COMMENT '处方审核不通过的原因',
   `reason_skip` varchar(255) DEFAULT NULL COMMENT '医生设置过号的原因',
   `is_return_visit` varchar(2) DEFAULT '0' COMMENT '是否为复诊患者,0不是1是',
   `call_number_time` datetime DEFAULT NULL COMMENT '叫号时间',
-  `finish_time` datetime DEFAULT NULL COMMENT '问诊结束时间',
   `repulse` varchar(10) DEFAULT '0' COMMENT '1拒绝退款，0未拒绝',
   `cancel_reason` varchar(512) DEFAULT NULL COMMENT '取消就诊原因',
   `order_id` varchar(255) DEFAULT NULL COMMENT '订单id',
-  `age` varchar(64) DEFAULT '' COMMENT '患者年龄',
-  `sex` varchar(10) DEFAULT '' COMMENT '性别1男2女',
   `first_waitroom` varchar(10) DEFAULT '1' COMMENT '是否第一次进入候诊间 0不是 1是',
   `clinic_type` varchar(255) DEFAULT NULL COMMENT '诊断意见（0：医师诊断 ，1：药师诊断，2：门诊诊断）',
+  `create_time` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `pk_id` (`id`) USING BTREE,
   KEY `idx_hospital_id` (`hospital_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
+-- Table structure for user_reservation_img
+-- ----------------------------
+DROP TABLE IF EXISTS `user_reservation_img`;
+CREATE TABLE `user_reservation_img` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_reservation_id` int(11) DEFAULT NULL,
+  `img_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
