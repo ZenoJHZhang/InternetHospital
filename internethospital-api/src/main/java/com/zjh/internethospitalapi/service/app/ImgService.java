@@ -27,4 +27,10 @@ public interface ImgService {
      */
     Integer insertIndexCarousel(Img img);
 
+    /**
+     * 获得网络诊室页面轮播图
+     * @return
+     */
+    List<Img> listNetTreatmentRoomCarousel();
+
 }

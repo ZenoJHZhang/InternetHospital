@@ -50,5 +50,20 @@ public class ImgServiceImpl implements ImgService {
         img.setUpdateTime(new Date());
         return imgMapper.insert(img);
     }
+
+    @Override
+    public List<Img> listNetTreatmentRoomCarousel() {
+        Example example = new Example(Img.class);
+        example.createCriteria().andEqualTo("type",Constants.IMG_TYPE_NET_TREATMENT_ROOM);
+        List<Img> imgList = imgMapper.selectByExample(example);
+        for (Img img:imgList
+                ) {
+            StringBuilder path = new StringBuilder();
+            path.append(Constants.IMG_DOWNLOAD_BASE_URL).append(img.getType()).append("/")
+                    .append(img.getImgUuid()).append(".").append(img.getSuffix());
+            img.setPath(path.toString());
+        }
+        return imgList;
+    }
 }
 

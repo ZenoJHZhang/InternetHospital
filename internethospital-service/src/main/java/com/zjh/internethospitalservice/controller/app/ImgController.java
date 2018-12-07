@@ -34,9 +34,9 @@ public class ImgController {
         this.imgService = imgService;
     }
 
-    @GetMapping("/listIndexImg")
+    @GetMapping("/listIndexCarousel")
     @ApiOperation(value = "获得首页轮播图")
-    public ResponseEntity<ApiResponse> listIndexImg() {
+    public ResponseEntity<ApiResponse> listIndexCarousel() {
         return ApiResponse.successResponse(imgService.listIndexCarousel());
     }
 
@@ -71,4 +71,11 @@ public class ImgController {
             return ApiResponse.commonResponse(500,"文件上传失败",insertResult);
         }
     }
+
+    @GetMapping("/listNetTreatmentRoomCarousel")
+    @ApiOperation(value = "获得网络诊室页面轮播图")
+    public ResponseEntity<ApiResponse> listNetTreatmentRoomCarousel() {
+        return ApiResponse.successResponse(imgService.listNetTreatmentRoomCarousel());
+    }
+
 }

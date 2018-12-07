@@ -35,13 +35,14 @@ public final class Constants {
      * 图片二级文件夹名字
      *
      * index：首页轮播图
-     * netTreatRoom：网络诊室页面轮播图
+     * netTreatmentRoom：网络诊室页面轮播图
      * banner：顶端 1920*350 图
      * department：诊室图
      * doctor：医生头像
      * userReservation：用户就诊描述图片
      */
     public static final String IMG_TYPE_INDEX = "index";
+    public static final String IMG_TYPE_NET_TREATMENT_ROOM = "netTreatmentRoom";
     public static final String IMH_TYPE_userReservation = "userReservation";
 
 }
