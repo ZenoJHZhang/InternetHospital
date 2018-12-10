@@ -3,6 +3,7 @@ package com.zjh.internethospitalservice.service.app;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.zjh.internethospitalapi.common.Constants;
 import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.service.app.DepartmentService;
 import com.zjh.internethospitalservice.mapper.DepartmentMapper;
@@ -52,7 +53,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     private void generateImgPath(JSONObject o){
         StringBuilder imgPath = new StringBuilder();
         imgPath
-                .append(o.get("imgUuid"))
+               .append(Constants.IMG_DOWNLOAD_BASE_URL).append(o.get("type")).append("/").append(o.get("imgUuid"))
                 .append(".").append(o.get("suffix"));
         o.put("imgPath",imgPath);
     }

@@ -2,6 +2,7 @@ package com.zjh.internethospitalservice.filter;
 
 
 
+import com.zjh.internethospitalapi.common.Constants;
 import com.zjh.internethospitalservice.shiro.JWTToken;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
@@ -48,14 +49,15 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
     }
 
     /**
-     * 判断用户是否想要登入。
+     * 不拦截登录操作以及获取首页轮播图
      * 检测 header 里面是否包含 Token 字段
      */
     @Override
     protected boolean isLoginAttempt(ServletRequest request, ServletResponse response) {
         HttpServletRequest req = (HttpServletRequest) request;
         String token = req.getHeader("Authorization");
-        return token != null;
+        String requestURI =  req.getRequestURI();
+        return token != null && (!Constants.GET_INDEX_CAROUSEL_URI.equals(requestURI));
     }
 
     /**

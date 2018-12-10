@@ -11,6 +11,8 @@ public final class Constants {
     private Constants(){
 
     }
+    public static final String GET_INDEX_CAROUSEL_URI = "/img/listIndexCarousel";
+
     public static final String MORNING = "上午";
     public static final String AFTERNOON = "下午";
     public static final String NIGHT = "晚上";
@@ -43,6 +45,7 @@ public final class Constants {
      */
     public static final String IMG_TYPE_INDEX = "index";
     public static final String IMG_TYPE_NET_TREATMENT_ROOM = "netTreatmentRoom";
-    public static final String IMH_TYPE_userReservation = "userReservation";
+    public static final String IMH_TYPE_USER_RESERVATION = "userReservation";
+    public static final String IMG_TYPE_DEPARMENT = "department";
 
 }

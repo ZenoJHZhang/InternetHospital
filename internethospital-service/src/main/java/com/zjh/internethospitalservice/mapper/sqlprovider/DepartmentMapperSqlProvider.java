@@ -16,7 +16,7 @@ public class DepartmentMapperSqlProvider {
         return new SQL() {{
             SELECT("department.*," +
                     "schedule_department.id as schedule_department_id,schedule_time,department_id," +
-                    "img.img_uuid,img.suffix");
+                    "img.img_uuid,img.suffix,img.type");
             FROM("schedule_department,department,img");
             if (timeInterval.equals(Constants.MORNING)) {
                 WHERE("morning_has = 1");

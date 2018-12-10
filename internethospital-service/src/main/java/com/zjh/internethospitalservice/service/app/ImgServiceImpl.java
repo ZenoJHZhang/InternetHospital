@@ -4,6 +4,7 @@ import com.zjh.internethospitalapi.common.Constants;
 import com.zjh.internethospitalapi.entity.Img;
 import com.zjh.internethospitalapi.service.app.ImgService;
 import com.zjh.internethospitalservice.mapper.ImgMapper;
+import com.zjh.internethospitalservice.util.ImgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -58,10 +59,8 @@ public class ImgServiceImpl implements ImgService {
         List<Img> imgList = imgMapper.selectByExample(example);
         for (Img img:imgList
                 ) {
-            StringBuilder path = new StringBuilder();
-            path.append(Constants.IMG_DOWNLOAD_BASE_URL).append(img.getType()).append("/")
-                    .append(img.getImgUuid()).append(".").append(img.getSuffix());
-            img.setPath(path.toString());
+            String path = ImgUtil.imgPathGenerate(img);
+            img.setPath(path);
         }
         return imgList;
     }

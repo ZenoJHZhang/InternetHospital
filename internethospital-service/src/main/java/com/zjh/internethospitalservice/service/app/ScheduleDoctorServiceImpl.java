@@ -13,6 +13,7 @@ import com.zjh.internethospitalservice.mapper.DepartmentMapper;
 import com.zjh.internethospitalservice.mapper.DoctorMapper;
 import com.zjh.internethospitalservice.mapper.ImgMapper;
 import com.zjh.internethospitalservice.mapper.ScheduleDoctorMapper;
+import com.zjh.internethospitalservice.util.ImgUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -53,38 +54,35 @@ public class ScheduleDoctorServiceImpl implements ScheduleDoctorService {
          */
         Integer timeIntervalNumber = 0;
         Example example = new Example(ScheduleDoctor.class);
-        example.createCriteria().andEqualTo("departmentName",departmentName).andEqualTo("scheduleTime",scheduleTime);
-        if ((Constants.MORNING).equals(timeInterval)){
-            example.and().andEqualTo("doctorMorningHas",1);
+        example.createCriteria().andEqualTo("departmentName", departmentName).andEqualTo("scheduleTime", scheduleTime);
+        if ((Constants.MORNING).equals(timeInterval)) {
+            example.and().andEqualTo("doctorMorningHas", 1);
             timeIntervalIndex = 1;
         }
-        if((Constants.AFTERNOON).equals(timeInterval)){
-            example.and().andEqualTo("doctorAfternoonHas",1);
+        if ((Constants.AFTERNOON).equals(timeInterval)) {
+            example.and().andEqualTo("doctorAfternoonHas", 1);
             timeIntervalIndex = 2;
         }
-        if((Constants.NIGHT).equals(timeInterval)){
-            example.and().andEqualTo("doctorNightHas",1);
+        if ((Constants.NIGHT).equals(timeInterval)) {
+            example.and().andEqualTo("doctorNightHas", 1);
             timeIntervalIndex = 3;
         }
-        PageHelper.startPage(pageNo,pageSize);
+        PageHelper.startPage(pageNo, pageSize);
         List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
         for (int i = 0; i < scheduleDoctorList.size(); i++) {
             ScheduleDoctor scheduleDoctor = scheduleDoctorList.get(i);
             Doctor doctor = doctorMapper.selectByPrimaryKey(scheduleDoctor.getDoctorId());
             DoctorDto doctorDto = new DoctorDto();
-            BeanUtils.copyProperties(doctor,doctorDto);
+            BeanUtils.copyProperties(doctor, doctorDto);
             Department department = departmentMapper.selectByPrimaryKey(scheduleDoctor.getDepartmentId());
-            StringBuilder imgPath = new StringBuilder();
             Img img = imgMapper.selectByPrimaryKey(doctor.getImgId());
-            imgPath.append(img.getImgUuid()).append(".").append(img.getSuffix());
-            doctorDto.setImgPath(imgPath.toString());
-            if (timeIntervalIndex == 1){
+            String imgPath = ImgUtil.imgPathGenerate(img);
+            doctorDto.setImgPath(imgPath);
+            if (timeIntervalIndex == 1) {
                 timeIntervalNumber = scheduleDoctor.getDoctorMorningTotalNumber() - scheduleDoctor.getDoctorMorningNumber();
-            }
-            else if (timeIntervalIndex == 2){
+            } else if (timeIntervalIndex == 2) {
                 timeIntervalNumber = scheduleDoctor.getDoctorAfternoonTotalNumber() - scheduleDoctor.getDoctorAfternoonNumber();
-            }
-            else if (timeIntervalIndex == 3){
+            } else if (timeIntervalIndex == 3) {
                 timeIntervalNumber = scheduleDoctor.getDoctorNightTotalNumber() - scheduleDoctor.getDoctorNightNumber();
             }
             scheduleDoctor.setDoctorDto(doctorDto);
