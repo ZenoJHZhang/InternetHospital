@@ -26,10 +26,14 @@ import java.util.regex.Pattern;
  */
 @RestController
 @RequestMapping("/user")
-@Api(tags = "用户API")
+@Api(tags = "用户相关API")
 public class UserController {
+    private final UserService userService;
+
     @Autowired
-    UserService userService;
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @ApiOperation(value = "用户登录，返回token和phone")
     @GetMapping("/login")

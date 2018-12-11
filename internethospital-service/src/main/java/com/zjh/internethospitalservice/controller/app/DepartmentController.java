@@ -22,10 +22,14 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(value = "/department")
-@Api(tags = "诊室API")
+@Api(tags = "诊室相关API")
 public class DepartmentController {
+    private final DepartmentService departmentService;
+
     @Autowired
-    DepartmentService departmentService;
+    public DepartmentController(DepartmentService departmentService) {
+        this.departmentService = departmentService;
+    }
 
     @GetMapping("/scheduleOfDay")
     @ApiOperation(value = "获取当日,该时段诊室信息及其排班信息")

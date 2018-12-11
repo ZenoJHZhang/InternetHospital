@@ -24,8 +24,12 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/schedule")
 @Api(tags = "排班相关API")
 public class ScheduleController {
+    private final ScheduleDoctorService scheduleDoctorService;
+
     @Autowired
-    ScheduleDoctorService scheduleDoctorService;
+    public ScheduleController(ScheduleDoctorService scheduleDoctorService) {
+        this.scheduleDoctorService = scheduleDoctorService;
+    }
 
     @ApiOperation(value = "获取当日，该时段，此诊室医生的排班信息")
     @GetMapping("/listExpertDoctor")

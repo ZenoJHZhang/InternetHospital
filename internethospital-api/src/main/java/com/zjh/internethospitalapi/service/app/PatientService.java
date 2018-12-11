@@ -18,4 +18,11 @@ public interface PatientService {
      * @return
      */
     List<Patient> listPatient(Integer userId);
+
+    /**
+     * 新增就诊人
+     * @param patient
+     * @return
+     */
+    Integer insertPatient(Patient patient);
 }

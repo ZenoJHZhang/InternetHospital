@@ -21,7 +21,7 @@ import java.io.IOException;
  */
 @RestController
 @RequestMapping("/userReservation")
-@Api(tags = "用户就诊记录API")
+@Api(tags = "用户就诊记录相关API")
 public class UserReservationController {
 
     @PostMapping("/insertReservationImg")
