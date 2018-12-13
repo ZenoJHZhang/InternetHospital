@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50642
 File Encoding         : 65001
 
-Date: 2018-12-07 15:37:35
+Date: 2018-12-13 17:29:58
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -186,7 +186,7 @@ CREATE TABLE `img` (
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for medical
@@ -272,12 +272,12 @@ CREATE TABLE `patient` (
   `id_card` varchar(255) NOT NULL COMMENT '身份证号',
   `real_name` varchar(255) NOT NULL COMMENT '真实姓名',
   `phone` varchar(255) NOT NULL COMMENT '手机号码',
-  `age` int(11) DEFAULT NULL COMMENT '年龄',
-  `sex` int(11) DEFAULT NULL COMMENT '0 ：男 ；1： 女',
+  `birth` varchar(11) DEFAULT NULL COMMENT '出生日期 19961009',
+  `sex` int(11) DEFAULT NULL COMMENT '0 ：女 ；1： 男',
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for recipe
@@ -491,7 +491,7 @@ CREATE TABLE `user` (
   `id_card` varchar(255) DEFAULT NULL COMMENT '身份证',
   `real_name` varchar(255) DEFAULT NULL COMMENT '真实姓名',
   `email` varchar(255) DEFAULT NULL COMMENT '邮箱',
-  `sex` int(11) DEFAULT NULL COMMENT '0 ：男 ；1： 女',
+  `sex` int(11) DEFAULT NULL COMMENT '0 ：女 ；1： 男',
   `role_id` int(11) DEFAULT NULL COMMENT '用户权限id',
   `create_time` datetime DEFAULT NULL,
   `update_time` datetime DEFAULT NULL,
