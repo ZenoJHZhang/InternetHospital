@@ -1,6 +1,7 @@
 package com.zjh.internethospitalservice.controller.app;
 
 import com.alibaba.fastjson.JSONObject;
+import com.zjh.internethospitalapi.common.Constants;
 import com.zjh.internethospitalapi.service.app.UserService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import com.zjh.internethospitalservice.util.JWTUtil;
@@ -40,12 +41,12 @@ public class UserController {
     public ResponseEntity<ApiResponse> userLogin(@RequestParam(value = "phone") @ApiParam(required = true, value = "用户手机号") String phone,
                                                  @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password,
                                                  @RequestParam(value = "roleId") @ApiParam(required = true,value = "权限Id",example = "1") Integer roleId) {
-        boolean isCorrectUser = userService.userLogin(phone, password,roleId);
+        Integer userId = userService.userLogin(phone, password,roleId);
         JSONObject jsonObject = new JSONObject();
-        if (!isCorrectUser) {
+        if (userId == null) {
             return ApiResponse.errorResponse("用户不存在或密码不正确",null);
         } else {
-            jsonObject.put("token", JWTUtil.createToken(phone,roleId));
+            jsonObject.put("token", JWTUtil.createToken(userId,phone,roleId));
             jsonObject.put("phone", phone);
             return ApiResponse.successResponse(jsonObject);
         }
@@ -58,8 +59,8 @@ public class UserController {
                                                     @RequestParam(value = "roleId") @ApiParam(required = true, value = "用户权限Id",example = "1") Integer roleId) {
 
 
-        String passwordPattern = "^(?:(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])).{8,16}$";
-        String phonePattern = "^((13[0-9])|(14[5,7])|(15[0-3,5-9])|(17[0,3,5-8])|(18[0-9])|166|198|199|(147))\\d{8}$";
+        String passwordPattern = Constants.PASSWORD_PATTERN;
+        String phonePattern = Constants.PHONE_PATTERN;
         boolean isPasswordMatch = Pattern.matches(passwordPattern, password);
         boolean isPhoneMatch = Pattern.matches(phonePattern, phone);
         if (!isPasswordMatch) {

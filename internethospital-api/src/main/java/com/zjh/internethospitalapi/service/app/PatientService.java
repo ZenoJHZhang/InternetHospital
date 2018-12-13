@@ -1,5 +1,6 @@
 package com.zjh.internethospitalapi.service.app;
 
+import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.entity.Patient;
 
 import java.util.List;
@@ -15,14 +16,32 @@ public interface PatientService {
     /**
      * 获取该用户的所有就诊人列表
      * @param userId
+     * @param pageNo
+     * @param pageSize
      * @return
      */
-    List<Patient> listPatient(Integer userId);
+   PageInfo<Patient> listPatient(Integer userId,Integer pageNo,Integer pageSize);
 
     /**
      * 新增就诊人
      * @param patient
+     * @param userId 用户id
      * @return
      */
-    Integer insertPatient(Patient patient);
+    Integer insertPatient(Patient patient,Integer userId);
+
+    /**
+     * 判断该用户是否已添加了相同的就诊人
+     * @param patient
+     * @param userId
+     * @return
+     */
+    boolean isSamePatient(Patient patient,Integer userId);
+
+    /**
+     * 删除就诊人
+     * @param patientList
+     * @return
+     */
+    Integer deletePatient(List<Patient> patientList);
 }

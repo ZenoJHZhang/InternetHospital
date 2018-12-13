@@ -27,6 +27,12 @@ swagger:
           name: Zeno
           email: zeno.jh.zhang@gmail.com
         base-package: com.zjh.internethospitalservice.controller.app
+  global-operation-parameters:
+      - name: Authorization
+        description: token
+        modelRef: String
+        parameterType: header
+        requeire: false
 mapper:
   style: camelhumpAndLowercase
   not-empty: true

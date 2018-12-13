@@ -29,8 +29,9 @@ import java.util.Set;
 public class CustomRealm extends AuthorizingRealm {
     private final UserMapper userMapper;
     private final RoleMapper roleMapper;
+
     @Autowired
-    public CustomRealm(UserMapper userMapper,RoleMapper roleMapper) {
+    public CustomRealm(UserMapper userMapper, RoleMapper roleMapper) {
         this.userMapper = userMapper;
         this.roleMapper = roleMapper;
     }
@@ -51,11 +52,12 @@ public class CustomRealm extends AuthorizingRealm {
         String token = (String) authenticationToken.getCredentials();
         User user = new User();
         // 解密获得phone，用于和数据库进行对比
+        Integer userId = JWTUtil.getUserId(token);
         String phone = JWTUtil.getPhone(token);
-        Integer roleId= JWTUtil.getRoleId(token);
+        Integer roleId = JWTUtil.getRoleId(token);
         user.setPhone(phone);
         user.setRoleId(roleId);
-        if (phone == null || !JWTUtil.verify(token, phone,roleId)) {
+        if (phone == null || !JWTUtil.verify(token, userId, phone, roleId)) {
             throw new AuthenticationException("token认证失败！");
         }
         String password = userMapper.selectOne(user).getPassword();
@@ -70,12 +72,9 @@ public class CustomRealm extends AuthorizingRealm {
      */
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
-        User user = new User();
-        String phone = JWTUtil.getPhone(principals.toString());
-        user.setPhone(phone);
         SimpleAuthorizationInfo info = new SimpleAuthorizationInfo();
         //获得该用户角色
-        Integer roleId = userMapper.selectOne(user).getRoleId();
+        Integer roleId = JWTUtil.getRoleId(principals.toString());
         String role = roleMapper.selectByPrimaryKey(roleId).getRole();
         Set<String> roleSet = new HashSet<>();
         //需要将 role,封装到 Set 作为 info.setRoles()

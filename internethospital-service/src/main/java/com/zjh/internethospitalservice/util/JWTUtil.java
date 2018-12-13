@@ -30,14 +30,16 @@ public class JWTUtil {
     /**
      * 生成 token, 24小时后过期
      *
+     * @param userId
      * @param phone 手机号
      * @return 加密的token
      */
-    public static String createToken(String phone,Integer roleId) {
+    public static String createToken(Integer userId,String phone,Integer roleId) {
         Date date = new Date(System.currentTimeMillis() + EXPIRE_TIME);
         Algorithm algorithm = Algorithm.HMAC256(SECRET);
         // 附带username信息
         return JWT.create()
+                .withClaim("userId",userId)
                 .withClaim("phone", phone)
                 .withClaim("roleId",roleId)
                 //到期时间
@@ -49,15 +51,17 @@ public class JWTUtil {
     /**
      * 校验 token 是否正确
      *
+     * @param userId
      * @param token    密钥
      * @param phone 手机号
      * @return 是否正确
      */
-    public static boolean verify(String token, String phone, Integer roleId) {
+    public static boolean verify(String token,Integer userId, String phone, Integer roleId) {
         try {
             Algorithm algorithm = Algorithm.HMAC256(SECRET);
             //在token中附带了username信息
             JWTVerifier verifier = JWT.require(algorithm)
+                    .withClaim("userId",userId)
                     .withClaim("phone", phone)
                     .withClaim("roleId",roleId)
                     .build();
@@ -92,6 +96,20 @@ public class JWTUtil {
         try {
             DecodedJWT jwt = JWT.decode(token);
             return jwt.getClaim("roleId").asInt();
+        } catch (JWTDecodeException e) {
+            return null;
+        }
+    }
+
+    /**
+     * 获得token中的信息，无需secret解密也能获得
+     *
+     * @return userId
+     */
+    public static Integer getUserId(String token) {
+        try {
+            DecodedJWT jwt = JWT.decode(token);
+            return jwt.getClaim("userId").asInt();
         } catch (JWTDecodeException e) {
             return null;
         }

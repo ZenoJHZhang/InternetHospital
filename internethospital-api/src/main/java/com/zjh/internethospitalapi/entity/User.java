@@ -42,7 +42,7 @@ public class User {
     private String email;
 
     /**
-     * 0 ：男 ；1： 女
+     * 0 ：女 ；1： 男
      */
     private Integer sex;
 

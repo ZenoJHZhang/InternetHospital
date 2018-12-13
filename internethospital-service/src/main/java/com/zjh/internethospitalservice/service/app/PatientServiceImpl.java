@@ -1,11 +1,16 @@
 package com.zjh.internethospitalservice.service.app;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.entity.Patient;
 import com.zjh.internethospitalapi.service.app.PatientService;
 import com.zjh.internethospitalservice.mapper.PatientMapper;
+import com.zjh.internethospitalservice.mapper.UserMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -18,19 +23,57 @@ import java.util.List;
 @Service("patientService")
 public class PatientServiceImpl implements PatientService {
     private final PatientMapper patientMapper;
+    private final UserMapper userMapper;
 
     @Autowired
-    public PatientServiceImpl(PatientMapper patientMapper) {
+    public PatientServiceImpl(PatientMapper patientMapper, UserMapper userMapper) {
         this.patientMapper = patientMapper;
+        this.userMapper = userMapper;
     }
 
     @Override
-    public List<Patient> listPatient(Integer userId) {
-        return null;
+    public PageInfo<Patient> listPatient(Integer userId, Integer pageNo, Integer pageSize) {
+        Patient patient = new Patient();
+        patient.setUserId(userId);
+        PageHelper.startPage(pageNo, pageSize);
+        List<Patient> patientList = patientMapper.select(patient);
+        return new PageInfo<>(patientList);
     }
 
     @Override
-    public Integer insertPatient(Patient patient) {
+    public Integer insertPatient(Patient patient, Integer userId) {
+        String idCard = patient.getIdCard();
+        String birth = idCard.substring(6, 14);
+        String sexString = idCard.substring(16, 17);
+        Integer sex = Integer.valueOf(sexString) % 2;
+        patient.setSex(sex);
+        patient.setBirth(birth);
+        patient.setUserId(userId);
+        patient.setCreateTime(new Date());
+        patient.setUpdateTime(new Date());
         return patientMapper.insertSelective(patient);
+    }
+
+    @Override
+    public boolean isSamePatient(Patient patient, Integer userId) {
+        Example example = new Example(Patient.class);
+        example.createCriteria().andEqualTo("userId", userId);
+        example.and().orEqualTo("idCard", patient.getIdCard())
+                .orEqualTo("phone", patient.getPhone());
+        Patient patientSelected = patientMapper.selectOneByExample(example);
+        return patientSelected != null;
+    }
+
+    @Override
+    public Integer deletePatient(List<Patient> patientList) {
+        int i = 0;
+        for (Patient patient:patientList
+             ) {
+            i += patientMapper.delete(patient);
+        }
+        if (i !=  patientList.size()){
+            return null;
+        }
+        return i;
     }
 }

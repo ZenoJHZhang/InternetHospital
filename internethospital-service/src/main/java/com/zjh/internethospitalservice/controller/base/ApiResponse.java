@@ -16,6 +16,15 @@ import java.io.Serializable;
 public class ApiResponse implements Serializable {
     private static final long serialVersionUID = -8407728322598034531L;
 
+    /**
+     * 身份认证失败
+     */
+    public static final String FAIL_AUTHENTICATION = "40101";
+    /**
+     * 权限不够
+     */
+    public static final String FAIL_AUTHORIZATION = "40102";
+
     @JsonProperty("returnCode")
     private Integer returnCode = null;
     @JsonProperty("returnType")
@@ -47,10 +56,22 @@ public class ApiResponse implements Serializable {
         return response(200, "success", returnData);
     }
 
-    public static ResponseEntity<ApiResponse> failAuthentication(String returnMsg) {
-        return response(401, returnMsg, null);
+    /**
+     * 身份认证失败
+     * token失效或过期
+     * @return
+     */
+    public static ResponseEntity<ApiResponse> failAuthentication() {
+        return response(401, "登录过期或失效，请重新登录！",FAIL_AUTHENTICATION );
     }
 
+    /**
+     * 权限不够
+     * @return
+     */
+    public static ResponseEntity<ApiResponse> failAuthorization(){
+        return response(401,"您的权限不足！",FAIL_AUTHORIZATION);
+    }
     public static ResponseEntity<ApiResponse> errorResponse(String returnMsg,Object returnData){
         return commonResponse(400,returnMsg,returnData);
     }

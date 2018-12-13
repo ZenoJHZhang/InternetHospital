@@ -64,7 +64,7 @@ public class JWTFilter extends BasicHttpAuthenticationFilter {
      * 执行登陆操作
      */
     @Override
-    protected boolean executeLogin(ServletRequest request, ServletResponse response) throws Exception {
+    protected boolean executeLogin(ServletRequest request, ServletResponse response){
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String token = httpServletRequest.getHeader("Authorization");
         JWTToken jwtToken = new JWTToken(token);

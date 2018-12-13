@@ -9,13 +9,13 @@ package com.zjh.internethospitalapi.service.app;
  */
 public interface UserService {
     /**
-     * 用户登录,返回是否正确登录
+     * 用户登录,返回userId
      * @param phone
      * @param password
      * @param roleId
-     * @return
+     * @return userId
      */
-    boolean userLogin(String phone,String password,Integer roleId);
+    Integer userLogin(String phone,String password,Integer roleId);
 
     /**
      * 普通用户注册，仅需 phone ，password

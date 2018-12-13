@@ -35,11 +35,11 @@ public class Patient {
     private String phone;
 
     /**
-     * 年龄
+     * 出生日期 19961009
      */
-    private Integer age;
+    private String birth;
     /**
-     * 性别
+     * 性别 0 ：女 ；1： 男
      */
     private Integer sex;
 
