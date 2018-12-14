@@ -1,7 +1,7 @@
 package com.zjh.internethospitalservice.controller.app;
 
 import com.alibaba.fastjson.JSONObject;
-import com.zjh.internethospitalapi.common.Constants;
+import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.service.app.UserService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import com.zjh.internethospitalservice.util.JWTUtil;
@@ -10,12 +10,8 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.util.DigestUtils;
-import org.springframework.util.PatternMatchUtils;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.BufferedInputStream;
-import java.io.UnsupportedEncodingException;
 import java.util.regex.Pattern;
 
 /**

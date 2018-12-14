@@ -1,16 +1,23 @@
-package com.zjh.internethospitalapi.common;
+package com.zjh.internethospitalapi.common.constants;
 
 /**
- * 常量类
+ * 普通常量类
  *
  * @version 1.00
  * @author: 张江浩
  * @date: 2018/11/26 09:47
  */
 public final class Constants {
-    private Constants(){
+    private Constants() {
 
     }
+
+    /**
+     * 常规名词类
+     */
+    public static final String DEPARTMENT = "department";
+    public static final String EXPERT = "expert";
+
     /**
      * pattern 正则表达式
      */
@@ -46,7 +53,7 @@ public final class Constants {
 
     /**
      * 图片二级文件夹名字
-     *
+     * <p>
      * index：首页轮播图
      * netTreatmentRoom：网络诊室页面轮播图
      * banner：顶端 1920*350 图

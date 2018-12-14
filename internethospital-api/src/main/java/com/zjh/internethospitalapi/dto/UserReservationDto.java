@@ -2,6 +2,8 @@ package com.zjh.internethospitalapi.dto;
 
 import lombok.Data;
 
+import java.util.Map;
+
 /**
  * 类的说明
  *
@@ -11,6 +13,10 @@ import lombok.Data;
  */
 @Data
 public class UserReservationDto {
+    /**
+     * 用户id
+     */
+    private Integer userId;
 
     /**
      * 疾病详情
@@ -55,6 +61,8 @@ public class UserReservationDto {
 
     private Integer scheduleDoctorId;
 
+    private Integer scheduleDepartmentId;
+
     /**
      * 就诊日期 数据库里的 clinic_date
      */
@@ -65,11 +73,15 @@ public class UserReservationDto {
      */
     private String timeInterval;
 
-    private String scheduleDepartmentId;
-
     /**
      * 预约类型 1普通预约 2普通挂号 3 专家预约
      */
     private String type;
+
+    /**
+     * 用户就诊信息图片id map
+     * value: imgId
+     */
+    private Map<String, Integer> imgIdMap;
 
 }

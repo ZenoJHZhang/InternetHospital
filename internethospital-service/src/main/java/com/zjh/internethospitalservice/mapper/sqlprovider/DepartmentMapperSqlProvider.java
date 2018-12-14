@@ -1,6 +1,6 @@
 package com.zjh.internethospitalservice.mapper.sqlprovider;
 
-import com.zjh.internethospitalapi.common.Constants;
+import com.zjh.internethospitalapi.common.constants.Constants;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.jdbc.SQL;
 

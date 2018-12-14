@@ -1,5 +1,6 @@
 package com.zjh.internethospitalservice.controller.common;
 
+import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.AuthorizationException;
@@ -43,14 +44,19 @@ public class ExceptionController {
         }
     }
 
+    @ExceptionHandler(InternetHospitalException.class)
+    public ResponseEntity<ApiResponse> handleInstantiationException(InternetHospitalException e){
+        return ApiResponse.response(500,e.getMessage(),null);
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> globalException(HttpServletRequest request, Throwable ex){
         Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
         log.error(ex.getMessage());
         if (statusCode == null){
-            return ApiResponse.response(500,"服务器错误！",null);
+            return ApiResponse.response(500,"服务器错误",null);
         }
-        return ApiResponse.response(statusCode,"系统错误！",null);
+        return ApiResponse.response(statusCode,"服务器错误",null);
     }
 
 }

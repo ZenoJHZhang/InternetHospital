@@ -76,4 +76,9 @@ public class PatientServiceImpl implements PatientService {
         }
         return i;
     }
+
+    @Override
+    public Patient selectPatientById(Integer id) {
+        return patientMapper.selectByPrimaryKey(id);
+    }
 }

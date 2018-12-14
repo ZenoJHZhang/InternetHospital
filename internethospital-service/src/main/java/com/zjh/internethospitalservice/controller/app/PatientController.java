@@ -1,7 +1,6 @@
 package com.zjh.internethospitalservice.controller.app;
 
-import com.sun.org.apache.regexp.internal.RE;
-import com.zjh.internethospitalapi.common.Constants;
+import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.entity.Patient;
 import com.zjh.internethospitalapi.service.app.PatientService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
@@ -15,7 +14,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 

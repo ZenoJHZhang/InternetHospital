@@ -13,13 +13,6 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface UserReservationService {
     /**
-     * 用户就诊信息图片上传
-     * @param img
-     * @return
-     */
-    Integer insertReservationImg(MultipartFile img);
-
-    /**
      * 用户挂号，预约普通科室
      * @param userReservationDto
      * @return

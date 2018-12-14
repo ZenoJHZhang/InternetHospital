@@ -1,6 +1,6 @@
 package com.zjh.internethospitalservice.util;
 
-import com.zjh.internethospitalapi.common.Constants;
+import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.entity.Img;
 
 /**

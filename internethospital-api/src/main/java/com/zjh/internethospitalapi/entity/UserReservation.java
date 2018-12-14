@@ -37,21 +37,24 @@ public class UserReservation {
     private Integer hospitalId;
 
     /**
-     * 排班的医生ID
+     * 排班医生id
      */
     @Column(name = "schedule_doctor_id")
     private Integer scheduleDoctorId;
-
+    /**
+     * 排班科室id
+     */
+    private Integer scheduleDepartmentId;
     /**
      *  预约类型 1普通挂号 2普通预约 3 专家预约
      */
-    private String type;
+    private Integer type;
 
     /**
      * 医生id
      */
     @Column(name = "doctor_id")
-    private String doctorId;
+    private Integer doctorId;
 
     /**
      * 医生姓名
@@ -62,14 +65,12 @@ public class UserReservation {
     /**
      * 科室id
      */
-    @Column(name = "depart_id")
-    private Integer departId;
+    private Integer departmentId;
 
     /**
      * 科室名称
      */
-    @Column(name = "depart_name")
-    private String departName;
+    private String departmentName;
 
     /**
      * 就诊序号(对应医生就诊序号)

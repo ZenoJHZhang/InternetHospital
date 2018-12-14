@@ -44,4 +44,11 @@ public interface PatientService {
      * @return
      */
     Integer deletePatient(List<Patient> patientList);
+
+    /**
+     * 根据id获取就诊人
+     * @param id
+     * @return
+     */
+    Patient selectPatientById(Integer id);
 }

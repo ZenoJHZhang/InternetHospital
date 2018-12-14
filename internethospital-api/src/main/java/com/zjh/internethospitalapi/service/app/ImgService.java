@@ -33,6 +33,17 @@ public interface ImgService {
      */
     List<Img> listNetTreatmentRoomCarousel();
 
+    /**
+     * 通过id选择图片
+     * @param imgId
+     * @return
+     */
+    Img selectImgById(Integer imgId);
 
-
+    /**
+     * 通过id删除图片
+     * @param imgId
+     * @return
+     */
+    Integer deleteImgById(Integer imgId);
 }

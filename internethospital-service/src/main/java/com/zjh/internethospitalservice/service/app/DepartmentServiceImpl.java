@@ -3,7 +3,7 @@ package com.zjh.internethospitalservice.service.app;
 import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
-import com.zjh.internethospitalapi.common.Constants;
+import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.service.app.DepartmentService;
 import com.zjh.internethospitalservice.mapper.DepartmentMapper;

@@ -2,7 +2,7 @@ package com.zjh.internethospitalservice.filter;
 
 
 
-import com.zjh.internethospitalapi.common.Constants;
+import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalservice.shiro.JWTToken;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
