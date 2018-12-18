@@ -24,7 +24,7 @@ public interface UserService {
      * @param password
      * @return
      */
-    Integer userRegister(String phone, String password);
+    void userRegister(String phone, String password);
 
     /**
      * 判断相同权限下，是否有用户手机号重复

@@ -25,7 +25,7 @@ public interface ImgService {
      * @param img
      * @return
      */
-    Integer insertIndexCarousel(Img img);
+    void insertIndexCarousel(Img img);
 
     /**
      * 获得网络诊室页面轮播图
@@ -45,5 +45,5 @@ public interface ImgService {
      * @param imgId
      * @return
      */
-    Integer deleteImgById(Integer imgId);
+    void deleteImgById(Integer imgId);
 }

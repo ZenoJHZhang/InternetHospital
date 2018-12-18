@@ -2,6 +2,8 @@ package com.zjh.internethospitalapi.dto;
 
 import lombok.Data;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -82,6 +84,6 @@ public class UserReservationDto {
      * 用户就诊信息图片id map
      * value: imgId
      */
-    private Map<String, Integer> imgIdMap;
+    private List<Integer> imgIdList;
 
 }

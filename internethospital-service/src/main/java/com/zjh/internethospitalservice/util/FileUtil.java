@@ -32,14 +32,13 @@ public class FileUtil {
         FileUtil.imgService = imgService;
     }
 
-    public static ResponseEntity<ApiResponse> uploadFile(MultipartFile file, String imgType,String description) {
+    public static ResponseEntity<ApiResponse> uploadFile(MultipartFile file, String imgType, String description) {
         String fileOriginalFilename = file.getOriginalFilename();
         String suffix = fileOriginalFilename.substring(fileOriginalFilename.lastIndexOf(".") + 1);
         String uuid = UUID.randomUUID().toString();
         String uuidName = uuid + "." + suffix;
         String filePath = Constants.IMG_UPLOAD_BASE_URL + imgType +
                 "/";
-        Integer insertResult ;
         File dest = new File(filePath, uuidName);
         Img img = new Img();
         img.setImgUuid(uuid);
@@ -48,23 +47,18 @@ public class FileUtil {
         img.setDescription(description);
         try {
             file.transferTo(dest);
-            insertResult = imgService.insertIndexCarousel(img);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("文件上传失败");
         }
-        if (insertResult == 1){
-            return ApiResponse.successResponse(img);
-        }
-        else {
-            return ApiResponse.commonResponse(500,"文件上传失败",insertResult);
-        }
+        imgService.insertIndexCarousel(img);
+        return ApiResponse.successResponse(img);
     }
 
-    public static ResponseEntity<ApiResponse> deleteFile(Integer id) throws Exception {
+    public static ResponseEntity<ApiResponse> deleteFile(Integer id) {
         boolean deleteFlag = false;
         Img img = imgService.selectImgById(id);
-        int  result = 0;
+        int result = 0;
         if (img == null) {
             throw new InternetHospitalException(ExceptionConstants.IMG_NOT_EXIST);
         }
@@ -78,14 +72,9 @@ public class FileUtil {
         if (file.exists()) {
             deleteFlag = file.delete();
         }
-        if (deleteFlag){
-            result = imgService.deleteImgById(id);
+        if (deleteFlag) {
+            imgService.deleteImgById(id);
         }
-        if (result == 1){
-            return ApiResponse.successResponse(result);
-        }
-        else {
-            return ApiResponse.commonResponse(400,"图片删除失败",result);
-        }
+        return ApiResponse.successResponse(result);
     }
 }

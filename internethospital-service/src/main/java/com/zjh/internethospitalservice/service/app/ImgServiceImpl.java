@@ -1,6 +1,8 @@
 package com.zjh.internethospitalservice.service.app;
 
 import com.zjh.internethospitalapi.common.constants.Constants;
+import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
+import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.Img;
 import com.zjh.internethospitalapi.service.app.ImgService;
 import com.zjh.internethospitalservice.mapper.ImgMapper;
@@ -34,6 +36,9 @@ public class ImgServiceImpl implements ImgService {
         Example example = new Example(Img.class);
         example.createCriteria().andEqualTo("type", Constants.IMG_TYPE_INDEX);
         List<Img> imgList = imgMapper.selectByExample(example);
+        if (imgList == null){
+            throw new InternetHospitalException(ExceptionConstants.IMG_NOT_EXIST);
+        }
         for (Img img : imgList
                 ) {
             StringBuilder path = new StringBuilder();
@@ -45,10 +50,13 @@ public class ImgServiceImpl implements ImgService {
     }
 
     @Override
-    public Integer insertIndexCarousel(Img img) {
+    public void insertIndexCarousel(Img img) {
         img.setCreateTime(new Date());
         img.setUpdateTime(new Date());
-        return imgMapper.insert(img);
+        int result =  imgMapper.insert(img);
+        if (result != 1) {
+            throw new InternetHospitalException(ExceptionConstants.IMG_INSERT_FAIL);
+        }
     }
 
     @Override
@@ -56,6 +64,9 @@ public class ImgServiceImpl implements ImgService {
         Example example = new Example(Img.class);
         example.createCriteria().andEqualTo("type", Constants.IMG_TYPE_NET_TREATMENT_ROOM);
         List<Img> imgList = imgMapper.selectByExample(example);
+        if (imgList == null){
+            throw new InternetHospitalException(ExceptionConstants.IMG_NOT_EXIST);
+        }
         for (Img img : imgList
                 ) {
             String path = ImgUtil.imgPathGenerate(img);
@@ -68,14 +79,21 @@ public class ImgServiceImpl implements ImgService {
     public Img selectImgById(Integer imgId) {
         Example example = new Example(Img.class);
         example.createCriteria().andEqualTo("id", imgId);
-        return imgMapper.selectOneByExample(example);
+        Img img =  imgMapper.selectOneByExample(example);
+        if (img == null){
+            throw new InternetHospitalException(ExceptionConstants.IMG_NOT_EXIST);
+        }
+        return img;
     }
 
     @Override
-    public Integer deleteImgById(Integer imgId) {
+    public void deleteImgById(Integer imgId) {
         Example example = new Example(Img.class);
         example.createCriteria().andEqualTo("id", imgId);
-        return imgMapper.deleteByExample(example);
+        int result =  imgMapper.deleteByExample(example);
+        if (result != 1) {
+            throw new InternetHospitalException(ExceptionConstants.IMG_DELETE_FAIL);
+        }
     }
 }
 

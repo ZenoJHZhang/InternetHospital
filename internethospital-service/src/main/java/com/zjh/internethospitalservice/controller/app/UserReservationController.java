@@ -67,6 +67,6 @@ public class UserReservationController {
         else if(userReservationDto.getType().equals(Constants.EXPERT)){
 
         }
-        return null;
+        return ApiResponse.successResponse(null);
     }
 }

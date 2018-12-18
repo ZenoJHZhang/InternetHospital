@@ -73,8 +73,8 @@ public class UserController {
         if (isSameFlag) {
             return ApiResponse.errorResponse( "手机号已注册",result);
         } else {
-            result = userService.userRegister(phone, password);
-            return ApiResponse.successResponse(result);
+            userService.userRegister(phone, password);
+            return ApiResponse.successResponse(null);
         }
     }
 }

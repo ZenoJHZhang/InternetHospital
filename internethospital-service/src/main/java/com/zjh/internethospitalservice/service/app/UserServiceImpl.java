@@ -1,5 +1,7 @@
 package com.zjh.internethospitalservice.service.app;
 
+import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
+import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.User;
 import com.zjh.internethospitalapi.service.app.UserService;
 import com.zjh.internethospitalservice.mapper.UserMapper;
@@ -52,7 +54,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Integer userRegister(String phone, String password) {
+    public void userRegister(String phone, String password) {
         String md5Password = PasswordUtil.generate(password);
         User user = new User();
         user.setPhone(phone);
@@ -60,7 +62,10 @@ public class UserServiceImpl implements UserService {
         user.setRoleId(1);
         user.setCreateTime(new Date());
         user.setUpdateTime(new Date());
-        return userMapper.insert(user);
+        Integer result = userMapper.insert(user);
+        if (result != 1){
+            throw new InternetHospitalException(ExceptionConstants.USER_INSERT_FAIL);
+        }
     }
 
     @Override

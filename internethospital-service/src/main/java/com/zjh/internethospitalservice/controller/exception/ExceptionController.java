@@ -1,4 +1,4 @@
-package com.zjh.internethospitalservice.controller.common;
+package com.zjh.internethospitalservice.controller.exception;
 
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
@@ -46,7 +46,8 @@ public class ExceptionController {
 
     @ExceptionHandler(InternetHospitalException.class)
     public ResponseEntity<ApiResponse> handleInstantiationException(InternetHospitalException e){
-        return ApiResponse.response(500,e.getMessage(),null);
+        log.error(e.getMessage());
+        return ApiResponse.response(400,e.getMessage(),null);
     }
 
     @ExceptionHandler(Exception.class)

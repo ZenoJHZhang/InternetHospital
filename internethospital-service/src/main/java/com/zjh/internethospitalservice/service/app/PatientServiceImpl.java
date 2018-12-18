@@ -2,6 +2,8 @@ package com.zjh.internethospitalservice.service.app;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
+import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.Patient;
 import com.zjh.internethospitalapi.service.app.PatientService;
 import com.zjh.internethospitalservice.mapper.PatientMapper;
@@ -41,7 +43,7 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public Integer insertPatient(Patient patient, Integer userId) {
+    public void insertPatient(Patient patient, Integer userId) {
         String idCard = patient.getIdCard();
         String birth = idCard.substring(6, 14);
         String sexString = idCard.substring(16, 17);
@@ -51,7 +53,7 @@ public class PatientServiceImpl implements PatientService {
         patient.setUserId(userId);
         patient.setCreateTime(new Date());
         patient.setUpdateTime(new Date());
-        return patientMapper.insertSelective(patient);
+       patientMapper.insertSelective(patient);
     }
 
     @Override
@@ -65,16 +67,15 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public Integer deletePatient(List<Patient> patientList) {
+    public void deletePatient(List<Patient> patientList) {
         int i = 0;
         for (Patient patient:patientList
              ) {
             i += patientMapper.delete(patient);
         }
         if (i !=  patientList.size()){
-            return null;
+            throw new InternetHospitalException(ExceptionConstants.PATIENT_DELETE_FAIL);
         }
-        return i;
     }
 
     @Override

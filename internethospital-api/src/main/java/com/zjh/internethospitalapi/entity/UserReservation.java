@@ -1,6 +1,8 @@
 package com.zjh.internethospitalapi.entity;
 
 import lombok.Data;
+import tk.mybatis.mapper.annotation.KeySql;
+import tk.mybatis.mapper.code.IdentityDialect;
 
 import javax.persistence.*;
 import java.util.Date;
@@ -9,7 +11,7 @@ import java.util.Date;
 @Table(name = "user_reservation")
 public class UserReservation {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @KeySql(dialect = IdentityDialect.MYSQL)
     private Integer id;
 
     /**
@@ -74,10 +76,9 @@ public class UserReservation {
 
     /**
      * 就诊序号(对应医生就诊序号)
-     * 就诊序号(对应医生就诊序号)
      */
     @Column(name = "reg_no")
-    private String regNo;
+    private Integer regNo;
 
     /**
      * 就诊时间,根据令时得出（12:00-18:00）
@@ -116,14 +117,7 @@ public class UserReservation {
     /**
      * 取号返回的错误信息（预约/挂号）
      */
-    @Column(name = "erro_msg")
-    private String erroMsg;
-
-    /**
-     * 就诊记录图片id
-     */
-    @Column(name = "user_reservation_img_id")
-    private String userReservationImgId;
+    private String errorMsg;
 
     /**
      * 是否被点击查看0未被，1已被点击
@@ -153,7 +147,7 @@ public class UserReservation {
      * 挂号费
      */
     @Column(name = "clinic_price")
-    private Long clinicPrice;
+    private String clinicPrice;
 
     /**
      * 问诊包含的处方单数量
@@ -165,7 +159,7 @@ public class UserReservation {
      * 处方费（所有处方的总费用）
      */
     @Column(name = "recipe_price")
-    private Long recipePrice;
+    private String recipePrice;
 
     /**
      * 总费用(挂号处方)
@@ -194,13 +188,12 @@ public class UserReservation {
     /**
      * 处方审核不通过的原因
      */
-    private String reason;
+    private String examineFailReason;
 
     /**
      * 医生设置过号的原因
      */
-    @Column(name = "reason_skip")
-    private String reasonSkip;
+    private String skipReason;
 
     /**
      * 是否为复诊患者,0不是1是

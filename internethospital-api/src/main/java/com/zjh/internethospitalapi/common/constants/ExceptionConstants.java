@@ -11,6 +11,10 @@ public class ExceptionConstants {
     private ExceptionConstants(){
 
     }
-
     public static final String IMG_NOT_EXIST = "图片不存在";
+    public static final String USER_RESERVATION_INSERT_FAIL = "提交就诊申请失败，请稍后再试";
+    public static final String IMG_INSERT_FAIL = "图片上传失败";
+    public static final String IMG_DELETE_FAIL = "图片删除失败";
+    public static final String PATIENT_DELETE_FAIL = "就诊人删除失败，请稍后再试";
+    public static final String USER_INSERT_FAIL = "注册失败，请稍后再试";
 }

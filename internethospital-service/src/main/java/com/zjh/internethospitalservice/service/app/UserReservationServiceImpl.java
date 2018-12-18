@@ -1,18 +1,30 @@
 package com.zjh.internethospitalservice.service.app;
 
 import com.alibaba.fastjson.JSONObject;
+import com.zjh.internethospitalapi.common.constants.Constants;
+import com.zjh.internethospitalapi.common.constants.DiagnoseConstants;
+import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
+import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
+import com.zjh.internethospitalapi.dto.DispensingDoctorDto;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
-import com.zjh.internethospitalapi.entity.Patient;
+import com.zjh.internethospitalapi.entity.ScheduleDepartment;
+import com.zjh.internethospitalapi.entity.ScheduleDoctor;
 import com.zjh.internethospitalapi.entity.UserReservation;
+import com.zjh.internethospitalapi.entity.UserReservationImg;
 import com.zjh.internethospitalapi.service.app.PatientService;
+import com.zjh.internethospitalapi.service.app.SeasonTimeService;
 import com.zjh.internethospitalapi.service.app.UserReservationService;
+import com.zjh.internethospitalservice.mapper.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import tk.mybatis.mapper.entity.Example;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
 
 /**
  * 类的说明
@@ -24,29 +36,196 @@ import java.time.format.DateTimeFormatter;
 @Service("userReservation")
 public class UserReservationServiceImpl implements UserReservationService {
     private final PatientService patientService;
+    private final UserReservationImgMapper userReservationImgMapper;
+    private final UserReservationMapper userReservationMapper;
+    private final ScheduleDoctorMapper scheduleDoctorMapper;
+    private final SeasonTimeService seasonTimeService;
+    private final ScheduleDepartmentMapper scheduleDepartmentMapper;
 
     @Autowired
-    public UserReservationServiceImpl(PatientService patientService) {
+    public UserReservationServiceImpl(PatientService patientService, UserReservationImgMapper userReservationImgMapper,
+                                      UserReservationMapper userReservationMapper, ScheduleDoctorMapper scheduleDoctorMapper,
+                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper) {
         this.patientService = patientService;
+        this.userReservationImgMapper = userReservationImgMapper;
+        this.userReservationMapper = userReservationMapper;
+        this.scheduleDoctorMapper = scheduleDoctorMapper;
+        this.seasonTimeService = seasonTimeService;
+        this.scheduleDepartmentMapper = scheduleDepartmentMapper;
     }
 
 
     @Override
-    public JSONObject insertNormalUserReservation(UserReservationDto userReservationDto) {
+    @Transactional(rollbackFor = Exception.class)
+    public void insertNormalUserReservation(UserReservationDto userReservationDto) {
         UserReservation userReservation = new UserReservation();
-        BeanUtils.copyProperties(userReservationDto,userReservation);
+        BeanUtils.copyProperties(userReservationDto, userReservation);
         userReservation.setPatientName(patientService.selectPatientById(userReservation.getPatientId()).getRealName());
+
         /**
          * 如果scheduleTime为今天，是普通挂号，否则是预约挂号
          * 普通挂号 1 预约挂号 2
          * */
         if (LocalDate.now().toString().equals(userReservationDto.getScheduleTime())) {
             userReservation.setType(1);
-        }
-        else {
+        } else {
             userReservation.setType(2);
         }
 
-        return null;
+        DispensingDoctorDto dispensingDoctorDto = dispensingDoctor(userReservationDto);
+
+        //更新排班表
+        updateScheduleAppointmentNumber(dispensingDoctorDto,userReservationDto.getScheduleDepartmentId());
+
+        userReservation.setDoctorId(dispensingDoctorDto.getDoctorId());
+        userReservation.setScheduleDoctorId(dispensingDoctorDto.getScheduleDoctorId());
+        userReservation.setDoctorName(dispensingDoctorDto.getDoctorName());
+        userReservation.setRegNo(dispensingDoctorDto.getDoctorAppointmentNumber());
+        userReservation.setConditionDesc(userReservationDto.getAccentDetail());
+        userReservation.setClinicPrice(userReservationDto.getPrice());
+        //就诊时间
+        JSONObject object = seasonTimeService.getSeasonTimeByHospitalOfTimeInterval(userReservation.getHospitalId(),
+                userReservation.getTimeInterval());
+        userReservation.setClinicTime(object.get("start")+"-"+object.get("end"));
+        //就诊日期
+        userReservation.setClinicDate(userReservationDto.getScheduleTime());
+        //初诊复诊
+        if(userReservationDto.getAccentVisit().equals(DiagnoseConstants.FIRST_VISIT)){
+            userReservation.setIsReturnVisit("0");
+        }
+        else if(userReservationDto.getAccentVisit().equals(DiagnoseConstants.RETURN_VISIT)) {
+            userReservation.setIsReturnVisit("1");
+        }
+        userReservation.setCreateTime(new Date());
+        userReservation.setUpdateTime(new Date());
+
+        int result = userReservationMapper.insertSelective(userReservation);
+        if (result != 1) {
+            throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_INSERT_FAIL);
+        }
+        int userReservationId = userReservation.getId();
+        //更新 userReservation <=> img 对应关系
+        generateUserReservationImg(userReservationDto.getImgIdList(), userReservationId);
+    }
+
+    /**
+     * 向数据库内添加对应 userReservationImg
+     */
+    private void generateUserReservationImg(List<Integer> imgIdList, int userReservationId) {
+        int result = 0;
+        for (Integer imgId : imgIdList
+                ) {
+            UserReservationImg userReservationImg = new UserReservationImg();
+            userReservationImg.setImgId(imgId);
+            userReservationImg.setUserReservationId(userReservationId);
+            result += userReservationImgMapper.insert(userReservationImg);
+        }
+        if (result != imgIdList.size()) {
+            throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_INSERT_FAIL);
+        }
+    }
+
+    /**
+     * 预约医生
+     * <p>
+     * 普通科室用户就诊分配该时段上班的医生
+     * 平均分配
+     *
+     * @param userReservationDto
+     * @return DispensingDoctorDto
+     */
+    private DispensingDoctorDto dispensingDoctor(UserReservationDto userReservationDto) {
+        List<DispensingDoctorDto> dispensingDoctorDtoList = new ArrayList<>();
+        Example example = new Example(ScheduleDoctor.class);
+        example.createCriteria().andEqualTo("scheduleDepartmentId", userReservationDto.getScheduleDepartmentId());
+        List<ScheduleDoctor> scheduleDoctorList;
+        String timeInterval = userReservationDto.getTimeInterval();
+
+        //根据时间段选取医生，构建待分配号源医生列表
+        if (timeInterval.equals(Constants.MORNING)) {
+            example.and().andEqualTo("doctorMorningHas", 1);
+            scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
+            for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
+                    ) {
+                DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
+                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorMorningNumber());
+                dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorMorningTotalNumber());
+                dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
+                dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
+                dispensingDoctorDto.setDoctorName(scheduleDoctor.getDoctorName());
+                dispensingDoctorDto.setTimeInterval(timeInterval);
+                dispensingDoctorDtoList.add(dispensingDoctorDto);
+            }
+        } else if (timeInterval.equals(Constants.AFTERNOON)) {
+            example.and().andEqualTo("doctorAfternoonHas", 1);
+            scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
+            for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
+                    ) {
+                DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
+                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorAfternoonNumber());
+                dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorAfternoonTotalNumber());
+                dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
+                dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
+                dispensingDoctorDto.setDoctorName(scheduleDoctor.getDoctorName());
+                dispensingDoctorDto.setTimeInterval(timeInterval);
+                dispensingDoctorDtoList.add(dispensingDoctorDto);
+            }
+        } else if (timeInterval.equals(Constants.NIGHT)) {
+            example.and().andEqualTo("doctorNightHas", 1);
+            scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
+            for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
+                    ) {
+                DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
+                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorNightNumber());
+                dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorNightTotalNumber());
+                dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
+                dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
+                dispensingDoctorDto.setDoctorName(scheduleDoctor.getDoctorName());
+                dispensingDoctorDto.setTimeInterval(timeInterval);
+                dispensingDoctorDtoList.add(dispensingDoctorDto);
+            }
+        }
+
+        //所有可分配号源医生中，已挂号源最少的医生,需要初始化数值，防止null exception
+        DispensingDoctorDto minDispensingDoctorDto = dispensingDoctorDtoList.get(0);
+
+        for (DispensingDoctorDto dispensingDoctorDto : dispensingDoctorDtoList
+                ) {
+            //当医生已挂号源小于总号源，即可再挂一个号
+            if (dispensingDoctorDto.getDoctorAppointmentNumber() < dispensingDoctorDto.getDoctorTotalAppointmentNumber()) {
+                //选取最少号源医生
+                if (minDispensingDoctorDto.getDoctorAppointmentNumber() > dispensingDoctorDto.getDoctorAppointmentNumber()) {
+                    BeanUtils.copyProperties(dispensingDoctorDto, minDispensingDoctorDto);
+                }
+            }
+        }
+
+        return minDispensingDoctorDto;
+    }
+
+    /**
+     * 更新 scheduleDoctor 以及 scheduleDepartment 表，对应时刻号源数
+     *
+     * @param dispensingDoctorDto
+     * @return
+     */
+    private void updateScheduleAppointmentNumber(DispensingDoctorDto dispensingDoctorDto,Integer scheduleDepartmentId) {
+        Integer scheduleDoctorId = dispensingDoctorDto.getScheduleDoctorId();
+        ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(scheduleDoctorId);
+        ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.selectByPrimaryKey(scheduleDepartmentId);
+        if (dispensingDoctorDto.getTimeInterval().equals(Constants.MORNING)) {
+            scheduleDoctor.setDoctorMorningNumber(scheduleDoctor.getDoctorMorningNumber() + 1);
+            scheduleDepartment.setMorningNumber(scheduleDepartment.getMorningNumber()+1);
+        } else if (dispensingDoctorDto.getTimeInterval().equals(Constants.AFTERNOON)) {
+            scheduleDoctor.setDoctorAfternoonNumber(scheduleDoctor.getDoctorAfternoonNumber() + 1);
+            scheduleDepartment.setAfternoonNumber(scheduleDepartment.getAfternoonNumber()+1);
+        } else if (dispensingDoctorDto.getTimeInterval().equals(Constants.NIGHT)) {
+            scheduleDoctor.setDoctorNightNumber(scheduleDoctor.getDoctorNightNumber() + 1);
+            scheduleDepartment.setNightNumber(scheduleDepartment.getNightNumber()+1);
+        }
+        int result = scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
+        if (result != 1) {
+            throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_INSERT_FAIL);
+        }
     }
 }

@@ -28,7 +28,7 @@ public interface PatientService {
      * @param userId 用户id
      * @return
      */
-    Integer insertPatient(Patient patient,Integer userId);
+    void insertPatient(Patient patient,Integer userId);
 
     /**
      * 判断该用户是否已添加了相同的就诊人
@@ -43,7 +43,7 @@ public interface PatientService {
      * @param patientList
      * @return
      */
-    Integer deletePatient(List<Patient> patientList);
+    void deletePatient(List<Patient> patientList);
 
     /**
      * 根据id获取就诊人

@@ -7,7 +7,7 @@ package com.zjh.internethospitalapi.common.exception;
  * @author: 张江浩
  * @date: 2018/12/14 09:53
  */
-public class InternetHospitalException extends Exception {
+public class InternetHospitalException extends RuntimeException {
     public InternetHospitalException(String message) {
         super(message);
     }

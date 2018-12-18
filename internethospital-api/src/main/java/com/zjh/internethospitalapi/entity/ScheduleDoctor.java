@@ -34,6 +34,7 @@ public class ScheduleDoctor {
     @Column(name = "doctor_id")
     private Integer doctorId;
 
+    private String doctorName;
     @Column(name = "doctor_morning_has")
     private String doctorMorningHas;
 

@@ -17,5 +17,5 @@ public interface UserReservationService {
      * @param userReservationDto
      * @return
      */
-    JSONObject insertNormalUserReservation(UserReservationDto userReservationDto);
+    void insertNormalUserReservation(UserReservationDto userReservationDto);
 }

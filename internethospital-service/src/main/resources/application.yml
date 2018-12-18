@@ -37,3 +37,8 @@ mapper:
   style: camelhumpAndLowercase
   not-empty: true
   check-example-entity-class: true
+logging:
+  file: C:/log/error.log
+  level:
+    com.zjh.internethospitalservice: error
+

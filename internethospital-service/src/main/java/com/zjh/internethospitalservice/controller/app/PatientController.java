@@ -72,7 +72,8 @@ public class PatientController {
         if (patientService.isSamePatient(patient, userId)) {
             return ApiResponse.commonResponse(400, "该就诊人已存在，请勿重复添加!", null);
         }
-        return ApiResponse.successResponse(patientService.insertPatient(patient, userId));
+        patientService.insertPatient(patient, userId);
+        return ApiResponse.successResponse(null);
     }
 
     @PostMapping("/deletePatient")
@@ -80,12 +81,8 @@ public class PatientController {
     @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> deletePatient(
             @RequestBody @ApiParam(required = true,value = "就诊人id列表") List<Patient> patientList){
-        Integer result = patientService.deletePatient(patientList);
-        if (result == null){
-            return ApiResponse.commonResponse(400,"就诊人删除失败！",null);
-        }
-        else {
-            return ApiResponse.successResponse(result);
-        }
+       patientService.deletePatient(patientList);
+       return ApiResponse.successResponse(null);
+
     }
 }
