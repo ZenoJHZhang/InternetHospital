@@ -1,8 +1,12 @@
 package com.zjh.internethospitalapi.entity;
 
+import lombok.Data;
+
 import javax.persistence.*;
+import java.util.Date;
 
 @Table(name = "user_reservation_img")
+@Data
 public class UserReservationImg {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,44 +19,14 @@ public class UserReservationImg {
     private Integer imgId;
 
     /**
-     * @return id
+     * 创建时间
      */
-    public Integer getId() {
-        return id;
-    }
+    @Column(name = "create_time")
+    private Date createTime;
 
     /**
-     * @param id
+     * 更新时间
      */
-    public void setId(Integer id) {
-        this.id = id;
-    }
-
-    /**
-     * @return user_reservation_id
-     */
-    public Integer getUserReservationId() {
-        return userReservationId;
-    }
-
-    /**
-     * @param userReservationId
-     */
-    public void setUserReservationId(Integer userReservationId) {
-        this.userReservationId = userReservationId;
-    }
-
-    /**
-     * @return img_id
-     */
-    public Integer getImgId() {
-        return imgId;
-    }
-
-    /**
-     * @param imgId
-     */
-    public void setImgId(Integer imgId) {
-        this.imgId = imgId;
-    }
+    @Column(name = "update_time")
+    private Date updateTime;
 }

@@ -7,10 +7,8 @@ import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.dto.DispensingDoctorDto;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
-import com.zjh.internethospitalapi.entity.ScheduleDepartment;
-import com.zjh.internethospitalapi.entity.ScheduleDoctor;
-import com.zjh.internethospitalapi.entity.UserReservation;
-import com.zjh.internethospitalapi.entity.UserReservationImg;
+import com.zjh.internethospitalapi.entity.*;
+import com.zjh.internethospitalapi.service.app.ImgService;
 import com.zjh.internethospitalapi.service.app.PatientService;
 import com.zjh.internethospitalapi.service.app.SeasonTimeService;
 import com.zjh.internethospitalapi.service.app.UserReservationService;
@@ -41,26 +39,28 @@ public class UserReservationServiceImpl implements UserReservationService {
     private final ScheduleDoctorMapper scheduleDoctorMapper;
     private final SeasonTimeService seasonTimeService;
     private final ScheduleDepartmentMapper scheduleDepartmentMapper;
+    private final ImgService imgService;
 
     @Autowired
     public UserReservationServiceImpl(PatientService patientService, UserReservationImgMapper userReservationImgMapper,
                                       UserReservationMapper userReservationMapper, ScheduleDoctorMapper scheduleDoctorMapper,
-                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper) {
+                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper, ImgService imgService) {
         this.patientService = patientService;
         this.userReservationImgMapper = userReservationImgMapper;
         this.userReservationMapper = userReservationMapper;
         this.scheduleDoctorMapper = scheduleDoctorMapper;
         this.seasonTimeService = seasonTimeService;
         this.scheduleDepartmentMapper = scheduleDepartmentMapper;
+        this.imgService = imgService;
     }
 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void insertNormalUserReservation(UserReservationDto userReservationDto) {
+        public Integer insertNormalUserReservation(UserReservationDto userReservationDto) {
         UserReservation userReservation = new UserReservation();
         BeanUtils.copyProperties(userReservationDto, userReservation);
-        userReservation.setPatientName(patientService.selectPatientById(userReservation.getPatientId()).getRealName());
+
 
         /**
          * 如果scheduleTime为今天，是普通挂号，否则是预约挂号
@@ -81,31 +81,29 @@ public class UserReservationServiceImpl implements UserReservationService {
         userReservation.setScheduleDoctorId(dispensingDoctorDto.getScheduleDoctorId());
         userReservation.setDoctorName(dispensingDoctorDto.getDoctorName());
         userReservation.setRegNo(dispensingDoctorDto.getDoctorAppointmentNumber());
-        userReservation.setConditionDesc(userReservationDto.getAccentDetail());
-        userReservation.setClinicPrice(userReservationDto.getPrice());
-        //就诊时间
-        JSONObject object = seasonTimeService.getSeasonTimeByHospitalOfTimeInterval(userReservation.getHospitalId(),
-                userReservation.getTimeInterval());
-        userReservation.setClinicTime(object.get("start")+"-"+object.get("end"));
-        //就诊日期
-        userReservation.setClinicDate(userReservationDto.getScheduleTime());
-        //初诊复诊
-        if(userReservationDto.getAccentVisit().equals(DiagnoseConstants.FIRST_VISIT)){
-            userReservation.setIsReturnVisit("0");
-        }
-        else if(userReservationDto.getAccentVisit().equals(DiagnoseConstants.RETURN_VISIT)) {
-            userReservation.setIsReturnVisit("1");
-        }
-        userReservation.setCreateTime(new Date());
-        userReservation.setUpdateTime(new Date());
+        return commonGenerateUserReservation(userReservationDto,userReservation);
+    }
 
-        int result = userReservationMapper.insertSelective(userReservation);
-        if (result != 1) {
-            throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_INSERT_FAIL);
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Integer insertExpertUserReservation(UserReservationDto userReservationDto) {
+        UserReservation userReservation = new UserReservation();
+        BeanUtils.copyProperties(userReservationDto, userReservation);
+
+        userReservation.setType(3);
+        appointmentExpert(userReservation);
+        return commonGenerateUserReservation(userReservationDto,userReservation);
+    }
+
+    @Override
+    public UserReservation getUserReservationDetail(Integer userReservationId) {
+        UserReservation userReservation = userReservationMapper.selectByPrimaryKey(userReservationId);
+        Patient patient = patientService.selectPatientById(userReservation.getPatientId());
+        userReservation.setPatient(patient);
+        if (patient == null){
+            throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
         }
-        int userReservationId = userReservation.getId();
-        //更新 userReservation <=> img 对应关系
-        generateUserReservationImg(userReservationDto.getImgIdList(), userReservationId);
+        return userReservation;
     }
 
     /**
@@ -118,6 +116,8 @@ public class UserReservationServiceImpl implements UserReservationService {
             UserReservationImg userReservationImg = new UserReservationImg();
             userReservationImg.setImgId(imgId);
             userReservationImg.setUserReservationId(userReservationId);
+            userReservationImg.setCreateTime(new Date());
+            userReservationImg.setUpdateTime(new Date());
             result += userReservationImgMapper.insert(userReservationImg);
         }
         if (result != imgIdList.size()) {
@@ -126,11 +126,9 @@ public class UserReservationServiceImpl implements UserReservationService {
     }
 
     /**
+     * 普通科室
      * 预约医生
-     * <p>
-     * 普通科室用户就诊分配该时段上班的医生
-     * 平均分配
-     *
+     * 普通科室用户就诊,平均该时段上班的医生
      * @param userReservationDto
      * @return DispensingDoctorDto
      */
@@ -204,6 +202,7 @@ public class UserReservationServiceImpl implements UserReservationService {
     }
 
     /**
+     * 普通科室
      * 更新 scheduleDoctor 以及 scheduleDepartment 表，对应时刻号源数
      *
      * @param dispensingDoctorDto
@@ -223,9 +222,77 @@ public class UserReservationServiceImpl implements UserReservationService {
             scheduleDoctor.setDoctorNightNumber(scheduleDoctor.getDoctorNightNumber() + 1);
             scheduleDepartment.setNightNumber(scheduleDepartment.getNightNumber()+1);
         }
+        scheduleDoctor.setUpdateTime(new Date());
+        scheduleDepartment.setUpdateTime(new Date());
         int result = scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
+        int result2 = scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
+        if (result != 1 || result2 != 1) {
+            throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_INSERT_FAIL);
+        }
+    }
+
+    /**
+     * 专家预约
+     * 排班更新，号源更新
+     * @param userReservation
+     * @return
+     */
+    private UserReservation appointmentExpert(UserReservation userReservation){
+        String timeInterval = userReservation.getTimeInterval();
+        ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(userReservation.getScheduleDoctorId());
+        ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.selectByPrimaryKey(userReservation.getScheduleDepartmentId());
+        //区分时间段
+        if (timeInterval.equals(Constants.MORNING)){
+            scheduleDoctor.setDoctorMorningNumber(scheduleDoctor.getDoctorMorningNumber()+1);
+            scheduleDepartment.setMorningNumber(scheduleDepartment.getMorningNumber()+1);
+            userReservation.setRegNo(scheduleDoctor.getDoctorMorningNumber()+1);
+        }
+        else if(timeInterval.equals(Constants.AFTERNOON)){
+            scheduleDoctor.setDoctorAfternoonNumber(scheduleDoctor.getDoctorAfternoonNumber()+1);
+            scheduleDepartment.setAfternoonNumber(scheduleDepartment.getAfternoonNumber()+1);
+            userReservation.setRegNo(scheduleDoctor.getDoctorAfternoonNumber()+1);
+        }
+        else if(timeInterval.equals(Constants.NIGHT)){
+            scheduleDoctor.setDoctorNightNumber(scheduleDoctor.getDoctorNightNumber()+1);
+            scheduleDepartment.setNightNumber(scheduleDepartment.getNightNumber()+1);
+            userReservation.setRegNo(scheduleDoctor.getDoctorNightNumber()+1);
+        }
+        scheduleDoctor.setUpdateTime(new Date());
+        scheduleDepartment.setUpdateTime(new Date());
+        int result = scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
+        int result2 = scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
+        if (result != 1 || result2 != 1) {
+            throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_INSERT_FAIL);
+        }
+        return userReservation;
+    }
+
+    private Integer commonGenerateUserReservation(UserReservationDto userReservationDto,UserReservation userReservation){
+        userReservation.setPatientName(patientService.selectPatientById(userReservation.getPatientId()).getRealName());
+        userReservation.setConditionDesc(userReservationDto.getAccentDetail());
+        userReservation.setClinicPrice(userReservationDto.getPrice());
+        //就诊时间
+        JSONObject object = seasonTimeService.getSeasonTimeByHospitalOfTimeInterval(userReservation.getHospitalId(),
+                userReservation.getTimeInterval());
+        userReservation.setClinicTime(object.get("start") + "-" + object.get("end"));
+        //就诊日期
+        userReservation.setClinicDate(userReservationDto.getScheduleTime());
+        //初诊复诊
+        if (userReservationDto.getAccentVisit().equals(DiagnoseConstants.FIRST_VISIT)) {
+            userReservation.setIsReturnVisit("0");
+        } else if (userReservationDto.getAccentVisit().equals(DiagnoseConstants.RETURN_VISIT)) {
+            userReservation.setIsReturnVisit("1");
+        }
+        userReservation.setCreateTime(new Date());
+        userReservation.setUpdateTime(new Date());
+
+        int result = userReservationMapper.insertSelective(userReservation);
         if (result != 1) {
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_INSERT_FAIL);
         }
+        int userReservationId = userReservation.getId();
+        //更新 userReservation <=> img 对应关系
+        generateUserReservationImg(userReservationDto.getImgIdList(), userReservationId);
+        return userReservationId;
     }
 }

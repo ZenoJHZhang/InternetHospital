@@ -48,4 +48,7 @@ public class Patient {
 
     @Column(name = "update_time")
     private Date updateTime;
+
+    @Transient
+    private Integer age;
 }

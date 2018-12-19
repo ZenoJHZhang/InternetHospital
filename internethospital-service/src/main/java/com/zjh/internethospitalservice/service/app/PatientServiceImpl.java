@@ -8,10 +8,12 @@ import com.zjh.internethospitalapi.entity.Patient;
 import com.zjh.internethospitalapi.service.app.PatientService;
 import com.zjh.internethospitalservice.mapper.PatientMapper;
 import com.zjh.internethospitalservice.mapper.UserMapper;
+import com.zjh.internethospitalservice.util.AgeUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -80,6 +82,10 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient selectPatientById(Integer id) {
-        return patientMapper.selectByPrimaryKey(id);
+        Patient patient =  patientMapper.selectByPrimaryKey(id);
+        String birth = patient.getBirth();
+        Integer age = AgeUtil.getAgeFromBirth(birth);
+        patient.setAge(age);
+        return patient;
     }
 }

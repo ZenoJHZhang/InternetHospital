@@ -17,4 +17,5 @@ public class ExceptionConstants {
     public static final String IMG_DELETE_FAIL = "图片删除失败";
     public static final String PATIENT_DELETE_FAIL = "就诊人删除失败，请稍后再试";
     public static final String USER_INSERT_FAIL = "注册失败，请稍后再试";
+    public static final String USER_RESERVATION_NOT_EXIST = "就诊详情不存在";
 }

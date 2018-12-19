@@ -2,6 +2,7 @@ package com.zjh.internethospitalapi.service.app;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
+import com.zjh.internethospitalapi.entity.UserReservation;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
@@ -15,7 +16,21 @@ public interface UserReservationService {
     /**
      * 用户挂号，预约普通科室
      * @param userReservationDto
+     * @return userReservationId
+     */
+    Integer insertNormalUserReservation(UserReservationDto userReservationDto);
+
+    /**
+     * 预约专家医生
+     * @param userReservationDto
+     * @return userReservationId
+     */
+    Integer insertExpertUserReservation(UserReservationDto userReservationDto);
+
+    /**
+     * 获取就诊详情
+     * @param userReservationId
      * @return
      */
-    void insertNormalUserReservation(UserReservationDto userReservationDto);
+    UserReservation getUserReservationDetail(Integer userReservationId);
 }

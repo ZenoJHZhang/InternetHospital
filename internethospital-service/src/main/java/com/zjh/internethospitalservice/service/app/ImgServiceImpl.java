@@ -4,13 +4,16 @@ import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.Img;
+import com.zjh.internethospitalapi.entity.UserReservationImg;
 import com.zjh.internethospitalapi.service.app.ImgService;
 import com.zjh.internethospitalservice.mapper.ImgMapper;
+import com.zjh.internethospitalservice.mapper.UserReservationImgMapper;
 import com.zjh.internethospitalservice.util.ImgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -25,10 +28,12 @@ import java.util.List;
 public class ImgServiceImpl implements ImgService {
 
     private final ImgMapper imgMapper;
+    private final UserReservationImgMapper userReservationImgMapper;
 
     @Autowired
-    public ImgServiceImpl(ImgMapper imgMapper) {
+    public ImgServiceImpl(ImgMapper imgMapper, UserReservationImgMapper userReservationImgMapper) {
         this.imgMapper = imgMapper;
+        this.userReservationImgMapper = userReservationImgMapper;
     }
 
     @Override
@@ -94,6 +99,26 @@ public class ImgServiceImpl implements ImgService {
         if (result != 1) {
             throw new InternetHospitalException(ExceptionConstants.IMG_DELETE_FAIL);
         }
+    }
+
+    @Override
+    public List<Img> listUserReservationImg(Integer userReservationId) {
+        List<Img> imgList = new ArrayList<>();
+        Example example = new Example(UserReservationImg.class);
+        example.createCriteria().andEqualTo("userReservationId",userReservationId);
+        List<UserReservationImg> userReservationImgList = userReservationImgMapper.selectByExample(example);
+        for (UserReservationImg userReservationImg:userReservationImgList
+                ) {
+            Integer imgId = userReservationImg.getImgId();
+            Img img = imgMapper.selectByPrimaryKey(imgId);
+            imgList.add(img);
+        }
+        for (Img img : imgList
+                ) {
+            String path = ImgUtil.imgPathGenerate(img);
+            img.setPath(path);
+        }
+        return imgList;
     }
 }
 

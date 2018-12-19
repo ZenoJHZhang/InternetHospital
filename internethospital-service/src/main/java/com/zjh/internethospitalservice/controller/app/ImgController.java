@@ -7,6 +7,7 @@ import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import com.zjh.internethospitalservice.util.FileUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -51,6 +52,12 @@ public class ImgController {
     @ApiOperation(value = "获得网络诊室页面轮播图")
     public ResponseEntity<ApiResponse> listNetTreatmentRoomCarousel() {
         return ApiResponse.successResponse(imgService.listNetTreatmentRoomCarousel());
+    }
+    @ApiOperation(value = "获取用户就诊病情图片")
+    @GetMapping(value = "/listUserReservationImg")
+    public ResponseEntity<ApiResponse> listUserReservationImg(
+            @ApiParam(value = "用户就诊信息id",required = true) @RequestParam Integer userReservationId){
+        return ApiResponse.successResponse(imgService.listUserReservationImg(userReservationId));
     }
 
 }

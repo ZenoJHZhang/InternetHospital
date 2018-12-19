@@ -6,6 +6,7 @@ import tk.mybatis.mapper.code.IdentityDialect;
 
 import javax.persistence.*;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Table(name = "user_reservation")
@@ -253,4 +254,7 @@ public class UserReservation {
      */
     @Column(name = "condition_desc")
     private String conditionDesc;
+
+    @Transient
+    private Patient patient;
 }

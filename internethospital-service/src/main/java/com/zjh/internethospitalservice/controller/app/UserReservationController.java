@@ -2,6 +2,7 @@ package com.zjh.internethospitalservice.controller.app;
 
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
+import com.zjh.internethospitalapi.entity.UserReservation;
 import com.zjh.internethospitalapi.service.app.PatientService;
 import com.zjh.internethospitalapi.service.app.UserReservationService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
@@ -12,10 +13,7 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
@@ -61,12 +59,21 @@ public class UserReservationController {
         String token = request.getHeader("Authorization");
         Integer userId = JWTUtil.getUserId(token);
         userReservationDto.setUserId(userId);
+        Integer userReservationId = null;
         if (userReservationDto.getType().equals(Constants.DEPARTMENT)){
-            userReservationService.insertNormalUserReservation(userReservationDto);
+            userReservationId = userReservationService.insertNormalUserReservation(userReservationDto);
         }
         else if(userReservationDto.getType().equals(Constants.EXPERT)){
-
+            userReservationId = userReservationService.insertExpertUserReservation(userReservationDto);
         }
-        return ApiResponse.successResponse(null);
+        return ApiResponse.successResponse(userReservationId);
+    }
+
+    @GetMapping("/getUserReservationDetail")
+    @ApiOperation(value = "获取就诊详情信息")
+    public ResponseEntity<ApiResponse> getUserReservationDetail(
+            @RequestParam @ApiParam(value = "就诊信息id",required = true,example = "1") Integer userReservationId){
+         UserReservation userReservationDetail = userReservationService.getUserReservationDetail(userReservationId);
+        return ApiResponse.successResponse(userReservationDetail);
     }
 }

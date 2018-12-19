@@ -46,4 +46,11 @@ public interface ImgService {
      * @return
      */
     void deleteImgById(Integer imgId);
+
+    /**
+     * 获取用户就诊病情图片信息
+     * @param userReservationId
+     * @return
+     */
+    List<Img> listUserReservationImg(Integer userReservationId);
 }
