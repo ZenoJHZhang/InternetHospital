@@ -16,6 +16,9 @@ spring:
       pool-prepared-statements: true
       max-open-prepared-statements: 20
       async-init: true
+  servlet:
+    multipart:
+      max-file-size: 2MB
 pagehelper:
   page-size-zero: true
   reasonable: true

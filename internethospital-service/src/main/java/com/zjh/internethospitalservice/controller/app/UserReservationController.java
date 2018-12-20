@@ -11,6 +11,7 @@ import com.zjh.internethospitalservice.util.JWTUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -41,12 +42,14 @@ public class UserReservationController {
 
     @PostMapping("/insertUserReservationImg")
     @ApiOperation(value = "上传用户就诊图片描述")
+    @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> insertUserReservationImg(@RequestBody MultipartFile file) {
         return FileUtil.uploadFile(file, Constants.IMH_TYPE_USER_RESERVATION, "就诊信息图片描述");
     }
 
     @PostMapping("/deleteUserReservationImg")
     @ApiOperation(value = "删除用户就诊图片描述")
+    @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> deleteUserReservationImg(
             @ApiParam(required = true, value = "图片id") Integer id) throws Exception {
         return FileUtil.deleteFile(id);
@@ -54,6 +57,7 @@ public class UserReservationController {
 
     @PostMapping("/insertUserReservation")
     @ApiOperation(value = "用户确认就诊，添加就诊信息")
+    @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> insertUserReservation(
             @RequestBody @ApiParam(value = "就诊信息",required = true) UserReservationDto userReservationDto) {
         String token = request.getHeader("Authorization");
@@ -71,6 +75,7 @@ public class UserReservationController {
 
     @GetMapping("/getUserReservationDetail")
     @ApiOperation(value = "获取就诊详情信息")
+    @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> getUserReservationDetail(
             @RequestParam @ApiParam(value = "就诊信息id",required = true,example = "1") Integer userReservationId){
          UserReservation userReservationDetail = userReservationService.getUserReservationDetail(userReservationId);
