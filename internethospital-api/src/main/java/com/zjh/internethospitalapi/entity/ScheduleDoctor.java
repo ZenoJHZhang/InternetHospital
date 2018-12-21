@@ -64,6 +64,11 @@ public class ScheduleDoctor {
     @Column(name = "doctor_night_total_number")
     private Integer doctorNightTotalNumber;
 
+    /**
+     * 医生叫到几号，每天三个时段定时重置
+     */
+    private Integer callNo;
+
     @Column(name = "create_time")
     private Date createTime;
 

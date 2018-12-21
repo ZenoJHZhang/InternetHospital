@@ -257,4 +257,7 @@ public class UserReservation {
 
     @Transient
     private Patient patient;
+
+    @Transient
+    private Integer callNo;
 }

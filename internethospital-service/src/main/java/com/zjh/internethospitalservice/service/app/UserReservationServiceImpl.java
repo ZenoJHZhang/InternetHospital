@@ -100,9 +100,12 @@ public class UserReservationServiceImpl implements UserReservationService {
         UserReservation userReservation = userReservationMapper.selectByPrimaryKey(userReservationId);
         Patient patient = patientService.selectPatientById(userReservation.getPatientId());
         userReservation.setPatient(patient);
-        if (patient == null){
+        Integer scheduleDoctorId = userReservation.getScheduleDoctorId();
+        Integer callNo = scheduleDoctorMapper.selectByPrimaryKey(scheduleDoctorId).getCallNo();
+        if (patient == null || callNo == null){
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
         }
+        userReservation.setCallNo(callNo);
         return userReservation;
     }
 
