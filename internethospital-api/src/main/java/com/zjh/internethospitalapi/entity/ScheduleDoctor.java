@@ -65,9 +65,19 @@ public class ScheduleDoctor {
     private Integer doctorNightTotalNumber;
 
     /**
-     * 医生叫到几号，每天三个时段定时重置
+     * 早上医生叫到几号
      */
-    private Integer callNo;
+    private Integer morningCallNo;
+
+    /**
+     * 下午医生叫到几号
+     */
+    private Integer afternoonCallNo;
+
+    /**
+     * 晚上医生叫到几号
+     */
+    private Integer nightCallNo;
 
     @Column(name = "create_time")
     private Date createTime;

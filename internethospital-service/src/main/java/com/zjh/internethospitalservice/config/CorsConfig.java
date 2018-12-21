@@ -23,6 +23,7 @@ public class CorsConfig {
         corsConfiguration.addAllowedHeader("*");
         // 3允许任何方法（post、get等）
         corsConfiguration.addAllowedMethod("*");
+        corsConfiguration.setAllowCredentials(true);
         return corsConfiguration;
     }
 

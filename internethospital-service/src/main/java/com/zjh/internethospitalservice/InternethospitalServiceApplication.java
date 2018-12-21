@@ -3,6 +3,7 @@ package com.zjh.internethospitalservice;
 import com.spring4all.swagger.EnableSwagger2Doc;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.socket.config.annotation.EnableWebSocket;
 import tk.mybatis.spring.annotation.MapperScan;
 
 @SpringBootApplication

@@ -21,4 +21,17 @@ public interface ScheduleDoctorService {
      * @return
      */
     PageInfo<ScheduleDoctor> listExpertDoctor(String departmentName, String scheduleTime, String timeInterval, Integer pageSize, Integer pageNo);
+
+    /**
+     * 通过id获取详情
+     * @param scheduleDoctorId
+     * @return
+     */
+    ScheduleDoctor getScheduleDoctor(Integer scheduleDoctorId);
+
+    /**
+     * 更新
+     * @param scheduleDoctor
+     */
+    void updateScheduleDoctor(ScheduleDoctor scheduleDoctor);
 }
