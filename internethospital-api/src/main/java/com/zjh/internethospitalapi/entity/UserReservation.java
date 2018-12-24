@@ -4,9 +4,11 @@ import lombok.Data;
 import tk.mybatis.mapper.annotation.KeySql;
 import tk.mybatis.mapper.code.IdentityDialect;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.util.Date;
-import java.util.List;
 
 @Data
 @Table(name = "user_reservation")
@@ -236,7 +238,10 @@ public class UserReservation {
      */
     @Column(name = "clinic_type")
     private String clinicType;
-
+    /**
+     * 就诊是否已结束
+     */
+    private Integer isEnd;
     /**
      * 创建时间
      */
@@ -260,4 +265,13 @@ public class UserReservation {
 
     @Transient
     private Integer callNo;
+
+    /**
+     * 就诊状态
+     * -1：未到
+     * 0：已到
+     * 1： 过号
+     */
+    @Transient
+    private Integer clinicState;
 }

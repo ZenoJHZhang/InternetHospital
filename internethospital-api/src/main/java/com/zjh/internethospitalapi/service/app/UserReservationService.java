@@ -2,8 +2,11 @@ package com.zjh.internethospitalapi.service.app;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
+import com.zjh.internethospitalapi.entity.User;
 import com.zjh.internethospitalapi.entity.UserReservation;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * 患者就诊记录
@@ -33,4 +36,11 @@ public interface UserReservationService {
      * @return
      */
     UserReservation getUserReservationDetail(Integer userReservationId);
+
+    /**
+     * 通过用户id获得就诊信息列表(未终止的)
+     * @param userId
+     * @return
+     */
+    List<UserReservation> getUserReservationByUserIdIsNotEnd(Integer userId);
 }

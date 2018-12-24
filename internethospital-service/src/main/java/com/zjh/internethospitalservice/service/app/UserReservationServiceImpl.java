@@ -8,10 +8,7 @@ import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.dto.DispensingDoctorDto;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
 import com.zjh.internethospitalapi.entity.*;
-import com.zjh.internethospitalapi.service.app.ImgService;
-import com.zjh.internethospitalapi.service.app.PatientService;
-import com.zjh.internethospitalapi.service.app.SeasonTimeService;
-import com.zjh.internethospitalapi.service.app.UserReservationService;
+import com.zjh.internethospitalapi.service.app.*;
 import com.zjh.internethospitalservice.mapper.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,11 +37,12 @@ public class UserReservationServiceImpl implements UserReservationService {
     private final SeasonTimeService seasonTimeService;
     private final ScheduleDepartmentMapper scheduleDepartmentMapper;
     private final ImgService imgService;
+    private final ScheduleDoctorService scheduleDoctorService;
 
     @Autowired
     public UserReservationServiceImpl(PatientService patientService, UserReservationImgMapper userReservationImgMapper,
                                       UserReservationMapper userReservationMapper, ScheduleDoctorMapper scheduleDoctorMapper,
-                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper, ImgService imgService) {
+                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper, ImgService imgService, ScheduleDoctorService scheduleDoctorService) {
         this.patientService = patientService;
         this.userReservationImgMapper = userReservationImgMapper;
         this.userReservationMapper = userReservationMapper;
@@ -52,6 +50,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         this.seasonTimeService = seasonTimeService;
         this.scheduleDepartmentMapper = scheduleDepartmentMapper;
         this.imgService = imgService;
+        this.scheduleDoctorService = scheduleDoctorService;
     }
 
 
@@ -98,6 +97,9 @@ public class UserReservationServiceImpl implements UserReservationService {
     @Override
     public UserReservation getUserReservationDetail(Integer userReservationId) {
         UserReservation userReservation = userReservationMapper.selectByPrimaryKey(userReservationId);
+        if (userReservation == null){
+            throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
+        }
         Patient patient = patientService.selectPatientById(userReservation.getPatientId());
         userReservation.setPatient(patient);
         Integer scheduleDoctorId = userReservation.getScheduleDoctorId();
@@ -118,6 +120,12 @@ public class UserReservationServiceImpl implements UserReservationService {
         return userReservation;
     }
 
+    @Override
+    public List<UserReservation> getUserReservationByUserIdIsNotEnd(Integer userId) {
+        Example example = new Example(UserReservation.class);
+        example.createCriteria().andEqualTo("userId",userId).andEqualTo("isEnd",0);
+        return userReservationMapper.selectByExample(example);
+    }
     /**
      * 向数据库内添加对应 userReservationImg
      */
