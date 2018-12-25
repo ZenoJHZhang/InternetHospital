@@ -13,6 +13,7 @@ import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.stereotype.Controller;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Objects;
@@ -36,36 +37,10 @@ public class CallNumberController {
         this.scheduleDoctorService = scheduleDoctorService;
     }
 
-//    @MessageMapping("/nextPatient")
-//    @SendTo(value = "/topic/userReservation")
-//    public Integer nextPatient(Integer userReservationId) {
-//        UserReservation userReservationDetail = userReservationService.getUserReservationDetail(userReservationId);
-//        ScheduleDoctor scheduleDoctor = scheduleDoctorService.getScheduleDoctor(userReservationDetail.getScheduleDoctorId());
-//        String timeInterval = userReservationDetail.getTimeInterval();
-//        Integer callNo;
-//        if (timeInterval.equals(Constants.MORNING)){
-//            callNo = scheduleDoctor.getMorningCallNo();
-//            callNo = callNo +1;
-//            scheduleDoctor.setMorningCallNo(callNo);
-//        }
-//        else if(timeInterval.equals(Constants.AFTERNOON)){
-//            callNo = scheduleDoctor.getAfternoonCallNo();
-//            callNo = callNo +1;
-//            scheduleDoctor.setAfternoonCallNo(callNo);
-//        }
-//        else {
-//            callNo = scheduleDoctor.getNightCallNo();
-//            callNo = callNo +1;
-//            scheduleDoctor.setNightCallNo(callNo);
-//        }
-//        scheduleDoctor.setUpdateTime(new Date());
-//        scheduleDoctorService.updateScheduleDoctor(scheduleDoctor);
-//        return callNo;
-//    }
-
     @MessageMapping("/pushClinicState")
     @SendTo(value = "/topic/userReservation")
-    public List<UserReservation> pushUserReservationClinicState(String detail) {
+    public List<JSONObject> pushUserReservationClinicState(String detail) {
+        List<JSONObject> jsonObjectList = new ArrayList<>();
         JSONObject object = JSON.parseObject(detail);
         String token = object.getString("token");
         Integer userReservationId = object.getInteger("userReservationId");
@@ -73,6 +48,7 @@ public class CallNumberController {
         List<UserReservation> userReservationList = userReservationService.getUserReservationByUserIdIsNotEnd(userId);
         for (UserReservation userReservation : userReservationList
                 ) {
+            JSONObject result = new JSONObject();
             ScheduleDoctor scheduleDoctor = scheduleDoctorService.getScheduleDoctor(userReservation.getScheduleDoctorId());
             String timeInterval = userReservation.getTimeInterval();
             Integer callNo;
@@ -97,13 +73,19 @@ public class CallNumberController {
             } else {
                 clinicState = 1;
             }
-            userReservation.setClinicState(clinicState);
-            userReservation.setCallNo(callNo);
+            result.put("id",userReservation.getId());
+            result.put("clinicState",clinicState);
+            result.put("callNo",callNo);
             if (userReservation.getId().equals(userReservationId)) {
                 scheduleDoctor.setUpdateTime(new Date());
                 scheduleDoctorService.updateScheduleDoctor(scheduleDoctor);
+                if(clinicState == 1){
+                    userReservation.setStatus(5);
+                    userReservationService.updateUserReservationSelective(userReservation);
+                }
             }
+            jsonObjectList.add(result);
         }
-        return userReservationList;
+        return jsonObjectList;
     }
 }

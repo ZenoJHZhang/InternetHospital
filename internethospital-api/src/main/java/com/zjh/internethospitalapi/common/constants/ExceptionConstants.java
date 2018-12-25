@@ -19,4 +19,5 @@ public class ExceptionConstants {
     public static final String USER_INSERT_FAIL = "注册失败，请稍后再试";
     public static final String USER_RESERVATION_NOT_EXIST = "就诊详情不存在";
     public static final String UPDATE_SCHEDULE_DOCTOR_FAIL = "更新医生排班失败,请稍微再试";
+    public static final String UPDATE_USER_RESERVATION_FAIL = "更新就诊信息失败,请稍后再试";
 }

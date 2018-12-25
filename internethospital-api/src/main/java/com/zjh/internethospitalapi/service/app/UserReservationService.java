@@ -1,10 +1,8 @@
 package com.zjh.internethospitalapi.service.app;
 
-import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
-import com.zjh.internethospitalapi.entity.User;
 import com.zjh.internethospitalapi.entity.UserReservation;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -43,4 +41,19 @@ public interface UserReservationService {
      * @return
      */
     List<UserReservation> getUserReservationByUserIdIsNotEnd(Integer userId);
+
+    /**
+     * 通过用户id，分页获取用户就诊记录列表
+     * @param userId
+     * @param pageNo
+     * @param pageSize
+     * @return
+     */
+    PageInfo<UserReservation> listUserReservationOfUserInPage(Integer userId,Integer pageNo,Integer pageSize);
+
+    /**
+     * 根据主键选择性更新
+     * @param userReservation
+     */
+    void updateUserReservationSelective(UserReservation userReservation);
 }

@@ -1,6 +1,8 @@
 package com.zjh.internethospitalservice.service.app;
 
 import com.alibaba.fastjson.JSONObject;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.DiagnoseConstants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
@@ -38,11 +40,12 @@ public class UserReservationServiceImpl implements UserReservationService {
     private final ScheduleDepartmentMapper scheduleDepartmentMapper;
     private final ImgService imgService;
     private final ScheduleDoctorService scheduleDoctorService;
+    private final UserReservationStatusMapper userReservationStatusMapper;
 
     @Autowired
     public UserReservationServiceImpl(PatientService patientService, UserReservationImgMapper userReservationImgMapper,
                                       UserReservationMapper userReservationMapper, ScheduleDoctorMapper scheduleDoctorMapper,
-                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper, ImgService imgService, ScheduleDoctorService scheduleDoctorService) {
+                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper, ImgService imgService, ScheduleDoctorService scheduleDoctorService, UserReservationStatusMapper userReservationStatusMapper) {
         this.patientService = patientService;
         this.userReservationImgMapper = userReservationImgMapper;
         this.userReservationMapper = userReservationMapper;
@@ -51,6 +54,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         this.scheduleDepartmentMapper = scheduleDepartmentMapper;
         this.imgService = imgService;
         this.scheduleDoctorService = scheduleDoctorService;
+        this.userReservationStatusMapper = userReservationStatusMapper;
     }
 
 
@@ -126,6 +130,30 @@ public class UserReservationServiceImpl implements UserReservationService {
         example.createCriteria().andEqualTo("userId",userId).andEqualTo("isEnd",0);
         return userReservationMapper.selectByExample(example);
     }
+
+    @Override
+    public PageInfo<UserReservation> listUserReservationOfUserInPage(Integer userId,Integer pageNo,Integer pageSize) {
+        Example example = new Example(UserReservation.class);
+        example.createCriteria().andEqualTo("userId",userId);
+        PageHelper.startPage(pageNo,pageSize);
+        List<UserReservation> userReservationList = userReservationMapper.selectByExample(example);
+        for (UserReservation userReservation:userReservationList
+             ) {
+            String stateName = userReservationStatusMapper.selectByPrimaryKey(userReservation.getStatus()).getStateName();
+            userReservation.setPayStateDescription(stateName);
+        }
+        return new PageInfo<>(userReservationList);
+    }
+
+    @Override
+    public void updateUserReservationSelective(UserReservation userReservation) {
+        userReservation.setUpdateTime(new Date());
+        int i = userReservationMapper.updateByPrimaryKeySelective(userReservation);
+        if (i != 1){
+            throw new InternetHospitalException(ExceptionConstants.UPDATE_USER_RESERVATION_FAIL);
+        }
+    }
+
     /**
      * 向数据库内添加对应 userReservationImg
      */
