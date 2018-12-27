@@ -3,6 +3,8 @@ package com.zjh.internethospitalservice.controller.socket;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.zjh.internethospitalapi.common.constants.Constants;
+import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
+import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.ScheduleDoctor;
 import com.zjh.internethospitalapi.entity.UserReservation;
 import com.zjh.internethospitalapi.service.app.ScheduleDoctorService;
@@ -16,7 +18,6 @@ import org.springframework.stereotype.Controller;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * 类的说明
@@ -39,53 +40,50 @@ public class CallNumberController {
 
     @MessageMapping("/pushClinicState")
     @SendTo(value = "/topic/userReservation")
-    public List<JSONObject> pushUserReservationClinicState(String detail) {
-        List<JSONObject> jsonObjectList = new ArrayList<>();
+    public JSONObject pushUserReservationClinicState(String detail) {
         JSONObject object = JSON.parseObject(detail);
         String token = object.getString("token");
         Integer userReservationId = object.getInteger("userReservationId");
         Integer userId = JWTUtil.getUserId(token);
-        List<UserReservation> userReservationList = userReservationService.getUserReservationByUserIdIsNotEnd(userId);
-        for (UserReservation userReservation : userReservationList
-                ) {
-            JSONObject result = new JSONObject();
-            ScheduleDoctor scheduleDoctor = scheduleDoctorService.getScheduleDoctor(userReservation.getScheduleDoctorId());
-            String timeInterval = userReservation.getTimeInterval();
-            Integer callNo;
-            Integer clinicState;
-            if (timeInterval.equals(Constants.MORNING)) {
-                callNo = scheduleDoctor.getMorningCallNo();
-                callNo = callNo + 1;
-                scheduleDoctor.setMorningCallNo(callNo);
-            } else if (timeInterval.equals(Constants.AFTERNOON)) {
-                callNo = scheduleDoctor.getAfternoonCallNo();
-                callNo = callNo + 1;
-                scheduleDoctor.setAfternoonCallNo(callNo);
-            } else {
-                callNo = scheduleDoctor.getNightCallNo();
-                callNo = callNo + 1;
-                scheduleDoctor.setNightCallNo(callNo);
-            }
-            if (callNo.equals(userReservation.getRegNo())) {
-                clinicState = 0;
-            } else if (Integer.compare(callNo, userReservation.getRegNo()) < 0) {
-                clinicState = -1;
-            } else {
-                clinicState = 1;
-            }
-            result.put("id",userReservation.getId());
-            result.put("clinicState",clinicState);
-            result.put("callNo",callNo);
-            if (userReservation.getId().equals(userReservationId)) {
-                scheduleDoctor.setUpdateTime(new Date());
-                scheduleDoctorService.updateScheduleDoctor(scheduleDoctor);
-                if(clinicState == 1){
-                    userReservation.setStatus(5);
-                    userReservationService.updateUserReservationSelective(userReservation);
-                }
-            }
-            jsonObjectList.add(result);
+        UserReservation userReservation = userReservationService.getUserReservationDetail(userReservationId);
+        JSONObject result = new JSONObject();
+        ScheduleDoctor scheduleDoctor = scheduleDoctorService.getScheduleDoctor(userReservation.getScheduleDoctorId());
+        String timeInterval = userReservation.getTimeInterval();
+        if (userId != null && !userId.equals(userReservation.getUserId())) {
+            throw new InternetHospitalException(ExceptionConstants.UPDATE_USER_RESERVATION_FAIL);
         }
-        return jsonObjectList;
+        Integer callNo;
+        Integer clinicState;
+        if (timeInterval.equals(Constants.MORNING)) {
+            callNo = scheduleDoctor.getMorningCallNo();
+            callNo = callNo + 1;
+            scheduleDoctor.setMorningCallNo(callNo);
+        } else if (timeInterval.equals(Constants.AFTERNOON)) {
+            callNo = scheduleDoctor.getAfternoonCallNo();
+            callNo = callNo + 1;
+            scheduleDoctor.setAfternoonCallNo(callNo);
+        } else {
+            callNo = scheduleDoctor.getNightCallNo();
+            callNo = callNo + 1;
+            scheduleDoctor.setNightCallNo(callNo);
+        }
+        if (callNo.equals(userReservation.getRegNo())) {
+            clinicState = 0;
+        } else if (Integer.compare(callNo, userReservation.getRegNo()) < 0) {
+            clinicState = -1;
+        } else {
+            clinicState = 1;
+        }
+        result.put("id", userReservation.getId());
+        result.put("clinicState", clinicState);
+        result.put("callNo", callNo);
+
+        scheduleDoctor.setUpdateTime(new Date());
+        scheduleDoctorService.updateScheduleDoctor(scheduleDoctor);
+        if (clinicState == 1) {
+            userReservation.setStatus(5);
+            userReservationService.updateUserReservationSelective(userReservation);
+        }
+        return result;
     }
 }
