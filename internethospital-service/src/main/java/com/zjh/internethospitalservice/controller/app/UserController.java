@@ -2,6 +2,8 @@ package com.zjh.internethospitalservice.controller.app;
 
 import com.alibaba.fastjson.JSONObject;
 import com.zjh.internethospitalapi.common.constants.Constants;
+import com.zjh.internethospitalapi.dto.UserDto;
+import com.zjh.internethospitalapi.entity.User;
 import com.zjh.internethospitalapi.service.app.UserService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import com.zjh.internethospitalservice.util.JWTUtil;
@@ -35,14 +37,14 @@ public class UserController {
     @ApiOperation(value = "用户登录，返回token和phone")
     @GetMapping("/login")
     public ResponseEntity<ApiResponse> userLogin(@RequestParam(value = "phone") @ApiParam(required = true, value = "用户手机号") String phone,
-                                                 @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password,
-                                                 @RequestParam(value = "roleId") @ApiParam(required = true,value = "权限Id",example = "1") Integer roleId) {
-        Integer userId = userService.userLogin(phone, password,roleId);
+                                                 @RequestParam(value = "password") @ApiParam(required = true, value = "用户密码") String password
+                                                ) {
+        User user = userService.userLogin(phone, password);
         JSONObject jsonObject = new JSONObject();
-        if (userId == null) {
+        if (user == null) {
             return ApiResponse.errorResponse("用户不存在或密码不正确",null);
         } else {
-            jsonObject.put("token", JWTUtil.createToken(userId,phone,roleId));
+            jsonObject.put("token", JWTUtil.createToken(user.getId(),phone,user.getRoleId()));
             jsonObject.put("phone", phone);
             return ApiResponse.successResponse(jsonObject);
         }
@@ -69,12 +71,19 @@ public class UserController {
         /**
          * true : 重复 ; false：未重复
          */
-        boolean isSameFlag = userService.isSameUserPhone(phone, roleId);
+        boolean isSameFlag = userService.isSameUserPhone(phone);
         if (isSameFlag) {
             return ApiResponse.errorResponse( "手机号已注册",result);
         } else {
-            userService.userRegister(phone, password);
+            userService.userRegister(phone, password,roleId);
             return ApiResponse.successResponse(null);
         }
+    }
+
+    @ApiOperation(value = "获取用户信息")
+    @GetMapping("/info")
+    public ResponseEntity<ApiResponse> getUserInfo(String phone){
+        UserDto userInfo = userService.getUserInfo(phone);
+        return ApiResponse.successResponse(userInfo);
     }
 }

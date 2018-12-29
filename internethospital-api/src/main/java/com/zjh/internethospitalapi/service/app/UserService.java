@@ -1,5 +1,8 @@
 package com.zjh.internethospitalapi.service.app;
 
+import com.zjh.internethospitalapi.dto.UserDto;
+import com.zjh.internethospitalapi.entity.User;
+
 /**
  * 类的说明
  *
@@ -9,29 +12,34 @@ package com.zjh.internethospitalapi.service.app;
  */
 public interface UserService {
     /**
-     * 用户登录,返回userId
+     * 用户登录
+     * @param phone
+     * @param password
+     * @return user
+     */
+    User userLogin(String phone, String password);
+
+    /**
+     * 用户注册
      * @param phone
      * @param password
      * @param roleId
-     * @return userId
-     */
-    Integer userLogin(String phone,String password,Integer roleId);
-
-    /**
-     * 普通用户注册，仅需 phone ，password
-     * 注册后 roleId = 1
-     * @param phone
-     * @param password
      * @return
      */
-    void userRegister(String phone, String password);
+    void userRegister(String phone, String password , Integer roleId);
 
     /**
-     * 判断相同权限下，是否有用户手机号重复
+     * 判断是否有用户手机号重复,无论权限
      * true: 重复 false：不重复
      * @param phone
-     * @param roleId
      * @return
      */
-    boolean isSameUserPhone(String phone,Integer roleId);
+    boolean isSameUserPhone(String phone);
+
+    /**
+     * 通过手机号获取非
+     * @param phone
+     * @return
+     */
+    UserDto getUserInfo(String phone);
 }
