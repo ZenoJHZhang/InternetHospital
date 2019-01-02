@@ -1,8 +1,5 @@
 package com.zjh.internethospitalapi.service.app;
 
-import com.alibaba.fastjson.JSONObject;
-import com.github.pagehelper.PageInfo;
-
 /**
  * 类的说明
  *
