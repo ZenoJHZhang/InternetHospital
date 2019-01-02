@@ -82,7 +82,8 @@ public class UserController {
 
     @ApiOperation(value = "获取用户信息")
     @GetMapping("/info")
-    public ResponseEntity<ApiResponse> getUserInfo(String phone){
+    public ResponseEntity<ApiResponse> getUserInfo(String token){
+        String phone = JWTUtil.getPhone(token);
         UserDto userInfo = userService.getUserInfo(phone);
         return ApiResponse.successResponse(userInfo);
     }

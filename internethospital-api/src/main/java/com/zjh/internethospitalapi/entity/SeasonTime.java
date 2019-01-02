@@ -13,12 +13,6 @@ public class SeasonTime {
     private Integer id;
 
     /**
-     * 医院ID
-     */
-    @Column(name = "hospital_id")
-    private Integer hospitalId;
-
-    /**
      * 名称
      */
     private String name;

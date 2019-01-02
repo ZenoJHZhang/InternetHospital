@@ -23,12 +23,6 @@ public class Doctor {
     private Integer userId;
 
     /**
-     * 所属医院ID
-     */
-    @Column(name = "hospital_id")
-    private Integer hospitalId;
-
-    /**
      * 医生工号
      */
     @Column(name = "doctor_number")

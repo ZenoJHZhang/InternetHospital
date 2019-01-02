@@ -20,12 +20,6 @@ public class Department {
     private Integer id;
 
     /**
-     * 医院ID
-     */
-    @Column(name = "hospital_id")
-    private String hospitalId;
-
-    /**
      * 科室编号
      */
     @Column(name = "department_number")

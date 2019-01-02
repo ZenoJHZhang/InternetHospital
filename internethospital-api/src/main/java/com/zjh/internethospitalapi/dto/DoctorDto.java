@@ -16,11 +16,6 @@ public class DoctorDto {
     private Integer id;
 
     /**
-     * 所属医院ID
-     */
-    private Integer hospitalId;
-
-    /**
      * 医生工号
      */
     private String doctorNumber;

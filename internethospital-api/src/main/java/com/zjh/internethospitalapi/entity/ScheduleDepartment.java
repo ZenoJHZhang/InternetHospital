@@ -15,9 +15,6 @@ public class ScheduleDepartment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Column(name = "hospital_id")
-    private String hospitalId;
-
     /**
      * 科室ID
      */

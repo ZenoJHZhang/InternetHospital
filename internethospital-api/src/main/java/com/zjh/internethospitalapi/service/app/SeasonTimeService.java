@@ -13,11 +13,10 @@ import com.zjh.internethospitalapi.entity.SeasonTime;
 public interface SeasonTimeService {
 
     /**
-     * 根据当前日期，获得对应时段的该医院的起始时刻
-     * @param hospitalId
+     * 根据当前日期，获得对应令时，早晚起始时刻
      * @param timeInterval
      * @return
      */
-    JSONObject getSeasonTimeByHospitalOfTimeInterval(Integer hospitalId,String timeInterval);
+    JSONObject getSeasonTimeByTimeInterval(String timeInterval);
 
 }

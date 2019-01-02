@@ -33,24 +33,29 @@ public class SeasonTimeServiceImpl implements SeasonTimeService {
     }
 
     @Override
-    public JSONObject getSeasonTimeByHospitalOfTimeInterval(Integer hospitalId, String timeInterval){
+    public JSONObject getSeasonTimeByTimeInterval(String timeInterval){
         LocalDate dateNow = LocalDate.now();
         LocalDate startDate;
         LocalDate endDate;
         JSONObject object = new JSONObject();
         String start;
         String end;
-        Example example = new Example(SeasonTime.class);
-        example.createCriteria().andEqualTo("hospitalId", hospitalId);
-        List<SeasonTime> seasonTimeList = seasonTimeMapper.selectByExample(example);
+        List<SeasonTime> seasonTimeList = seasonTimeMapper.selectAll();
         //判断出来的夏令时或冬令时时间
         SeasonTime realSeasonTime = null;
         for (SeasonTime seasonTime : seasonTimeList
                 ) {
             Integer type = seasonTime.getType();
             if (type == 1) {
-                startDate = LocalDate.parse((LocalDate.now().getYear()) + "-" + seasonTime.getStartDate());
-                endDate =  LocalDate.parse((LocalDate.now().getYear()+1) + "-" + seasonTime.getEndDate());
+                //判断是上半年还是下半年；上半年则起始日期为去年，反之为今年
+                if(LocalDate.now().getMonthValue() <=6){
+                    startDate = LocalDate.parse((LocalDate.now().getYear()-1) + "-" + seasonTime.getStartDate());
+                    endDate =  LocalDate.parse((LocalDate.now().getYear()) + "-" + seasonTime.getEndDate());
+                }
+                else{
+                    startDate = LocalDate.parse((LocalDate.now().getYear()) + "-" + seasonTime.getStartDate());
+                    endDate =  LocalDate.parse((LocalDate.now().getYear()+1) + "-" + seasonTime.getEndDate());
+                }
                  if(dateNow.isAfter(startDate) && dateNow.isBefore(endDate)){
                      realSeasonTime = seasonTime;
                  }

@@ -36,12 +36,6 @@ public class UserReservation {
     private String patientName;
 
     /**
-     * 医院id
-     */
-    @Column(name = "hospital_id")
-    private Integer hospitalId;
-
-    /**
      * 排班医生id
      */
     @Column(name = "schedule_doctor_id")

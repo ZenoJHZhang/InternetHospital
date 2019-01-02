@@ -55,8 +55,6 @@ public class UserReservationDto {
      */
     private String doctorName;
 
-    private Integer hospitalId;
-
     private Integer patientId;
 
     private String price;
