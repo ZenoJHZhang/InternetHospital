@@ -8,6 +8,7 @@ import com.zjh.internethospitalapi.service.management.ScheduleDepartmentService;
 import com.zjh.internethospitalservice.mapper.DoctorDepartmentMapper;
 import com.zjh.internethospitalservice.mapper.ScheduleDepartmentMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
  * @author: 张江浩
  * @date: 2019/1/2 15:36
  */
+@Service("/scheduleDepartmentService")
 public class ScheduleDepartmentServiceImpl implements ScheduleDepartmentService {
     @Autowired
     private ScheduleDepartmentMapper scheduleDepartmentMapper;

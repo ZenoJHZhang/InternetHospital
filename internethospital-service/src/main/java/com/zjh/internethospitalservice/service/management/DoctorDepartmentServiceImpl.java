@@ -8,6 +8,7 @@ import com.zjh.internethospitalapi.service.management.DoctorDepartmentService;
 import com.zjh.internethospitalservice.mapper.DoctorDepartmentMapper;
 import com.zjh.internethospitalservice.mapper.DoctorMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +20,9 @@ import java.util.List;
  * @author: 张江浩
  * @date: 2019/1/2 16:03
  */
+@Service("doctorDepartmentService")
 public class DoctorDepartmentServiceImpl implements DoctorDepartmentService {
-    
+
     private final DoctorDepartmentMapper doctorDepartmentMapper;
     private final DoctorMapper doctorMapper;
 
