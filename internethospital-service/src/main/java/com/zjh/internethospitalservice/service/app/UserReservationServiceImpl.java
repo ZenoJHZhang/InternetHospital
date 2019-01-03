@@ -293,15 +293,15 @@ public class UserReservationServiceImpl implements UserReservationService {
         if (timeInterval.equals(Constants.MORNING)) {
             scheduleDoctor.setDoctorMorningNumber(scheduleDoctor.getDoctorMorningNumber() + 1);
             scheduleDepartment.setMorningNumber(scheduleDepartment.getMorningNumber() + 1);
-            userReservation.setRegNo(scheduleDoctor.getDoctorMorningNumber() + 1);
+            userReservation.setRegNo(scheduleDoctor.getDoctorMorningNumber());
         } else if (timeInterval.equals(Constants.AFTERNOON)) {
             scheduleDoctor.setDoctorAfternoonNumber(scheduleDoctor.getDoctorAfternoonNumber() + 1);
             scheduleDepartment.setAfternoonNumber(scheduleDepartment.getAfternoonNumber() + 1);
-            userReservation.setRegNo(scheduleDoctor.getDoctorAfternoonNumber() + 1);
+            userReservation.setRegNo(scheduleDoctor.getDoctorAfternoonNumber());
         } else if (timeInterval.equals(Constants.NIGHT)) {
             scheduleDoctor.setDoctorNightNumber(scheduleDoctor.getDoctorNightNumber() + 1);
             scheduleDepartment.setNightNumber(scheduleDepartment.getNightNumber() + 1);
-            userReservation.setRegNo(scheduleDoctor.getDoctorNightNumber() + 1);
+            userReservation.setRegNo(scheduleDoctor.getDoctorNightNumber());
         }
         scheduleDoctor.setUpdateTime(new Date());
         scheduleDepartment.setUpdateTime(new Date());

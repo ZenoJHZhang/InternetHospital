@@ -22,4 +22,6 @@ public class ExceptionConstants {
     public static final String UPDATE_USER_RESERVATION_FAIL = "更新就诊信息失败,请稍后再试";
     public static final String USER_NOT_EXIST = "很抱歉，查询的用户不存在";
     public static final String DOCTOR_NOT_EXIST = "医生不存在";
+    public static final String INSERT_SCHEDULE_DOCTOR_FAIL = "添加医生排班失败";
+    public static final String INSERT_SCHEDULE_DEPARTMENT_FAIL = "添加科室排班失败";
 }
