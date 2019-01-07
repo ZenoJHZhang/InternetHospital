@@ -71,8 +71,7 @@ public class ScheduleDoctorServiceImpl implements ScheduleDoctorService {
         }
         PageHelper.startPage(pageNo, pageSize);
         List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
-        for (int i = 0; i < scheduleDoctorList.size(); i++) {
-            ScheduleDoctor scheduleDoctor = scheduleDoctorList.get(i);
+        for (ScheduleDoctor scheduleDoctor : scheduleDoctorList) {
             Doctor doctor = doctorMapper.selectByPrimaryKey(scheduleDoctor.getDoctorId());
             DoctorDto doctorDto = new DoctorDto();
             BeanUtils.copyProperties(doctor, doctorDto);

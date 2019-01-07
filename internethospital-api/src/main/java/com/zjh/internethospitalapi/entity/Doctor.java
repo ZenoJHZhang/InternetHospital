@@ -61,7 +61,7 @@ public class Doctor {
     /**
      * 擅长
      */
-    private String goodat;
+    private String goodAt;
 
     /**
      * 医生所属科室数量

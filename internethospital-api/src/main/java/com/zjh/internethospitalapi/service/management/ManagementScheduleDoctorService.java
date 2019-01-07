@@ -1,5 +1,7 @@
 package com.zjh.internethospitalapi.service.management;
 
+import com.zjh.internethospitalapi.entity.ScheduleDoctor;
+
 /**
  * 类的说明
  *
@@ -14,15 +16,25 @@ public interface ManagementScheduleDoctorService {
      *
      * @param scheduleDepartmentId  科室排班id
      * @param departmentId  科室id
-     * @param departmentName    科室名
      * @param doctorId  医生id
-     * @param doctorName    医生姓名
      * @param scheduleTime  预约时间
      * @param timeInterval 时段
      * @param totalNumber   该时段总号源数
      */
-    void insertScheduleDoctor(Integer scheduleDepartmentId,Integer departmentId,
-                              String departmentName,Integer doctorId,String doctorName,
+    void insertScheduleDoctor(Integer scheduleDepartmentId,Integer departmentId, Integer doctorId,
                               String scheduleTime,String timeInterval,Integer totalNumber);
+
+    /**
+     * 更新医生排班
+     *
+     * @param scheduleDoctor 医生排班
+     */
+    void updateScheduleDoctor(ScheduleDoctor scheduleDoctor);
+
+    /**
+     * 删除医生排班
+     * @param scheduleDoctorId 医生排班id
+     */
+    void deleteScheduleDepartment(Integer scheduleDoctorId);
 
 }
