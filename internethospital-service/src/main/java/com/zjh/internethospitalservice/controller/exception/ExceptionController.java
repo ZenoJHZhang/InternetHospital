@@ -46,7 +46,7 @@ public class ExceptionController {
 
     @ExceptionHandler(InternetHospitalException.class)
     public ResponseEntity<ApiResponse> handleInstantiationException(InternetHospitalException e){
-        log.error(e.getMessage());
+        log.error(e.getMessage(),e);
         return ApiResponse.response(400,e.getMessage(),null);
     }
 
