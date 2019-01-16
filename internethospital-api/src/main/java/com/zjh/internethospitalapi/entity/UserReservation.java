@@ -17,6 +17,7 @@ public class UserReservation {
     @KeySql(dialect = IdentityDialect.MYSQL)
     private Integer id;
 
+    private String uuId;
     /**
      * 用户id
      */

@@ -88,4 +88,12 @@ public class PatientServiceImpl implements PatientService {
         patient.setAge(age);
         return patient;
     }
+
+    @Override
+    public void updatePatient(Patient patient) {
+        int i = patientMapper.updateByPrimaryKey(patient);
+        if(i != 1){
+            throw new InternetHospitalException(ExceptionConstants.PATIENT_UPDATE_FAIL);
+        }
+    }
 }

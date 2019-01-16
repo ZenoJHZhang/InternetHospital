@@ -19,6 +19,10 @@ spring:
   servlet:
     multipart:
       max-file-size: 2MB
+  redis:
+    host: 47.100.241.49
+    port: 6379
+    password:
 pagehelper:
   page-size-zero: true
   reasonable: true
@@ -43,8 +47,8 @@ logging:
   file: C:/log/internetHospital.log
 server:
   port: 8080
-  ssl:
-    key-store: 1718543_www.woniuyiliao.cn.pfx
-    key-store-password: 28BmGQBh
+#  ssl:
+#    key-store: 1718543_www.woniuyiliao.cn.pfx
+#    key-store-password: 28BmGQBh
 
 

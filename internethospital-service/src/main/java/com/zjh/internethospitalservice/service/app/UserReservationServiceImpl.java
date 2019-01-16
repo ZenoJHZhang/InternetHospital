@@ -152,6 +152,19 @@ public class UserReservationServiceImpl implements UserReservationService {
         }
     }
 
+    @Override
+    public UserReservation getUserReservationByUuId(String uuid) {
+        Example example = new Example(UserReservation.class);
+        example.createCriteria().andEqualTo("uuId",uuid);
+        UserReservation userReservation = userReservationMapper.selectOneByExample(example);
+        if(userReservation == null){
+            throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
+        }
+        else {
+            return userReservation;
+        }
+    }
+
     /**
      * 向数据库内添加对应 userReservationImg
      */

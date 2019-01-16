@@ -34,4 +34,5 @@ public class ExceptionConstants {
     public static final String DELETE_SCHEDULE_DEPARTMENT_FAIL = "删除科室排班失败，请稍后再试";
     public static final String DELETE_SCHEDULE_DOCTOR_FAIL = "删除医生排班失败，请稍后再试";
     public static final String SEND_SHORT_MESSAGE_FAIL = "发送短信失败，请稍后再试";
+    public static final String PATIENT_UPDATE_FAIL = "就诊人更新失败，请稍后再试";
 }

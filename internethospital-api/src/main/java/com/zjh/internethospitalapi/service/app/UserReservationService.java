@@ -56,4 +56,11 @@ public interface UserReservationService {
      * @param userReservation
      */
     void updateUserReservationSelective(UserReservation userReservation);
+
+    /**
+     * 通过uuid获取用户就诊信息
+     * @param uuid uuid
+     * @return
+     */
+    UserReservation getUserReservationByUuId(String uuid);
 }

@@ -85,4 +85,12 @@ public class PatientController {
        return ApiResponse.successResponse(null);
 
     }
+
+    @PostMapping("/updatePatient")
+    @ApiOperation(value = "更新就诊人")
+    @RequiresRoles(value = "user")
+    public ResponseEntity<ApiResponse> updatePatient(@RequestBody @ApiParam(required = true,value = "就诊人") Patient patient){
+        patientService.updatePatient(patient);
+        return ApiResponse.successResponse(null);
+    }
 }

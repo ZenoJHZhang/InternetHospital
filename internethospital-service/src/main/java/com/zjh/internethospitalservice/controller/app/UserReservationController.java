@@ -2,9 +2,9 @@ package com.zjh.internethospitalservice.controller.app;
 
 import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.common.constants.Constants;
+import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
 import com.zjh.internethospitalapi.entity.UserReservation;
-import com.zjh.internethospitalapi.service.app.PatientService;
 import com.zjh.internethospitalapi.service.app.UserReservationService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import com.zjh.internethospitalservice.util.FileUtil;
@@ -14,11 +14,13 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.UUID;
 
 /**
  * 类的说明
@@ -34,11 +36,15 @@ public class UserReservationController {
 
     private final HttpServletRequest request;
     private final UserReservationService userReservationService;
+    private final RedisTemplate<String, String> redisTemplate;
 
     @Autowired
-    public UserReservationController(HttpServletRequest request, PatientService patientService, UserReservationService userReservationService) {
+    public UserReservationController(HttpServletRequest request,
+                                     UserReservationService userReservationService,
+                                     RedisTemplate<String, String> redisTemplate) {
         this.request = request;
         this.userReservationService = userReservationService;
+        this.redisTemplate = redisTemplate;
     }
 
     @PostMapping("/insertUserReservationImg")
@@ -70,7 +76,12 @@ public class UserReservationController {
         } else if (userReservationDto.getType().equals(Constants.EXPERT)) {
             userReservationId = userReservationService.insertExpertUserReservation(userReservationDto);
         }
-        return ApiResponse.successResponse(userReservationId);
+        String uuId = UUID.randomUUID().toString();
+        UserReservation userReservation = new UserReservation();
+        userReservation.setId(userReservationId);
+        userReservation.setUuId(uuId);
+        userReservationService.updateUserReservationSelective(userReservation);
+        return ApiResponse.successResponse(uuId);
     }
 
     @GetMapping("/getUserReservationDetail")
@@ -108,5 +119,14 @@ public class UserReservationController {
         userReservation.setId(userReservationId);
         userReservationService.updateUserReservationSelective(userReservation);
         return ApiResponse.successResponse(null);
+    }
+
+    @GetMapping("/getUserReservationIdByUuid")
+    @ApiOperation(value = "根据就诊uuid获取真正的用户就诊信息id")
+    @RequiresRoles(value = "user")
+    public ResponseEntity<ApiResponse> getUserReservationIdByUuid(
+            @RequestParam @ApiParam(value = "提交申请时生成的uuid") String userReservationUuId) {
+        UserReservation userReservation = userReservationService.getUserReservationByUuId(userReservationUuId);
+        return ApiResponse.successResponse(userReservation.getId());
     }
 }

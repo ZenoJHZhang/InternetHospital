@@ -51,4 +51,10 @@ public interface PatientService {
      * @return
      */
     Patient selectPatientById(Integer id);
+
+    /**
+     * 更新就诊人
+     * @param patient 就诊人
+     */
+    void updatePatient(Patient patient);
 }
