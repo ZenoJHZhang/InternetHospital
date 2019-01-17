@@ -23,6 +23,9 @@ spring:
     host: 47.100.241.49
     port: 6379
     password:
+  output:
+    ansi:
+      enabled: always
 pagehelper:
   page-size-zero: true
   reasonable: true
