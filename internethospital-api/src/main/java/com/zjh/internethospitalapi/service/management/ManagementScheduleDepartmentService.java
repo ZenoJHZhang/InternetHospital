@@ -22,13 +22,20 @@ public interface ManagementScheduleDepartmentService {
     Integer insertScheduleDepartment(Integer departmentId, String timeInterval, Integer totalNumber, String scheduleTime);
 
     /**
-     * 更新科室排班
+     * 更新科室排班对应时段的号源总数
      * @param scheduleDepartment 科室排班
      * @param timeInterval 排班时段
      * @param insertTotalNumber 增加的总号源数
      */
-    void updateScheduleDepartment(ScheduleDepartment scheduleDepartment,String timeInterval,Integer insertTotalNumber);
+    void updateScheduleDepartment(ScheduleDepartment scheduleDepartment, String timeInterval, Integer insertTotalNumber);
 
+    /**
+     * 更新科室排班中的排班时段以及对应时段的号源总数
+     * @param scheduleDepartment 科室排班
+     * @param timeInterval 时段
+     * @param totalNumber 对应时刻号源总数
+     */
+    void updateScheduleDepartmentNumber(ScheduleDepartment scheduleDepartment, String timeInterval, Integer totalNumber);
     /**
      * 普遍性的更新科室排班
      * @param scheduleDepartment 科室排班
@@ -40,4 +47,12 @@ public interface ManagementScheduleDepartmentService {
      * @param scheduleDepartmentId 科室排班id
      */
     void deleteScheduleDepartment(Integer scheduleDepartmentId);
+
+    /**
+     * 获取当天，此科室排班情况
+     * @param departmentId 科室id
+     * @param scheduleTime 日期
+     * @return
+     */
+    ScheduleDepartment getScheduleDepartmentByDepartmentIdAndScheduleTime(Integer departmentId,String scheduleTime);
 }

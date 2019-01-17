@@ -53,7 +53,7 @@ public class ExceptionController {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ApiResponse> globalException(HttpServletRequest request, Throwable ex){
         Integer statusCode = (Integer) request.getAttribute("javax.servlet.error.status_code");
-        log.error(ex.getMessage());
+        log.error(ex.getMessage(),ex);
         if (statusCode == null){
             return ApiResponse.response(500,"服务器错误",null);
         }

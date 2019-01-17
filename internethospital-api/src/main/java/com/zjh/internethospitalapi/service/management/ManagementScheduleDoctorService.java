@@ -25,16 +25,27 @@ public interface ManagementScheduleDoctorService {
                               String scheduleTime,String timeInterval,Integer totalNumber);
 
     /**
-     * 更新医生排班
+     *  更新医生排班
+     * @param doctorId  医生id
+     * @param scheduleTime 排班时间
      *
-     * @param scheduleDoctor 医生排班
+     * @param timeInterval 排班时段
+     * @param totalNumber 时段对应号源总数
      */
-    void updateScheduleDoctor(ScheduleDoctor scheduleDoctor);
+    void updateScheduleDoctor(Integer doctorId,String scheduleTime,String timeInterval,Integer totalNumber);
 
     /**
      * 删除医生排班
      * @param scheduleDoctorId 医生排班id
      */
     void deleteScheduleDepartment(Integer scheduleDoctorId);
+
+    /**
+     * 通过医生id和排班时间获取对应的医生排班
+     * @param doctorId 医生id
+     * @param scheduleTime  排班时间
+     * @return
+     */
+    ScheduleDoctor getScheduleDoctorByDoctorIdAndScheduleTime(Integer doctorId,String scheduleTime);
 
 }

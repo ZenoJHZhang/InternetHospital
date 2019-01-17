@@ -16,8 +16,8 @@ public final class Constants {
      */
     public static final String DEPARTMENT = "department";
     public static final String EXPERT = "expert";
-    public static final String TRUE = "1";
-    public static final String FALSE = "0";
+    public static final String ONE = "1";
+    public static final String ZERO = "0";
 
     /**
      * pattern 正则表达式

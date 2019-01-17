@@ -5,12 +5,12 @@ import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.entity.ScheduleDepartment;
-import com.zjh.internethospitalapi.service.management.ManagementDoctorDepartmentService;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDepartmentService;
 import com.zjh.internethospitalservice.mapper.DepartmentMapper;
 import com.zjh.internethospitalservice.mapper.ScheduleDepartmentMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
 
 import java.util.Date;
 
@@ -74,7 +74,7 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
     }
 
     @Override
-    public void updateScheduleDepartment(ScheduleDepartment scheduleDepartment,String timeInterval,Integer insertTotalNumber) {
+    public void updateScheduleDepartment(ScheduleDepartment scheduleDepartment, String timeInterval, Integer insertTotalNumber) {
         ScheduleDepartment getOne = scheduleDepartmentMapper.selectByPrimaryKey(scheduleDepartment.getId());
         if (getOne == null){
             throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DEPARTMENT_NOT_EXIST);
@@ -103,6 +103,35 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
     }
 
     @Override
+    public void updateScheduleDepartmentNumber(ScheduleDepartment scheduleDepartment, String timeInterval,Integer totalNumber) {
+        ScheduleDepartment getOne = scheduleDepartmentMapper.selectByPrimaryKey(scheduleDepartment.getId());
+        if (getOne == null){
+            throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DEPARTMENT_NOT_EXIST);
+        }
+        switch (timeInterval) {
+            case Constants.MORNING:
+                scheduleDepartment.setMorningHas(Constants.ONE);
+                scheduleDepartment.setMorningTotalNumber(totalNumber);
+                break;
+            case Constants.AFTERNOON:
+                scheduleDepartment.setAfternoonHas(Constants.ONE);
+                scheduleDepartment.setAfternoonTotalNumber(totalNumber);
+                break;
+            case Constants.NIGHT:
+                scheduleDepartment.setNightHas(Constants.ONE);
+                scheduleDepartment.setNightTotalNumber(totalNumber);
+                break;
+            default:
+                break;
+        }
+        scheduleDepartment.setUpdateTime(new Date());
+        int i = scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
+        if (i != 1){
+            throw new InternetHospitalException(ExceptionConstants.UPDATE_SCHEDULE_DEPARTMENT_FAIL);
+        }
+    }
+
+    @Override
     public void updateScheduleDepartment(ScheduleDepartment scheduleDepartment) {
         scheduleDepartment.setUpdateTime(new Date());
         int i = scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
@@ -117,5 +146,14 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
         if (i != 1){
             throw new InternetHospitalException(ExceptionConstants.DELETE_SCHEDULE_DEPARTMENT_FAIL);
         }
+    }
+
+    @Override
+    public ScheduleDepartment getScheduleDepartmentByDepartmentIdAndScheduleTime(Integer departmentId, String scheduleTime) {
+        Example example = new Example(ScheduleDepartment.class);
+        example.createCriteria().andEqualTo("departmentId",departmentId).
+                andEqualTo("scheduleTime",scheduleTime);
+        ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.selectOneByExample(example);
+        return scheduleDepartment;
     }
 }

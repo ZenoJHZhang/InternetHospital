@@ -1,9 +1,6 @@
 package com.zjh.internethospitalservice.controller.management;
 
-import com.zjh.internethospitalapi.common.constants.Constants;
-import com.zjh.internethospitalapi.entity.Doctor;
 import com.zjh.internethospitalapi.entity.ScheduleDepartment;
-import com.zjh.internethospitalapi.service.management.ManagementDoctorDepartmentService;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDepartmentService;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDoctorService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
@@ -12,60 +9,29 @@ import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RestController;
 
 /**
  * 类的说明
  *
  * @version 1.00
  * @author: 张江浩
- * @date: 2019/1/7 10:29
+ * @date: 2019/1/16 15:01
  */
-@Api(tags = "【后台管理】排班相关API")
-@Controller
-public class ManagementScheduleDepartmentController {
+@Api(tags = "【后台管理】专家模式排班相关API")
+@RestController
+public class ManagementExpertScheduleController {
+
     private final ManagementScheduleDepartmentService managementScheduleDepartmentService;
     private final ManagementScheduleDoctorService managementScheduleDoctorService;
-    private final ManagementDoctorDepartmentService managementDoctorDepartmentService;
 
     @Autowired
-    public ManagementScheduleDepartmentController(ManagementScheduleDepartmentService managementScheduleDepartmentService,
-                                                  ManagementScheduleDoctorService managementScheduleDoctorService, ManagementDoctorDepartmentService managementDoctorDepartmentService) {
+    public ManagementExpertScheduleController(ManagementScheduleDepartmentService managementScheduleDepartmentService,
+                                              ManagementScheduleDoctorService managementScheduleDoctorService) {
         this.managementScheduleDepartmentService = managementScheduleDepartmentService;
         this.managementScheduleDoctorService = managementScheduleDoctorService;
-        this.managementDoctorDepartmentService = managementDoctorDepartmentService;
-    }
-
-    @ApiOperation(value = "添加普通科室排班")
-    @PostMapping("/insertNormalScheduleDepartment")
-    public ResponseEntity<ApiResponse> insertNormalScheduleDepartment(
-            @RequestParam @ApiParam(value = "科室id", required = true, example = "1") Integer departmentId,
-            @RequestParam @ApiParam(value = "排班时段", required = true) String timeInterval,
-            @RequestParam @ApiParam(value = "号源总数", example = "1",required = true) Integer totalNumber,
-            @RequestParam @ApiParam(value = "排班时间",required = true) String scheduleTime) {
-        Integer scheduleDepartmentId = managementScheduleDepartmentService.
-                insertScheduleDepartment(departmentId, timeInterval, totalNumber, scheduleTime);
-        List<Doctor> doctorList = managementDoctorDepartmentService.listDoctorByDepartmentId(departmentId);
-        int size = doctorList.size();
-        Integer doctorTotalNumber = totalNumber / size;
-        Integer lastDoctorTotalNumber = totalNumber - (size - 1) * doctorTotalNumber;
-        for (int i = 0; i < size; i++) {
-            Integer averageNumber;
-            if (i == (size - 1)) {
-                averageNumber = lastDoctorTotalNumber;
-            } else {
-                averageNumber = doctorTotalNumber;
-            }
-            Doctor doctor = doctorList.get(i);
-            Integer doctorId = doctor.getId();
-            managementScheduleDoctorService.insertScheduleDoctor(scheduleDepartmentId, departmentId,
-                    doctorId, scheduleTime, timeInterval, averageNumber);
-        }
-        return ApiResponse.successResponse(null);
     }
 
     @PostMapping("/insertExpertScheduleDepartment")
@@ -81,6 +47,7 @@ public class ManagementScheduleDepartmentController {
         return ApiResponse.successResponse(scheduleDepartmentId);
     }
 
+
     @PostMapping("/insertExpertScheduleDoctor")
     @ApiOperation(value = "添加专家医生排班")
     public ResponseEntity<ApiResponse> insertExpertScheduleDoctor(
@@ -94,7 +61,7 @@ public class ManagementScheduleDepartmentController {
         managementScheduleDoctorService.insertScheduleDoctor(scheduleDepartmentId,departmentId,doctorId,scheduleTime,timeInterval,totalNumber);
         ScheduleDepartment scheduleDepartment = new ScheduleDepartment();
         scheduleDepartment.setId(scheduleDepartmentId);
-        managementScheduleDepartmentService.updateScheduleDepartment(scheduleDepartment,timeInterval,totalNumber);
+        managementScheduleDepartmentService.updateScheduleDepartmentNumber(scheduleDepartment,timeInterval,totalNumber);
         return ApiResponse.successResponse(null);
     }
 }

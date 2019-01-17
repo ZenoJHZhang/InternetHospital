@@ -14,6 +14,7 @@ import com.zjh.internethospitalservice.mapper.ScheduleDepartmentMapper;
 import com.zjh.internethospitalservice.mapper.ScheduleDoctorMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tk.mybatis.mapper.entity.Example;
 
 import java.util.Date;
 
@@ -69,34 +70,7 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         ScheduleDoctor scheduleDoctor = new ScheduleDoctor();
         scheduleDoctor.setDoctorId(doctorId);
         scheduleDoctor.setScheduleTime(scheduleTime);
-        switch (timeInterval) {
-            case Constants.MORNING:
-                if (!Constants.TRUE.equals(scheduleDepartment.getMorningHas())) {
-                    throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
-                } else {
-                    scheduleDoctor.setDoctorMorningHas("1");
-                    scheduleDoctor.setDoctorMorningTotalNumber(totalNumber);
-                }
-                break;
-            case Constants.AFTERNOON:
-                if (!Constants.TRUE.equals(scheduleDepartment.getAfternoonHas())) {
-                    throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
-                } else {
-                    scheduleDoctor.setDoctorAfternoonHas("1");
-                    scheduleDoctor.setDoctorAfternoonTotalNumber(totalNumber);
-                }
-                break;
-            case Constants.NIGHT:
-                if (!Constants.TRUE.equals(scheduleDepartment.getNightHas())) {
-                    throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
-                } else {
-                    scheduleDoctor.setDoctorNightHas("1");
-                    scheduleDoctor.setDoctorNightTotalNumber(totalNumber);
-                }
-                break;
-            default:
-                throw new InternetHospitalException(ExceptionConstants.ERROR_TIME_INTERVAL);
-        }
+        scheduleDoctor = setScheduleDoctorTimeHasAndTimeNumber(scheduleDoctor,timeInterval,totalNumber,scheduleDepartment);
         if (scheduleDoctorMapper.selectOne(scheduleDoctor) != null) {
             throw new InternetHospitalException(ExceptionConstants.SAME_SCHEDULE_DOCTOR);
         } else {
@@ -114,16 +88,75 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     }
 
     @Override
-    public void updateScheduleDoctor(ScheduleDoctor scheduleDoctor) {
+    public void updateScheduleDoctor(Integer doctorId, String scheduleTime, String timeInterval, Integer totalNumber) {
+        ScheduleDoctor scheduleDoctor = getScheduleDoctorByDoctorIdAndScheduleTime(doctorId, scheduleTime);
+        ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.
+                selectByPrimaryKey(scheduleDoctor.getScheduleDepartmentId());
+        scheduleDoctor = setScheduleDoctorTimeHasAndTimeNumber(scheduleDoctor,timeInterval,totalNumber,scheduleDepartment);
+        if (scheduleDoctorMapper.selectOne(scheduleDoctor) != null) {
+            throw new InternetHospitalException(ExceptionConstants.SAME_SCHEDULE_DOCTOR);
+        }
         scheduleDoctor.setUpdateTime(new Date());
-        scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
+        int i = scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
+        if (i != 1){
+            throw new InternetHospitalException(ExceptionConstants.UPDATE_SCHEDULE_DOCTOR_FAIL);
+        }
     }
 
     @Override
     public void deleteScheduleDepartment(Integer scheduleDoctorId) {
         int i = scheduleDoctorMapper.deleteByPrimaryKey(scheduleDoctorId);
-        if (i != 1){
+        if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.DELETE_SCHEDULE_DOCTOR_FAIL);
         }
+    }
+
+    @Override
+    public ScheduleDoctor getScheduleDoctorByDoctorIdAndScheduleTime(Integer doctorId, String scheduleTime) {
+        Example example = new Example(ScheduleDoctor.class);
+        example.createCriteria().andEqualTo("doctorId", doctorId).
+                andEqualTo("scheduleTime", scheduleTime);
+        return scheduleDoctorMapper.selectOneByExample(example);
+    }
+
+    /**
+     * 设置医生排班的具体时段和该时段对应号源总数
+     *  ps:需要判断对应科室排班该时段是否可排班
+     * @param scheduleDoctor 医生排班
+     * @param timeInterval   时段
+     * @param totalNumber    时段对应号源总数
+     * @return
+     */
+    private ScheduleDoctor setScheduleDoctorTimeHasAndTimeNumber(ScheduleDoctor scheduleDoctor, String timeInterval,
+                                                                 Integer totalNumber,ScheduleDepartment scheduleDepartment) {
+        switch (timeInterval) {
+            case Constants.MORNING:
+                if (!Constants.ONE.equals(scheduleDepartment.getMorningHas())) {
+                    throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
+                } else {
+                    scheduleDoctor.setDoctorMorningHas(Constants.ONE);
+                    scheduleDoctor.setDoctorMorningTotalNumber(totalNumber);
+                }
+                break;
+            case Constants.AFTERNOON:
+                if (!Constants.ONE.equals(scheduleDepartment.getAfternoonHas())) {
+                    throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
+                } else {
+                    scheduleDoctor.setDoctorAfternoonHas(Constants.ONE);
+                    scheduleDoctor.setDoctorAfternoonTotalNumber(totalNumber);
+                }
+                break;
+            case Constants.NIGHT:
+                if (!Constants.ONE.equals(scheduleDepartment.getNightHas())) {
+                    throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
+                } else {
+                    scheduleDoctor.setDoctorNightHas(Constants.ONE);
+                    scheduleDoctor.setDoctorNightTotalNumber(totalNumber);
+                }
+                break;
+            default:
+                throw new InternetHospitalException(ExceptionConstants.ERROR_TIME_INTERVAL);
+        }
+        return scheduleDoctor;
     }
 }
