@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  */
 @RestController
 @RequestMapping("/user")
-@Api(tags = "用户相关API")
+@Api(tags = "【登录注册】使用者信息API")
 public class UserController {
     private final UserService userService;
 

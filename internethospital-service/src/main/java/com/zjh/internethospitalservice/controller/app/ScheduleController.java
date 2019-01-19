@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping("/schedule")
-@Api(tags = "排班相关API")
+@Api(tags = "【用户模块】排班相关API")
 public class ScheduleController {
     private final ScheduleDoctorService scheduleDoctorService;
 

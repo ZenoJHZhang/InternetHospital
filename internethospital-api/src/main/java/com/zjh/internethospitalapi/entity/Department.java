@@ -104,7 +104,7 @@ public class Department {
      * 科室类型1为专家科室0为普通科室
      */
     @Column(name = "dept_type")
-    private String deptType;
+    private Integer deptType;
 
     /**
      * 排序  越大越前面

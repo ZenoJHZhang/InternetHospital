@@ -79,6 +79,8 @@ public class ScheduleDoctor {
      */
     private Integer nightCallNo;
 
+    private Integer type;
+
     @Column(name = "create_time")
     private Date createTime;
 

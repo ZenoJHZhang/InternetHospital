@@ -35,15 +35,19 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
     }
 
     @Override
-    public Integer insertScheduleDepartment(Integer departmentId, String timeInterval, Integer totalNumber, String scheduleTime) {
+    public Integer insertScheduleDepartment(Integer departmentId, String timeInterval, Integer totalNumber, String scheduleTime,Integer type) {
         Department department = departmentMapper.selectByPrimaryKey(departmentId);
-        int result;
         if (department == null) {
             throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
         }
+        if (!department.getDeptType().equals(type)){
+            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_TYPE_ERROR);
+        }
+        int result;
         ScheduleDepartment scheduleDepartment = new ScheduleDepartment();
         scheduleDepartment.setDepartmentId(departmentId);
         scheduleDepartment.setScheduleTime(scheduleTime);
+        scheduleDepartment.setType(type);
         switch (timeInterval) {
             case Constants.MORNING:
                 scheduleDepartment.setMorningHas("1");
@@ -149,11 +153,11 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
     }
 
     @Override
-    public ScheduleDepartment getScheduleDepartmentByDepartmentIdAndScheduleTime(Integer departmentId, String scheduleTime) {
+    public ScheduleDepartment getScheduleDepartmentByDepartmentIdAndScheduleTimeAndType(Integer departmentId,
+                                                                                        String scheduleTime,Integer type) {
         Example example = new Example(ScheduleDepartment.class);
         example.createCriteria().andEqualTo("departmentId",departmentId).
-                andEqualTo("scheduleTime",scheduleTime);
-        ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.selectOneByExample(example);
-        return scheduleDepartment;
+                andEqualTo("scheduleTime",scheduleTime).andEqualTo("type",type);
+        return scheduleDepartmentMapper.selectOneByExample(example);
     }
 }

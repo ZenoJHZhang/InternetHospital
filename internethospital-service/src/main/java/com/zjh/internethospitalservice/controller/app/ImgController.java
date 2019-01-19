@@ -27,7 +27,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/img")
-@Api(tags = "图片相关API")
+@Api(tags = "【用户模块】图片相关API")
 public class ImgController {
 
     private final ImgService imgService;

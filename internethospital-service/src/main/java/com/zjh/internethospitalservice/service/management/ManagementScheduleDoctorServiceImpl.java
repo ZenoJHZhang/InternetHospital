@@ -43,8 +43,14 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
 
     @Override
     public void insertScheduleDoctor(Integer scheduleDepartmentId, Integer departmentId, Integer doctorId,
-                                     String scheduleTime, String timeInterval, Integer totalNumber) {
+                                     String scheduleTime, String timeInterval, Integer totalNumber,Integer type) {
         Department department = departmentMapper.selectByPrimaryKey(departmentId);
+        if (department == null) {
+            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
+        }
+        if (!department.getDeptType().equals(type)){
+            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_TYPE_ERROR);
+        }
         ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.selectByPrimaryKey(scheduleDepartmentId);
         String departmentName;
         String doctorName;
@@ -56,11 +62,8 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
                 throw new InternetHospitalException(ExceptionConstants.INSERT_SCHEDULE_DEPARTMENT_FAIL);
             }
         }
-        if (department == null) {
-            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
-        } else {
-            departmentName = department.getDepartmentName();
-        }
+
+        departmentName = department.getDepartmentName();
         Doctor doctor = doctorMapper.selectByPrimaryKey(doctorId);
         if (doctor == null) {
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
@@ -70,10 +73,12 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         ScheduleDoctor scheduleDoctor = new ScheduleDoctor();
         scheduleDoctor.setDoctorId(doctorId);
         scheduleDoctor.setScheduleTime(scheduleTime);
+        scheduleDoctor.setType(type);
         scheduleDoctor = setScheduleDoctorTimeHasAndTimeNumber(scheduleDoctor,timeInterval,totalNumber,scheduleDepartment);
         if (scheduleDoctorMapper.selectOne(scheduleDoctor) != null) {
             throw new InternetHospitalException(ExceptionConstants.SAME_SCHEDULE_DOCTOR);
         } else {
+            scheduleDepartment.setType(type);
             scheduleDoctor.setScheduleDepartmentId(scheduleDepartmentId);
             scheduleDoctor.setDepartmentId(departmentId);
             scheduleDoctor.setDepartmentName(departmentName);
@@ -88,8 +93,9 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     }
 
     @Override
-    public void updateScheduleDoctor(Integer doctorId, String scheduleTime, String timeInterval, Integer totalNumber) {
-        ScheduleDoctor scheduleDoctor = getScheduleDoctorByDoctorIdAndScheduleTime(doctorId, scheduleTime);
+    public void updateScheduleDoctorWithType(Integer doctorId, String scheduleTime,
+                                             String timeInterval, Integer totalNumber,Integer type) {
+        ScheduleDoctor scheduleDoctor = getScheduleDoctorByDoctorIdAndScheduleTimeAndType(doctorId, scheduleTime,type);
         ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.
                 selectByPrimaryKey(scheduleDoctor.getScheduleDepartmentId());
         scheduleDoctor = setScheduleDoctorTimeHasAndTimeNumber(scheduleDoctor,timeInterval,totalNumber,scheduleDepartment);
@@ -112,10 +118,10 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     }
 
     @Override
-    public ScheduleDoctor getScheduleDoctorByDoctorIdAndScheduleTime(Integer doctorId, String scheduleTime) {
+    public ScheduleDoctor getScheduleDoctorByDoctorIdAndScheduleTimeAndType(Integer doctorId, String scheduleTime,Integer type) {
         Example example = new Example(ScheduleDoctor.class);
         example.createCriteria().andEqualTo("doctorId", doctorId).
-                andEqualTo("scheduleTime", scheduleTime);
+                andEqualTo("scheduleTime", scheduleTime).andEqualTo("type",type);
         return scheduleDoctorMapper.selectOneByExample(example);
     }
 

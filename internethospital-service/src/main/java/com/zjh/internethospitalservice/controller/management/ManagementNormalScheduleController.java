@@ -46,14 +46,15 @@ public class ManagementNormalScheduleController {
             @RequestParam @ApiParam(value = "排班时段", required = true) String timeInterval,
             @RequestParam @ApiParam(value = "号源总数", example = "1",required = true) Integer totalNumber,
             @RequestParam @ApiParam(value = "排班时间",required = true) String scheduleTime) {
-        ScheduleDepartment scheduleDepartment = managementScheduleDepartmentService.getScheduleDepartmentByDepartmentIdAndScheduleTime(departmentId, scheduleTime);
+        ScheduleDepartment scheduleDepartment = managementScheduleDepartmentService.
+                getScheduleDepartmentByDepartmentIdAndScheduleTimeAndType(departmentId, scheduleTime,0);
         // true 添加排班 false 更新排班
         boolean insertFlag;
-        Integer scheduleDepartmentId = null;
+        Integer scheduleDepartmentId ;
         if (scheduleDepartment == null){
             insertFlag = true;
             scheduleDepartmentId = managementScheduleDepartmentService.
-                    insertScheduleDepartment(departmentId, timeInterval, totalNumber, scheduleTime);
+                    insertScheduleDepartment(departmentId, timeInterval, totalNumber, scheduleTime,0);
         }
     else {
             insertFlag = false;
@@ -76,9 +77,10 @@ public class ManagementNormalScheduleController {
             Integer doctorId = doctor.getId();
             if(insertFlag){
                 managementScheduleDoctorService.insertScheduleDoctor
-                        (scheduleDepartmentId,departmentId,doctorId,scheduleTime,timeInterval,averageNumber);
+                        (scheduleDepartmentId,departmentId,doctorId,scheduleTime,timeInterval,averageNumber,0);
             }else {
-                managementScheduleDoctorService.updateScheduleDoctor(doctorId,scheduleTime,timeInterval,averageNumber);
+                managementScheduleDoctorService.updateScheduleDoctorWithType(
+                        doctorId,scheduleTime,timeInterval,averageNumber,0);
             }
         }
         return ApiResponse.successResponse(insertFlag);

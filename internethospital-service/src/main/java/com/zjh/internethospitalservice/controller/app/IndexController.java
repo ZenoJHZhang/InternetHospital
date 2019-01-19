@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
  * @date: 2018/11/23 09:47
  */
 @RestController
-@Api(tags = "认证、鉴权相关API")
+@Api(tags = "【鉴权】认证、鉴权相关API")
 public class IndexController {
     @RequestMapping(value = "/unauthorized/*")
     public ResponseEntity<ApiResponse> unauthorized() {

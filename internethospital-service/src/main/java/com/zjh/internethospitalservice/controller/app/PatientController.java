@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
  * @date: 2018/12/11 11:46
  */
 @RestController
-@Api(tags = "就诊人相关API")
+@Api(tags = "【用户模块】就诊人相关API")
 @RequestMapping("/patient")
 public class PatientController {
     private final PatientService patientService;

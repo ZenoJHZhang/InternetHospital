@@ -20,19 +20,22 @@ public interface ManagementScheduleDoctorService {
      * @param scheduleTime  预约时间
      * @param timeInterval 时段
      * @param totalNumber   该时段总号源数
+     * @param type 类型 0 普通 1 专家
      */
     void insertScheduleDoctor(Integer scheduleDepartmentId,Integer departmentId, Integer doctorId,
-                              String scheduleTime,String timeInterval,Integer totalNumber);
+                              String scheduleTime,String timeInterval,Integer totalNumber,Integer type);
 
     /**
      *  更新医生排班
      * @param doctorId  医生id
      * @param scheduleTime 排班时间
+     * @param type 类型
      *
      * @param timeInterval 排班时段
      * @param totalNumber 时段对应号源总数
      */
-    void updateScheduleDoctor(Integer doctorId,String scheduleTime,String timeInterval,Integer totalNumber);
+    void updateScheduleDoctorWithType(Integer doctorId,String scheduleTime,
+                                      String timeInterval,Integer totalNumber,Integer type);
 
     /**
      * 删除医生排班
@@ -44,8 +47,9 @@ public interface ManagementScheduleDoctorService {
      * 通过医生id和排班时间获取对应的医生排班
      * @param doctorId 医生id
      * @param scheduleTime  排班时间
+     * @param type 类型
      * @return
      */
-    ScheduleDoctor getScheduleDoctorByDoctorIdAndScheduleTime(Integer doctorId,String scheduleTime);
+    ScheduleDoctor getScheduleDoctorByDoctorIdAndScheduleTimeAndType(Integer doctorId,String scheduleTime,Integer type);
 
 }

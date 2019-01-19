@@ -99,6 +99,8 @@ public class ScheduleDepartment {
     @Column(name = "schedule_time")
     private String scheduleTime;
 
+    private Integer type;
+
     /**
      * 创建时间
      */

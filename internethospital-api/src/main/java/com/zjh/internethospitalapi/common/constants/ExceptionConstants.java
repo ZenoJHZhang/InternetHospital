@@ -27,12 +27,13 @@ public class ExceptionConstants {
     public static final String INSERT_SCHEDULE_DEPARTMENT_FAIL = "添加科室排班失败,请稍后再试";
     public static final String UPDATE_SCHEDULE_DEPARTMENT_FAIL = "更新科室排班失败,请稍后再试";
     public static final String ERROR_TIME_INTERVAL ="排班时段不存在";
-    public static final String SAME_SCHEDULE_DOCTOR = "当日、该时段此医生已排班，请勿重复排班";
-    public static final String SAME_SCHEDULE_DEPARTMENT = "当日、该时段此科室已排班，请勿重复排班";
+    public static final String SAME_SCHEDULE_DOCTOR = "当日、该时段此医生此排班情况已存在，请更改排班时段或更改此时段号源总数，谢谢。";
+    public static final String SAME_SCHEDULE_DEPARTMENT = "当日、该时段此科室此排班情况已存在，请更改排班时段或更改此时段号源总数，谢谢。";
     public static final String SCHEDULE_DEPARTMENT_NOT_EXIST ="科室排班不存在";
     public static final String SCHEDULE_DOCTOR_NOT_EXIST = "医生排班不存在";
     public static final String DELETE_SCHEDULE_DEPARTMENT_FAIL = "删除科室排班失败，请稍后再试";
     public static final String DELETE_SCHEDULE_DOCTOR_FAIL = "删除医生排班失败，请稍后再试";
     public static final String SEND_SHORT_MESSAGE_FAIL = "发送短信失败，请稍后再试";
     public static final String PATIENT_UPDATE_FAIL = "就诊人更新失败，请稍后再试";
+    public static final String DEPARTMENT_TYPE_ERROR = "科室类型错误";
 }

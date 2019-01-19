@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @RestController
 @RequestMapping(value = "/department")
-@Api(tags = "诊室相关API")
+@Api(tags = "【用户模块】诊室相关API")
 public class DepartmentController {
     private final DepartmentService departmentService;
 

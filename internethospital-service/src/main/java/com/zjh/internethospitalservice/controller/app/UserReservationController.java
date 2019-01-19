@@ -31,7 +31,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/userReservation")
-@Api(tags = "用户就诊记录相关API")
+@Api(tags = "【用户模块】用户就诊记录相关API")
 public class UserReservationController {
 
     private final HttpServletRequest request;

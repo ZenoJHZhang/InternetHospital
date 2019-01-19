@@ -35,27 +35,23 @@ public class LogAspect {
     }
 
     @Around("serviceLog()")
-    public Object around(ProceedingJoinPoint joinPoint) {
-        try {
-            MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-            Method method = signature.getMethod();
-            Class<?> targetClass = method.getDeclaringClass();
+    public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
 
-            String target = targetClass.getName() + "#" + method.getName();
-            String params = JSONObject.toJSONStringWithDateFormat(joinPoint.getArgs(), dateFormat, SerializerFeature.WriteMapNullValue);
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+        Class<?> targetClass = method.getDeclaringClass();
 
-            log.info(STRING_START + "开始调用--> {} 入参:{}", target, params);
+        String target = targetClass.getName() + "#" + method.getName();
+        String params = JSONObject.toJSONStringWithDateFormat(joinPoint.getArgs(), dateFormat, SerializerFeature.WriteMapNullValue);
 
-            long start = System.currentTimeMillis();
-            Object result = joinPoint.proceed();
-            long timeConsuming = System.currentTimeMillis() - start;
+        log.info(STRING_START + "开始调用--> {} 入参:{}", target, params);
 
-            log.info("\n调用结束<-- {} 出参:{} 耗时:{}ms" + STRING_END, target, JSONObject.toJSONStringWithDateFormat(result, dateFormat, SerializerFeature.WriteMapNullValue), timeConsuming);
-            return result;
-        } catch (Throwable throwable) {
-            log.error(throwable.getMessage(), throwable);
-        }
-        return null;
+        long start = System.currentTimeMillis();
+        Object result = joinPoint.proceed();
+        long timeConsuming = System.currentTimeMillis() - start;
+
+        log.info("\n调用结束<-- {} 出参:{} 耗时:{}ms" + STRING_END, target, JSONObject.toJSONStringWithDateFormat(result, dateFormat, SerializerFeature.WriteMapNullValue), timeConsuming);
+        return result;
     }
 
 }
