@@ -12,6 +12,7 @@ import io.swagger.annotations.ApiParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -26,6 +27,7 @@ import java.util.List;
  */
 @Api(tags = "【后台管理】普通模式排班相关API")
 @RestController
+@RequestMapping("/managementNormalSchedule")
 public class ManagementNormalScheduleController {
     private final ManagementScheduleDepartmentService managementScheduleDepartmentService;
     private final ManagementScheduleDoctorService managementScheduleDoctorService;
@@ -84,6 +86,14 @@ public class ManagementNormalScheduleController {
             }
         }
         return ApiResponse.successResponse(insertFlag);
+    }
+
+    @PostMapping("/deleteNormalScheduleDepartment")
+    @ApiOperation(value = "删除普通科室排班")
+    public ResponseEntity<ApiResponse> deleteNormalScheduleDepartment(
+            @RequestParam @ApiParam(value = "科室排班Id",required = true) Integer scheduleDepartmentId){
+        managementScheduleDepartmentService.deleteScheduleDepartmentWithType(scheduleDepartmentId);
+        return ApiResponse.successResponse("删除普通科室排班成功");
     }
 
 

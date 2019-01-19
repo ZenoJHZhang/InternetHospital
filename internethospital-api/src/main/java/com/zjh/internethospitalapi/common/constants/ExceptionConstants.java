@@ -36,4 +36,6 @@ public class ExceptionConstants {
     public static final String SEND_SHORT_MESSAGE_FAIL = "发送短信失败，请稍后再试";
     public static final String PATIENT_UPDATE_FAIL = "就诊人更新失败，请稍后再试";
     public static final String DEPARTMENT_TYPE_ERROR = "科室类型错误";
+    public static final String HAS_SCHEDULE_DOCTOR_IN_SCHEDULE_DEPARTMENT ="删除专家科室排班失败：" +
+            "当日，此专家科室内仍有专家医生排班;请删除专家排班后再次尝试，谢谢。";
 }

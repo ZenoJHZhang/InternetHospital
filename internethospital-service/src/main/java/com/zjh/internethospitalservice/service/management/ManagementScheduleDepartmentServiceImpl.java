@@ -5,14 +5,17 @@ import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.entity.ScheduleDepartment;
+import com.zjh.internethospitalapi.entity.ScheduleDoctor;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDepartmentService;
 import com.zjh.internethospitalservice.mapper.DepartmentMapper;
 import com.zjh.internethospitalservice.mapper.ScheduleDepartmentMapper;
+import com.zjh.internethospitalservice.mapper.ScheduleDoctorMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类的说明
@@ -26,21 +29,23 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
 
     private final ScheduleDepartmentMapper scheduleDepartmentMapper;
     private final DepartmentMapper departmentMapper;
+    private final ScheduleDoctorMapper scheduleDoctorMapper;
 
     @Autowired
     public ManagementScheduleDepartmentServiceImpl(ScheduleDepartmentMapper scheduleDepartmentMapper,
-                                                   DepartmentMapper departmentMapper) {
+                                                   DepartmentMapper departmentMapper, ScheduleDoctorMapper scheduleDoctorMapper) {
         this.scheduleDepartmentMapper = scheduleDepartmentMapper;
         this.departmentMapper = departmentMapper;
+        this.scheduleDoctorMapper = scheduleDoctorMapper;
     }
 
     @Override
-    public Integer insertScheduleDepartment(Integer departmentId, String timeInterval, Integer totalNumber, String scheduleTime,Integer type) {
+    public Integer insertScheduleDepartment(Integer departmentId, String timeInterval, Integer totalNumber, String scheduleTime, Integer type) {
         Department department = departmentMapper.selectByPrimaryKey(departmentId);
         if (department == null) {
             throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
         }
-        if (!department.getDeptType().equals(type)){
+        if (!department.getDeptType().equals(type)) {
             throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_TYPE_ERROR);
         }
         int result;
@@ -80,7 +85,7 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
     @Override
     public void updateScheduleDepartment(ScheduleDepartment scheduleDepartment, String timeInterval, Integer insertTotalNumber) {
         ScheduleDepartment getOne = scheduleDepartmentMapper.selectByPrimaryKey(scheduleDepartment.getId());
-        if (getOne == null){
+        if (getOne == null) {
             throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DEPARTMENT_NOT_EXIST);
         }
         switch (timeInterval) {
@@ -101,15 +106,15 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
         }
         scheduleDepartment.setUpdateTime(new Date());
         int i = scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
-        if (i != 1){
+        if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.UPDATE_SCHEDULE_DEPARTMENT_FAIL);
         }
     }
 
     @Override
-    public void updateScheduleDepartmentNumber(ScheduleDepartment scheduleDepartment, String timeInterval,Integer totalNumber) {
+    public void updateScheduleDepartmentNumber(ScheduleDepartment scheduleDepartment, String timeInterval, Integer totalNumber) {
         ScheduleDepartment getOne = scheduleDepartmentMapper.selectByPrimaryKey(scheduleDepartment.getId());
-        if (getOne == null){
+        if (getOne == null) {
             throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DEPARTMENT_NOT_EXIST);
         }
         switch (timeInterval) {
@@ -130,7 +135,7 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
         }
         scheduleDepartment.setUpdateTime(new Date());
         int i = scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
-        if (i != 1){
+        if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.UPDATE_SCHEDULE_DEPARTMENT_FAIL);
         }
     }
@@ -139,25 +144,46 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
     public void updateScheduleDepartment(ScheduleDepartment scheduleDepartment) {
         scheduleDepartment.setUpdateTime(new Date());
         int i = scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
-        if (i != 1){
+        if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.UPDATE_SCHEDULE_DEPARTMENT_FAIL);
         }
     }
 
     @Override
-    public void deleteScheduleDepartment(Integer scheduleDepartmentId) {
-        int i = scheduleDepartmentMapper.deleteByPrimaryKey(scheduleDepartmentId);
-        if (i != 1){
+    public void deleteScheduleDepartmentWithType(Integer scheduleDepartmentId) {
+        int i;
+        ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.selectByPrimaryKey(scheduleDepartmentId);
+        if (scheduleDepartment == null){
+            throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DEPARTMENT_NOT_EXIST);
+        }
+        Integer type = scheduleDepartment.getType();
+        if (type == 0) {
+            Example example = new Example(ScheduleDoctor.class);
+            example.createCriteria().andEqualTo("scheduleDepartmentId", scheduleDepartmentId);
+            scheduleDoctorMapper.deleteByExample(example);
+            i = scheduleDepartmentMapper.deleteByPrimaryKey(scheduleDepartmentId);
+        } else {
+            Example example = new Example(ScheduleDoctor.class);
+            example.createCriteria().andEqualTo("scheduleDepartmentId", scheduleDepartmentId);
+            List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
+            if (scheduleDoctorList.size() > 0) {
+                throw new InternetHospitalException(ExceptionConstants.HAS_SCHEDULE_DOCTOR_IN_SCHEDULE_DEPARTMENT);
+            } else {
+                scheduleDoctorMapper.deleteByExample(example);
+                i = scheduleDepartmentMapper.deleteByPrimaryKey(scheduleDepartmentId);
+            }
+        }
+        if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.DELETE_SCHEDULE_DEPARTMENT_FAIL);
         }
     }
 
     @Override
     public ScheduleDepartment getScheduleDepartmentByDepartmentIdAndScheduleTimeAndType(Integer departmentId,
-                                                                                        String scheduleTime,Integer type) {
+                                                                                        String scheduleTime, Integer type) {
         Example example = new Example(ScheduleDepartment.class);
-        example.createCriteria().andEqualTo("departmentId",departmentId).
-                andEqualTo("scheduleTime",scheduleTime).andEqualTo("type",type);
+        example.createCriteria().andEqualTo("departmentId", departmentId).
+                andEqualTo("scheduleTime", scheduleTime).andEqualTo("type", type);
         return scheduleDepartmentMapper.selectOneByExample(example);
     }
 }

@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
  */
 @Api(tags = "【后台管理】专家模式排班相关API")
 @RestController
+@RequestMapping("/managementExpertSchedule")
 public class ManagementExpertScheduleController {
 
     private final ManagementScheduleDepartmentService managementScheduleDepartmentService;
@@ -50,8 +52,8 @@ public class ManagementExpertScheduleController {
     }
 
 
-    @PostMapping("/insertExpertScheduleDoctor")
-    @ApiOperation(value = "添加专家医生排班")
+    @PostMapping("/makeExpertScheduleDoctor")
+    @ApiOperation(value = "添加/更新专家医生排班")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<ApiResponse> insertExpertScheduleDoctor(
             @RequestParam(required = false) @ApiParam(value = "科室排班id", example = "1") Integer scheduleDepartmentId,
@@ -89,5 +91,13 @@ public class ManagementExpertScheduleController {
                 return ApiResponse.successResponse("更新专家医生排班成功");
             }
         }
+    }
+
+    @PostMapping("/deleteExpertScheduleDepartment")
+    @ApiOperation(value = "删除专家科室排班")
+    public ResponseEntity<ApiResponse> deleteNormalScheduleDepartment(
+            @RequestParam @ApiParam(value = "科室排班Id",required = true) Integer scheduleDepartmentId){
+        managementScheduleDepartmentService.deleteScheduleDepartmentWithType(scheduleDepartmentId);
+        return ApiResponse.successResponse("删除专家科室排班成功");
     }
 }

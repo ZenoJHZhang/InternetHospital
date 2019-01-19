@@ -45,10 +45,10 @@ public interface ManagementScheduleDepartmentService {
     void updateScheduleDepartment(ScheduleDepartment scheduleDepartment);
 
     /**
-     * 根据id删除科室排班
+     * 根据id删除科室排班,并根据科室类型选择不同的删除方式
      * @param scheduleDepartmentId 科室排班id
      */
-    void deleteScheduleDepartment(Integer scheduleDepartmentId);
+    void deleteScheduleDepartmentWithType(Integer scheduleDepartmentId);
 
     /**
      * 获取当天，此科室排班情况
