@@ -29,6 +29,12 @@ public interface UserService {
     void userRegister(String phone, String password , Integer roleId);
 
     /**
+     * 判断是否有重复身份证号
+     * @param idCard 身份证号
+     */
+    void isSameIdCard(String idCard);
+
+    /**
      * 判断是否有用户手机号重复,无论权限
      * true: 重复 false：不重复
      * @param phone
@@ -37,8 +43,8 @@ public interface UserService {
     boolean isSameUserPhone(String phone);
 
     /**
-     * 通过手机号获取非
-     * @param phone
+     * 通过手机号获取非敏感信息
+     * @param phone 手机号
      * @return
      */
     UserDto getUserInfo(String phone);

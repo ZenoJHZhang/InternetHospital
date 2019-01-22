@@ -8,6 +8,7 @@ import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +41,7 @@ public class ManagementExpertScheduleController {
 
     @PostMapping("/insertExpertScheduleDepartment")
     @ApiOperation(value = "添加专家科室排班")
+    @RequiresRoles(value = "doctor")
     public ResponseEntity<ApiResponse> insertExpertScheduleDepartment(
             @RequestParam @ApiParam(value = "科室id", required = true, example = "1") Integer departmentId,
             @RequestParam @ApiParam(value = "排班时段", required = true) String timeInterval,
@@ -54,6 +56,7 @@ public class ManagementExpertScheduleController {
 
     @PostMapping("/makeExpertScheduleDoctor")
     @ApiOperation(value = "添加/更新专家医生排班")
+    @RequiresRoles(value = "doctor")
     @Transactional(rollbackFor = Exception.class)
     public ResponseEntity<ApiResponse> insertExpertScheduleDoctor(
             @RequestParam(required = false) @ApiParam(value = "科室排班id", example = "1") Integer scheduleDepartmentId,
@@ -95,6 +98,7 @@ public class ManagementExpertScheduleController {
 
     @PostMapping("/deleteExpertScheduleDepartment")
     @ApiOperation(value = "删除专家科室排班")
+    @RequiresRoles(value = "doctor")
     public ResponseEntity<ApiResponse> deleteNormalScheduleDepartment(
             @RequestParam @ApiParam(value = "科室排班Id",required = true) Integer scheduleDepartmentId){
         managementScheduleDepartmentService.deleteScheduleDepartmentWithType(scheduleDepartmentId);

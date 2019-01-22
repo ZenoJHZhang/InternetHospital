@@ -69,6 +69,16 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void isSameIdCard(String idCard) {
+        Example example = new Example(User.class);
+        example.createCriteria().andEqualTo("idCard", idCard);
+        User user = userMapper.selectOneByExample(example);
+        if (user != null){
+            throw new InternetHospitalException(ExceptionConstants.SAME_USER_ID_CARD);
+        }
+    }
+
+    @Override
     public boolean isSameUserPhone(String phone) {
         Example example = new Example(User.class);
         example.createCriteria().andEqualTo("phone", phone);

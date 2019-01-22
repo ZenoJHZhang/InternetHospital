@@ -38,4 +38,8 @@ public class ExceptionConstants {
     public static final String DEPARTMENT_TYPE_ERROR = "科室类型错误";
     public static final String HAS_SCHEDULE_DOCTOR_IN_SCHEDULE_DEPARTMENT ="删除专家科室排班失败：" +
             "当日，此专家科室内仍有专家医生排班;请删除专家排班后再次尝试，谢谢。";
+    public static final String SAME_USER_PHONE = "手机号已注册";
+    public static final String SAME_USER_ID_CARD = "很抱歉，此身份证号已被注册";
+    public static final String SAME_DOCTOR_NUMBER = "医生工号重复，新增医生失败。";
+    public static final String INSERT_DOCTOR_FAIL = "添加医生失败，请稍后再试";
 }
