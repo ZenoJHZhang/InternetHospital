@@ -91,7 +91,7 @@ public class ManagementNormalScheduleController {
     @PostMapping("/deleteNormalScheduleDepartment")
     @ApiOperation(value = "删除普通科室排班")
     public ResponseEntity<ApiResponse> deleteNormalScheduleDepartment(
-            @RequestParam @ApiParam(value = "科室排班Id",required = true) Integer scheduleDepartmentId){
+            @RequestParam @ApiParam(value = "科室排班Id",required = true,example = "1") Integer scheduleDepartmentId){
         managementScheduleDepartmentService.deleteScheduleDepartmentWithType(scheduleDepartmentId);
         return ApiResponse.successResponse("删除普通科室排班成功");
     }

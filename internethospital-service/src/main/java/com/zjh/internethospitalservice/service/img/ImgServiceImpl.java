@@ -1,11 +1,11 @@
-package com.zjh.internethospitalservice.service.app;
+package com.zjh.internethospitalservice.service.img;
 
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.Img;
 import com.zjh.internethospitalapi.entity.UserReservationImg;
-import com.zjh.internethospitalapi.service.app.ImgService;
+import com.zjh.internethospitalapi.service.img.ImgService;
 import com.zjh.internethospitalservice.mapper.ImgMapper;
 import com.zjh.internethospitalservice.mapper.UserReservationImgMapper;
 import com.zjh.internethospitalservice.util.ImgUtil;

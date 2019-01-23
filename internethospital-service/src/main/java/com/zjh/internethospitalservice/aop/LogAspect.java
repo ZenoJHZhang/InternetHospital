@@ -30,7 +30,8 @@ public class LogAspect {
     private static final String STRING_START = "\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n";
     private static final String STRING_END = "\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<\n";
 
-    @Pointcut("execution(* com.zjh.internethospitalservice..service.impl..*(..)) || execution(* com.zjh.internethospitalservice.controller..*(..))")
+    @Pointcut("execution(* com.zjh.internethospitalservice.controller.management..*(..))" +
+            "|| execution(* com.zjh.internethospitalservice.controller.app..*(..))")
     public void serviceLog() {
     }
 

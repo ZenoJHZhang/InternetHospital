@@ -54,6 +54,11 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
     }
 
     @Override
+    public void updateDoctor(Doctor doctor) {
+
+    }
+
+    @Override
     public void isSameDoctorNumber(String doctorNumber) {
         Example example = new Example(Doctor.class);
         example.createCriteria().andEqualTo("doctorNumber",doctorNumber);

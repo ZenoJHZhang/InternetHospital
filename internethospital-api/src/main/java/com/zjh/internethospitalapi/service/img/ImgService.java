@@ -1,4 +1,4 @@
-package com.zjh.internethospitalapi.service.app;
+package com.zjh.internethospitalapi.service.img;
 
 import com.zjh.internethospitalapi.entity.Img;
 import org.springframework.web.multipart.MultipartFile;

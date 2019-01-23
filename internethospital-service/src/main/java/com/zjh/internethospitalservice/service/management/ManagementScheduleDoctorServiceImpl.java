@@ -28,7 +28,7 @@ import java.util.Date;
 @Service("managementScheduleDoctorService")
 public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDoctorService {
 
-    private ScheduleDoctorMapper scheduleDoctorMapper;
+    private final ScheduleDoctorMapper scheduleDoctorMapper;
     private final DepartmentMapper departmentMapper;
     private final DoctorMapper doctorMapper;
     private final ScheduleDepartmentMapper scheduleDepartmentMapper;

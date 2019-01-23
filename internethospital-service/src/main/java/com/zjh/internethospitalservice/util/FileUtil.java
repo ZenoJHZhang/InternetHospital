@@ -4,7 +4,7 @@ import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.Img;
-import com.zjh.internethospitalapi.service.app.ImgService;
+import com.zjh.internethospitalapi.service.img.ImgService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

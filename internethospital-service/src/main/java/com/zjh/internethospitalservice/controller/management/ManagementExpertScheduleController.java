@@ -100,7 +100,7 @@ public class ManagementExpertScheduleController {
     @ApiOperation(value = "删除专家科室排班")
     @RequiresRoles(value = "doctor")
     public ResponseEntity<ApiResponse> deleteNormalScheduleDepartment(
-            @RequestParam @ApiParam(value = "科室排班Id",required = true) Integer scheduleDepartmentId){
+            @RequestParam @ApiParam(value = "科室排班Id",required = true,example = "1") Integer scheduleDepartmentId){
         managementScheduleDepartmentService.deleteScheduleDepartmentWithType(scheduleDepartmentId);
         return ApiResponse.successResponse("删除专家科室排班成功");
     }

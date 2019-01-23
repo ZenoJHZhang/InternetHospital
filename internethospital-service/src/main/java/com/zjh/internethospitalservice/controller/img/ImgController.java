@@ -1,8 +1,7 @@
-package com.zjh.internethospitalservice.controller.app;
+package com.zjh.internethospitalservice.controller.img;
 
 import com.zjh.internethospitalapi.common.constants.Constants;
-import com.zjh.internethospitalapi.entity.Img;
-import com.zjh.internethospitalapi.service.app.ImgService;
+import com.zjh.internethospitalapi.service.img.ImgService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import com.zjh.internethospitalservice.util.FileUtil;
 import io.swagger.annotations.Api;
@@ -14,10 +13,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.UUID;
-
 /**
  * 类的说明
  *
@@ -27,7 +22,7 @@ import java.util.UUID;
  */
 @RestController
 @RequestMapping("/img")
-@Api(tags = "【用户模块】图片相关API")
+@Api(tags = "【图片模块】图片的上传和下载")
 public class ImgController {
 
     private final ImgService imgService;
@@ -62,4 +57,9 @@ public class ImgController {
         return ApiResponse.successResponse(imgService.listUserReservationImg(userReservationId));
     }
 
+    @PostMapping("/insertDoctorImg")
+    @ApiOperation(value = "添加医生照片")
+    public ResponseEntity<ApiResponse> insertDoctorImg(@RequestParam(value = "file") MultipartFile file) {
+        return FileUtil.uploadFile(file,Constants.IMG_TYPE_DOCTOR,"医生照片");
+    }
 }
