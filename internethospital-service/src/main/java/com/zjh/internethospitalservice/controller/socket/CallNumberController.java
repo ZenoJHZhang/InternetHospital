@@ -41,9 +41,9 @@ public class CallNumberController {
     public JSONObject pushUserReservationClinicState(String detail) {
         JSONObject object = JSON.parseObject(detail);
         String token = object.getString("token");
-        Integer userReservationId = object.getInteger("userReservationId");
+        String userReservationUUId = object.getString("userReservationUUId");
         Integer userId = JWTUtil.getUserId(token);
-        UserReservation userReservation = userReservationService.getUserReservationDetail(userReservationId);
+        UserReservation userReservation = userReservationService.getUserReservationDetail(userReservationUUId,userId);
         JSONObject result = new JSONObject();
         ScheduleDoctor scheduleDoctor = scheduleDoctorService.getScheduleDoctor(userReservation.getScheduleDoctorId());
         String timeInterval = userReservation.getTimeInterval();

@@ -50,8 +50,8 @@ logging:
   file: C:/log/internetHospital.log
 server:
   port: 8080
-#  ssl:
-#    key-store: 1718543_www.woniuyiliao.cn.pfx
-#    key-store-password: 28BmGQBh
+  ssl:
+    key-store: 1718543_www.woniuyiliao.cn.pfx
+    key-store-password: 28BmGQBh
 
 

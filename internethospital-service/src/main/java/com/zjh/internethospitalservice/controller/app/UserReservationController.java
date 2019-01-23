@@ -47,20 +47,7 @@ public class UserReservationController {
         this.redisTemplate = redisTemplate;
     }
 
-    @PostMapping("/insertUserReservationImg")
-    @ApiOperation(value = "上传用户就诊图片描述")
-    @RequiresRoles(value = "user")
-    public ResponseEntity<ApiResponse> insertUserReservationImg(@RequestBody MultipartFile file) {
-        return FileUtil.uploadFile(file, Constants.IMH_TYPE_USER_RESERVATION, "就诊信息图片描述");
-    }
 
-    @PostMapping("/deleteUserReservationImg")
-    @ApiOperation(value = "删除用户就诊图片描述")
-    @RequiresRoles(value = "user")
-    public ResponseEntity<ApiResponse> deleteUserReservationImg(
-            @ApiParam(required = true, value = "图片id") Integer id) throws Exception {
-        return FileUtil.deleteFile(id);
-    }
 
     @PostMapping("/insertUserReservation")
     @ApiOperation(value = "用户确认就诊，添加就诊信息")
@@ -70,17 +57,13 @@ public class UserReservationController {
         String token = request.getHeader("Authorization");
         Integer userId = JWTUtil.getUserId(token);
         userReservationDto.setUserId(userId);
-        Integer userReservationId = null;
-        if (userReservationDto.getType().equals(Constants.DEPARTMENT)) {
-            userReservationId = userReservationService.insertNormalUserReservation(userReservationDto);
-        } else if (userReservationDto.getType().equals(Constants.EXPERT)) {
-            userReservationId = userReservationService.insertExpertUserReservation(userReservationDto);
-        }
         String uuId = UUID.randomUUID().toString();
-        UserReservation userReservation = new UserReservation();
-        userReservation.setId(userReservationId);
-        userReservation.setUuId(uuId);
-        userReservationService.updateUserReservationSelective(userReservation);
+        userReservationDto.setUuId(uuId);
+        if (userReservationDto.getType().equals(Constants.DEPARTMENT)) {
+             userReservationService.insertNormalUserReservation(userReservationDto);
+        } else if (userReservationDto.getType().equals(Constants.EXPERT)) {
+            userReservationService.insertExpertUserReservation(userReservationDto);
+        }
         return ApiResponse.successResponse(uuId);
     }
 
@@ -88,8 +71,10 @@ public class UserReservationController {
     @ApiOperation(value = "获取就诊详情信息")
     @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> getUserReservationDetail(
-            @RequestParam @ApiParam(value = "就诊信息id", required = true, example = "1") Integer userReservationId) {
-        UserReservation userReservationDetail = userReservationService.getUserReservationDetail(userReservationId);
+            @RequestParam @ApiParam(value = "就诊信息id", required = true, example = "1") String userReservationUUId) {
+        String token = request.getHeader("Authorization");
+        Integer userId = JWTUtil.getUserId(token);
+        UserReservation userReservationDetail = userReservationService.getUserReservationDetail(userReservationUUId,userId);
         return ApiResponse.successResponse(userReservationDetail);
     }
 
@@ -111,12 +96,12 @@ public class UserReservationController {
     @ApiOperation(value = "更新就诊挂号费支付状态")
     @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> payUserReservationClinic(
-            @RequestParam @ApiParam(value = "用户id", required = true, example = "1") Integer userReservationId) {
+            @RequestParam @ApiParam(value = "用户id", required = true, example = "1") String userReservationUUId) {
 
         UserReservation userReservation = new UserReservation();
         //已付款等待视频
         userReservation.setStatus(4);
-        userReservation.setId(userReservationId);
+        userReservation.setUuId(userReservationUUId);
         userReservationService.updateUserReservationSelective(userReservation);
         return ApiResponse.successResponse(null);
     }

@@ -50,7 +50,7 @@ public final class Constants {
     /**
      * 从服务器获取图片基地址
      */
-    public static final String IMG_DOWNLOAD_BASE_URL = "http://www.woniuyiliao.cn/image/";
+    public static final String IMG_DOWNLOAD_BASE_URL = "https://www.woniuyiliao.cn/image/";
 
     /**
      * 图片二级文件夹名字

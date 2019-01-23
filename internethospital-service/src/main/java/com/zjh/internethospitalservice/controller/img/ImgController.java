@@ -22,7 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 @RestController
 @RequestMapping("/img")
-@Api(tags = "【图片模块】图片的上传和下载")
+@Api(tags = "【图片模块】图片操作API")
 public class ImgController {
 
     private final ImgService imgService;
@@ -55,11 +55,26 @@ public class ImgController {
     public ResponseEntity<ApiResponse> listUserReservationImg(
             @ApiParam(value = "用户就诊信息id",required = true,example = "1") @RequestParam Integer userReservationId){
         return ApiResponse.successResponse(imgService.listUserReservationImg(userReservationId));
-    }
+}
 
     @PostMapping("/insertDoctorImg")
     @ApiOperation(value = "添加医生照片")
     public ResponseEntity<ApiResponse> insertDoctorImg(@RequestParam(value = "file") MultipartFile file) {
         return FileUtil.uploadFile(file,Constants.IMG_TYPE_DOCTOR,"医生照片");
+    }
+
+    @PostMapping("/insertUserReservationImg")
+    @ApiOperation(value = "上传用户就诊图片描述")
+    @RequiresRoles(value = "user")
+    public ResponseEntity<ApiResponse> insertUserReservationImg(@RequestBody MultipartFile file) {
+        return FileUtil.uploadFile(file, Constants.IMH_TYPE_USER_RESERVATION, "就诊信息图片描述");
+    }
+
+    @PostMapping("/deleteUserReservationImg")
+    @ApiOperation(value = "删除用户就诊图片描述")
+    @RequiresRoles(value = "user")
+    public ResponseEntity<ApiResponse> deleteUserReservationImg(
+            @ApiParam(required = true, value = "图片id",example = "1") @RequestParam Integer id) {
+        return FileUtil.deleteFile(id);
     }
 }

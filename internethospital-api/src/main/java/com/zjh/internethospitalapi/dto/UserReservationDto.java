@@ -84,4 +84,6 @@ public class UserReservationDto {
      */
     private List<Integer> imgIdList;
 
+    private String uuId;
+
 }

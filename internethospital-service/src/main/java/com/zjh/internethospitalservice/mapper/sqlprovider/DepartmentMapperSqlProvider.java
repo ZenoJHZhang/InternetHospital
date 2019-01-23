@@ -28,7 +28,7 @@ public class DepartmentMapperSqlProvider {
                 WHERE("night_has =1");
             }
             WHERE("department_id = department.id and dept_type = 0 " +
-                    "and schedule_time = #{scheduleTime} and img_id = img.id and morning_has = 1");
+                    "and schedule_time = #{scheduleTime} and img_id = img.id");
         }}.toString();
     }
 }

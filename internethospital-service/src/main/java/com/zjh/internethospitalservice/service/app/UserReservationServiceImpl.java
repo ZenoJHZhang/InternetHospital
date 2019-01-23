@@ -100,8 +100,11 @@ public class UserReservationServiceImpl implements UserReservationService {
     }
 
     @Override
-    public UserReservation getUserReservationDetail(Integer userReservationId) {
-        UserReservation userReservation = userReservationMapper.selectByPrimaryKey(userReservationId);
+    public UserReservation getUserReservationDetail(String userReservationUUId,Integer userId) {
+        Example example = new Example(UserReservation.class);
+        example.createCriteria().andEqualTo("uuId",userReservationUUId)
+                .andEqualTo("userId",userId);
+        UserReservation userReservation = userReservationMapper.selectOneByExample(example);
         if (userReservation == null) {
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
         }
@@ -147,7 +150,9 @@ public class UserReservationServiceImpl implements UserReservationService {
     @Override
     public void updateUserReservationSelective(UserReservation userReservation) {
         userReservation.setUpdateTime(new Date());
-        int i = userReservationMapper.updateByPrimaryKeySelective(userReservation);
+        Example example = new Example(UserReservation.class);
+        example.createCriteria().andEqualTo("uuId",userReservation.getUuId());
+        int i = userReservationMapper.updateByExampleSelective(userReservation,example);
         if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.UPDATE_USER_RESERVATION_FAIL);
         }

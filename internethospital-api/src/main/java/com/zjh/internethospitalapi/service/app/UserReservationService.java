@@ -30,10 +30,11 @@ public interface UserReservationService {
 
     /**
      * 获取就诊详情
-     * @param userReservationId
+     * @param userReservationUUId
+     * @param userId
      * @return
      */
-    UserReservation getUserReservationDetail(Integer userReservationId);
+    UserReservation getUserReservationDetail(String userReservationUUId,Integer userId);
 
     /**
      * 通过用户id获得就诊信息列表(未终止的)
@@ -52,7 +53,7 @@ public interface UserReservationService {
     PageInfo<UserReservation> listUserReservationOfUserInPage(Integer userId,Integer pageNo,Integer pageSize);
 
     /**
-     * 根据主键选择性更新
+     * 根据UUId选择性更新
      * @param userReservation
      */
     void updateUserReservationSelective(UserReservation userReservation);
