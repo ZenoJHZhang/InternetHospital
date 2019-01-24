@@ -41,20 +41,24 @@ public interface PatientService {
     /**
      * 删除就诊人
      * @param patientList
+     * @param userId 用户id
      * @return
      */
-    void deletePatient(List<Patient> patientList);
+    void deletePatient(List<Patient> patientList,Integer userId);
 
     /**
      * 根据id获取就诊人
      * @param id
+     * @param userId
      * @return
      */
-    Patient selectPatientById(Integer id);
+    Patient selectPatientById(Integer id,Integer userId);
 
     /**
      * 更新就诊人
      * @param patient 就诊人
+     * @param userId 用户id
      */
-    void updatePatient(Patient patient);
+    void updatePatient(Patient patient,Integer userId);
+
 }

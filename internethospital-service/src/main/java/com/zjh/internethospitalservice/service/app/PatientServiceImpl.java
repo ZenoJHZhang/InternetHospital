@@ -61,7 +61,7 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public boolean isSamePatient(Patient patient, Integer userId) {
         Example example = new Example(Patient.class);
-        example.createCriteria().andEqualTo("userId", userId);
+        example.createCriteria().andEqualTo("userId", userId).andNotEqualTo("id",patient.getId());
         example.and().orEqualTo("idCard", patient.getIdCard())
                 .orEqualTo("phone", patient.getPhone());
         Patient patientSelected = patientMapper.selectOneByExample(example);
@@ -69,11 +69,14 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public void deletePatient(List<Patient> patientList) {
+    public void deletePatient(List<Patient> patientList,Integer userId) {
         int i = 0;
         for (Patient patient:patientList
              ) {
-            i += patientMapper.delete(patient);
+            Example example = new Example(Patient.class);
+            example.createCriteria().andEqualTo("userId",userId)
+                    .andEqualTo("id",patient.getId());
+            i += patientMapper.deleteByExample(example);
         }
         if (i !=  patientList.size()){
             throw new InternetHospitalException(ExceptionConstants.PATIENT_DELETE_FAIL);
@@ -81,7 +84,7 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public Patient selectPatientById(Integer id) {
+    public Patient selectPatientById(Integer id,Integer userId) {
         Patient patient =  patientMapper.selectByPrimaryKey(id);
         String birth = patient.getBirth();
         Integer age = AgeUtil.getAgeFromBirth(birth);
@@ -90,8 +93,11 @@ public class PatientServiceImpl implements PatientService {
     }
 
     @Override
-    public void updatePatient(Patient patient) {
-        int i = patientMapper.updateByPrimaryKey(patient);
+    public void updatePatient(Patient patient,Integer userId) {
+        Example example = new Example(Patient.class);
+        example.createCriteria().andEqualTo("userId",userId)
+                .andEqualTo("id",patient.getId());
+        int i = patientMapper.updateByExample(patient,example);
         if(i != 1){
             throw new InternetHospitalException(ExceptionConstants.PATIENT_UPDATE_FAIL);
         }

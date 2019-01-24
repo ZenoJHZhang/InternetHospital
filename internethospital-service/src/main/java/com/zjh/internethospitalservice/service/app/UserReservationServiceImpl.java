@@ -108,7 +108,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         if (userReservation == null) {
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
         }
-        Patient patient = patientService.selectPatientById(userReservation.getPatientId());
+        Patient patient = patientService.selectPatientById(userReservation.getPatientId(),userId);
         userReservation.setPatient(patient);
         Integer scheduleDoctorId = userReservation.getScheduleDoctorId();
         Integer callNo = null;
@@ -333,7 +333,7 @@ public class UserReservationServiceImpl implements UserReservationService {
     }
 
     private Integer commonGenerateUserReservation(UserReservationDto userReservationDto, UserReservation userReservation) {
-        userReservation.setPatientName(patientService.selectPatientById(userReservation.getPatientId()).getRealName());
+        userReservation.setPatientName(patientService.selectPatientById(userReservation.getPatientId(),userReservationDto.getUserId()).getRealName());
         userReservation.setConditionDesc(userReservationDto.getAccentDetail());
         userReservation.setClinicPrice(userReservationDto.getPrice());
         //就诊时间

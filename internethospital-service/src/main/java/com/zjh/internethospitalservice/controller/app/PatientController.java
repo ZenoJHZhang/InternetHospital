@@ -52,25 +52,11 @@ public class PatientController {
     @ApiOperation(value = "新增就诊人")
     @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> insertPatient(@ApiParam(value = "就诊人信息", required = true) @RequestBody Patient patient) {
-        String phone = patient.getPhone();
-        String realName = patient.getRealName();
-        String idCard = patient.getIdCard();
-        boolean isIdCardMatch = Pattern.matches(Constants.ID_CARD_PATTERN, idCard);
-        boolean isRealNameMatch = Pattern.matches(Constants.REAL_NAME_PATTERN, realName);
-        boolean isPhoneMatch = Pattern.matches(Constants.PHONE_PATTERN, phone);
-        if (!isIdCardMatch) {
-            return ApiResponse.commonResponse(400, "身份证格式错误", null);
-        }
-        if (!isPhoneMatch) {
-            return ApiResponse.commonResponse(400, "手机号格式错误", null);
-        }
-        if (!isRealNameMatch) {
-            return ApiResponse.commonResponse(400, "姓名格式错误", null);
-        }
         String token = httpRequest.getHeader("Authorization");
         Integer userId = JWTUtil.getUserId(token);
-        if (patientService.isSamePatient(patient, userId)) {
-            return ApiResponse.commonResponse(400, "该就诊人已存在，请勿重复添加!", null);
+        String message = judgePatient(patient, userId);
+        if (message != null){
+            return ApiResponse.commonResponse(400,message,null);
         }
         patientService.insertPatient(patient, userId);
         return ApiResponse.successResponse(null);
@@ -80,17 +66,49 @@ public class PatientController {
     @ApiOperation(value = "删除就诊人")
     @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> deletePatient(
-            @RequestBody @ApiParam(required = true,value = "就诊人id列表") List<Patient> patientList){
-       patientService.deletePatient(patientList);
-       return ApiResponse.successResponse(null);
+            @RequestBody @ApiParam(required = true, value = "就诊人id列表") List<Patient> patientList) {
+        String token = httpRequest.getHeader("Authorization");
+        Integer userId = JWTUtil.getUserId(token);
+        patientService.deletePatient(patientList, userId);
+        return ApiResponse.successResponse(null);
 
     }
 
     @PostMapping("/updatePatient")
     @ApiOperation(value = "更新就诊人")
     @RequiresRoles(value = "user")
-    public ResponseEntity<ApiResponse> updatePatient(@RequestBody @ApiParam(required = true,value = "就诊人") Patient patient){
-        patientService.updatePatient(patient);
+    public ResponseEntity<ApiResponse> updatePatient(@RequestBody @ApiParam(required = true, value = "就诊人") Patient patient) {
+        String token = httpRequest.getHeader("Authorization");
+        Integer userId = JWTUtil.getUserId(token);
+        String message = judgePatient(patient, userId);
+        if (message != null){
+            return ApiResponse.commonResponse(400,message,null);
+        }
+        patientService.updatePatient(patient, userId);
         return ApiResponse.successResponse(null);
+    }
+
+
+    private String judgePatient(Patient patient, Integer userId) {
+        String phone = patient.getPhone();
+        String realName = patient.getRealName();
+        String idCard = patient.getIdCard();
+        boolean isIdCardMatch = Pattern.matches(Constants.ID_CARD_PATTERN, idCard);
+        boolean isRealNameMatch = Pattern.matches(Constants.REAL_NAME_PATTERN, realName);
+        boolean isPhoneMatch = Pattern.matches(Constants.PHONE_PATTERN, phone);
+        String message = null;
+        if (!isIdCardMatch) {
+            message = "身份证格式错误";
+        }
+        if (!isPhoneMatch) {
+            message = "手机号格式错误";
+        }
+        if (!isRealNameMatch) {
+            message = "姓名格式错误";
+        }
+        if (patientService.isSamePatient(patient, userId)) {
+            message = "该就诊人已存在，请勿重复添加!";
+        }
+        return message;
     }
 }
