@@ -47,4 +47,5 @@ public class ExceptionConstants {
     public static final String INSERT_DEPARTMENT_FAIL = "添加科室失败，请稍后再试";
     public static final String UPDATE_DEPARTMENT_FAIL = "更新科室失败，请稍后再试";
     public static final String DELETE_DEPARTMENT_FAIL = "删除科室失败，请稍后再试";
+    public static final String DEPARTMENT_HAS_NO_DOCTOR = "科室内无医生，请先添加医生再排班";
 }

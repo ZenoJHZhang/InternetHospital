@@ -47,7 +47,7 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
         List<Doctor> doctorList = new ArrayList<>();
         List<DoctorDepartment> doctorDepartmentList = doctorDepartmentMapper.select(doctorDepartment);
         if (doctorDepartmentList.size() == 0){
-            throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
+            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_HAS_NO_DOCTOR);
         }
         for (DoctorDepartment o:doctorDepartmentList
              ) {

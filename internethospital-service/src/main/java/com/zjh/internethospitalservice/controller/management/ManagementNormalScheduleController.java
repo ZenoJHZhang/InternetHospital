@@ -1,6 +1,9 @@
 package com.zjh.internethospitalservice.controller.management;
 
+import com.zjh.internethospitalapi.entity.Doctor;
 import com.zjh.internethospitalapi.service.management.ManagementDoctorDepartmentService;
+import com.zjh.internethospitalapi.service.management.ManagementScheduleDepartmentService;
+import com.zjh.internethospitalapi.service.management.ManagementScheduleDoctorService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -11,6 +14,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 类的说明
@@ -23,8 +29,47 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/managementNormalSchedule")
 public class ManagementNormalScheduleController {
+    private final ManagementScheduleDoctorService managementScheduleDoctorService;
+    private final ManagementScheduleDepartmentService managementScheduleDepartmentService;
+    private final ManagementDoctorDepartmentService managementDoctorDepartmentService;
 
+    @Autowired
+    public ManagementNormalScheduleController(ManagementScheduleDoctorService managementScheduleDoctorService,
+                                              ManagementScheduleDepartmentService managementScheduleDepartmentService, ManagementDoctorDepartmentService managementDoctorDepartmentService) {
 
+        this.managementScheduleDoctorService = managementScheduleDoctorService;
+        this.managementScheduleDepartmentService = managementScheduleDepartmentService;
+        this.managementDoctorDepartmentService = managementDoctorDepartmentService;
+    }
 
-
+    @PostMapping("/insert")
+    @ApiOperation("新增科室就诊排班")
+    public ResponseEntity<ApiResponse> insert(
+            @ApiParam(value = "科室id", required = true) @RequestParam Integer departmentId,
+            @ApiParam(value = "排班时间", required = true) @RequestParam String scheduleTime,
+            @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval,
+            @ApiParam(value = "总号源数", required = true) @RequestParam Integer totalNumber) {
+        Integer scheduleDepartmentId = managementScheduleDepartmentService.
+                insertScheduleDepartment(departmentId, timeInterval, scheduleTime, totalNumber);
+        List<Doctor> doctorList = managementDoctorDepartmentService.listDoctorByDepartmentId(departmentId);
+        List<Integer> doctorIdList = new ArrayList<>();
+        int size = doctorList.size();
+        int doctorTotalNumber = totalNumber/size;
+        int lastDoctorTotalNumber = totalNumber - (size - 1) * doctorTotalNumber;
+        for (int i = 0; i < size; i++) {
+            Integer averageNumber;
+            if (i == (size-1)){
+                averageNumber = lastDoctorTotalNumber;
+            }
+            else {
+                averageNumber = doctorTotalNumber;
+            }
+            Doctor doctor = doctorList.get(i);
+            Integer doctorId = doctor.getId();
+            managementScheduleDoctorService.insertNormalScheduleDoctor(scheduleDepartmentId,departmentId,
+                    doctorId,timeInterval,scheduleTime,averageNumber);
+            doctorIdList.add(doctorId);
+        }
+        return ApiResponse.successResponse(doctorIdList);
+    }
 }
