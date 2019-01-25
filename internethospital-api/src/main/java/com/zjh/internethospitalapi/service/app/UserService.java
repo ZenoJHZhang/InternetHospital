@@ -26,7 +26,7 @@ public interface UserService {
      * @param roleId
      * @return
      */
-    void userRegister(String phone, String password , Integer roleId);
+    Integer userRegister(String phone, String password , Integer roleId);
 
     /**
      * 判断是否有重复身份证号
@@ -48,4 +48,10 @@ public interface UserService {
      * @return
      */
     UserDto getUserInfo(String phone);
+
+    /**
+     * 根据userId删除用户
+     * @param userId 用户id
+     */
+    void deleteUser(Integer userId);
 }

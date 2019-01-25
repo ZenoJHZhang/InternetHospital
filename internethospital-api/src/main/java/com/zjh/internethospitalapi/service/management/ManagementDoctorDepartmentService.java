@@ -18,4 +18,11 @@ public interface ManagementDoctorDepartmentService {
      * @return
      */
     List<Doctor> listDoctorByDepartmentId(Integer departmentId);
+
+    /**
+     * 将医生加入一个或多个科室内
+     * @param doctorId
+     * @param departmentId
+     */
+    void addDoctorIntoDepartment(Integer doctorId,Integer departmentId);
 }

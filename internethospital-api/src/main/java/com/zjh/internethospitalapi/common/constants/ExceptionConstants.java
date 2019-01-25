@@ -40,6 +40,11 @@ public class ExceptionConstants {
             "当日，此专家科室内仍有专家医生排班;请删除专家排班后再次尝试，谢谢。";
     public static final String SAME_USER_PHONE = "手机号已注册";
     public static final String SAME_USER_ID_CARD = "很抱歉，此身份证号已被注册";
-    public static final String SAME_DOCTOR_NUMBER = "医生工号重复，新增医生失败。";
     public static final String INSERT_DOCTOR_FAIL = "添加医生失败，请稍后再试";
+    public static final String SAME_DOCTOR ="重复医生信息，请修改后再试";
+    public static final String UPDATE_DOCTOR_FAIL = "更新医生信息失败，请稍后再试";
+    public static final String DELETE_DOCTOR_FAIL = "删除医生失败，请稍后再试";
+    public static final String INSERT_DEPARTMENT_FAIL = "添加科室失败，请稍后再试";
+    public static final String UPDATE_DEPARTMENT_FAIL = "更新科室失败，请稍后再试";
+    public static final String DELETE_DEPARTMENT_FAIL = "删除科室失败，请稍后再试";
 }

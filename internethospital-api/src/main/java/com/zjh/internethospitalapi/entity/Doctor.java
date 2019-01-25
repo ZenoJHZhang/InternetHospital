@@ -41,7 +41,7 @@ public class Doctor {
     private String doctorIdCard;
 
     /**
-     * 手机号(登录账号)
+     * 手机号(不一定为登录账号，登录账号为初始注册手机号)
      */
     private String phone;
 

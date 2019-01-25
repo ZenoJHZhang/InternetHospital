@@ -54,7 +54,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void userRegister(String phone, String password,Integer roleId) {
+    public Integer userRegister(String phone, String password,Integer roleId) {
         String md5Password = PasswordUtil.generate(password);
         User user = new User();
         user.setPhone(phone);
@@ -62,10 +62,11 @@ public class UserServiceImpl implements UserService {
         user.setRoleId(roleId);
         user.setCreateTime(new Date());
         user.setUpdateTime(new Date());
-        Integer result = userMapper.insert(user);
+        Integer result = userMapper.insertSelective(user);
         if (result != 1){
             throw new InternetHospitalException(ExceptionConstants.USER_INSERT_FAIL);
         }
+        return user.getId();
     }
 
     @Override
@@ -97,5 +98,10 @@ public class UserServiceImpl implements UserService {
         UserDto userDto = new UserDto();
         BeanUtils.copyProperties(user,userDto);
         return userDto;
+    }
+
+    @Override
+    public void deleteUser(Integer userId) {
+        userMapper.deleteByPrimaryKey(userId);
     }
 }

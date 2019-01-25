@@ -46,6 +46,9 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
         doctorDepartment.setDepartmentId(departmentId);
         List<Doctor> doctorList = new ArrayList<>();
         List<DoctorDepartment> doctorDepartmentList = doctorDepartmentMapper.select(doctorDepartment);
+        if (doctorDepartmentList.size() == 0){
+            throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
+        }
         for (DoctorDepartment o:doctorDepartmentList
              ) {
             Doctor doctor = doctorMapper.selectByPrimaryKey(o.getDoctorId());
@@ -55,5 +58,10 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
             doctorList.add(doctor);
         }
         return doctorList;
+    }
+
+    @Override
+    public void addDoctorIntoDepartment(Integer doctorId, Integer departmentId) {
+
     }
 }

@@ -56,7 +56,7 @@ public class PatientController {
         Integer userId = JWTUtil.getUserId(token);
         String message = judgePatient(patient, userId);
         if (message != null){
-            return ApiResponse.commonResponse(400,message,null);
+            return ApiResponse.response(400,message,null);
         }
         patientService.insertPatient(patient, userId);
         return ApiResponse.successResponse(null);
@@ -82,7 +82,7 @@ public class PatientController {
         Integer userId = JWTUtil.getUserId(token);
         String message = judgePatient(patient, userId);
         if (message != null){
-            return ApiResponse.commonResponse(400,message,null);
+            return ApiResponse.response(400,message,null);
         }
         patientService.updatePatient(patient, userId);
         return ApiResponse.successResponse(null);
