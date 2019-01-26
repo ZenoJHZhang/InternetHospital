@@ -35,4 +35,10 @@ public interface ManagementScheduleDepartmentService {
      * @return 科室排班
      */
     ScheduleDepartment getScheduleDepartmentByDepartmentIdAndScheduleTime(Integer departmentId,String scheduleTime);
+
+    /**
+     * 通过科室排班id删除科室排班
+     * @param scheduleDepartmentId 科室排班id
+     */
+    void deleteScheduleDepartmentById(Integer scheduleDepartmentId);
 }

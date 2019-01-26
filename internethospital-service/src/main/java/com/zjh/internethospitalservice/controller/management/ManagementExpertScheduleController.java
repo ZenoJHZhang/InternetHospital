@@ -54,4 +54,12 @@ public class ManagementExpertScheduleController {
         managementScheduleDoctorService.updateExpertScheduleDoctor(scheduleDoctorId,timeInterval,totalNumber);
         return ApiResponse.successResponse(null);
     }
+
+    @ApiOperation("删除医生排班")
+    @PostMapping("/delete")
+    public ResponseEntity<ApiResponse> delete(
+            @ApiParam(value = "医生排班id", required = true, example = "1") @RequestParam Integer scheduleDoctorId) {
+       managementScheduleDoctorService.deleteScheduleDoctorById(scheduleDoctorId);
+        return ApiResponse.successResponse(null);
+    }
 }

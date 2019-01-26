@@ -5,6 +5,7 @@ import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.entity.Doctor;
+import com.zjh.internethospitalapi.entity.ScheduleDepartment;
 import com.zjh.internethospitalapi.entity.ScheduleDoctor;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDoctorService;
 import com.zjh.internethospitalservice.mapper.DepartmentMapper;
@@ -140,6 +141,21 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
                 .andEqualTo("scheduleTime", scheduleTime)
                 .andEqualTo("type", type);
         return scheduleDoctorMapper.selectOneByExample(example);
+    }
+
+    @Override
+    public void deleteScheduleDoctorById(Integer scheduleDoctorId) {
+        int i = scheduleDoctorMapper.deleteByPrimaryKey(scheduleDoctorId);
+        if (i != 1){
+         throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_NOT_EXIST);
+        }
+    }
+
+    @Override
+    public Integer deleteScheduleDoctorByScheduleDepartmentId(Integer scheduleDepartmentId) {
+        Example example = new Example(ScheduleDoctor.class);
+        example.createCriteria().andEqualTo("scheduleDepartmentId",scheduleDepartmentId);
+        return scheduleDoctorMapper.deleteByExample(example);
     }
 
     @Override

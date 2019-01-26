@@ -45,29 +45,28 @@ public class ManagementNormalScheduleController {
     @PostMapping("/insert")
     @ApiOperation("新增科室就诊排班")
     public ResponseEntity<ApiResponse> insert(
-            @ApiParam(value = "科室id", required = true,example = "1") @RequestParam Integer departmentId,
+            @ApiParam(value = "科室id", required = true, example = "1") @RequestParam Integer departmentId,
             @ApiParam(value = "排班时间", required = true) @RequestParam String scheduleTime,
             @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval,
-            @ApiParam(value = "总号源数", required = true,example = "1") @RequestParam Integer totalNumber) {
+            @ApiParam(value = "总号源数", required = true, example = "1") @RequestParam Integer totalNumber) {
         Integer scheduleDepartmentId = managementScheduleDepartmentService.
                 insertScheduleDepartment(departmentId, timeInterval, scheduleTime, totalNumber);
         List<Doctor> doctorList = managementDoctorDepartmentService.listDoctorByDepartmentId(departmentId);
         List<Integer> doctorIdList = new ArrayList<>();
         int size = doctorList.size();
-        int doctorTotalNumber = totalNumber/size;
+        int doctorTotalNumber = totalNumber / size;
         int lastDoctorTotalNumber = totalNumber - (size - 1) * doctorTotalNumber;
         for (int i = 0; i < size; i++) {
             Integer averageNumber;
-            if (i == (size-1)){
+            if (i == (size - 1)) {
                 averageNumber = lastDoctorTotalNumber;
-            }
-            else {
+            } else {
                 averageNumber = doctorTotalNumber;
             }
             Doctor doctor = doctorList.get(i);
             Integer doctorId = doctor.getId();
-            managementScheduleDoctorService.insertNormalScheduleDoctor(scheduleDepartmentId,departmentId,
-                    doctorId,timeInterval,scheduleTime,averageNumber);
+            managementScheduleDoctorService.insertNormalScheduleDoctor(scheduleDepartmentId, departmentId,
+                    doctorId, timeInterval, scheduleTime, averageNumber);
             doctorIdList.add(doctorId);
         }
         return ApiResponse.successResponse(doctorIdList);
@@ -76,12 +75,21 @@ public class ManagementNormalScheduleController {
     @PostMapping("/update")
     @ApiOperation("更新科室就诊排班")
     public ResponseEntity<ApiResponse> update(
-            @ApiParam(value = "科室排班id", required = true,example = "1") @RequestParam Integer scheduleDepartmentId,
+            @ApiParam(value = "科室排班id", required = true, example = "1") @RequestParam Integer scheduleDepartmentId,
             @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval,
-            @ApiParam(value = "总号源数", required = true,example = "1") @RequestParam Integer totalNumber
-    ){
-        managementScheduleDepartmentService.updateScheduleDepartment(scheduleDepartmentId,timeInterval,totalNumber);
-        managementScheduleDoctorService.updateNormalScheduleDoctor(scheduleDepartmentId,timeInterval,totalNumber);
+            @ApiParam(value = "总号源数", required = true, example = "1") @RequestParam Integer totalNumber
+    ) {
+        managementScheduleDepartmentService.updateScheduleDepartment(scheduleDepartmentId, timeInterval, totalNumber);
+        managementScheduleDoctorService.updateNormalScheduleDoctor(scheduleDepartmentId, timeInterval, totalNumber);
         return ApiResponse.successResponse(null);
+    }
+
+    @PostMapping("/delete")
+    @ApiOperation("删除科室排班")
+    public ResponseEntity<ApiResponse> delete(
+            @ApiParam(value = "科室排班id", required = true, example = "1") @RequestParam Integer scheduleDepartmentId) {
+        managementScheduleDepartmentService.deleteScheduleDepartmentById(scheduleDepartmentId);
+        Integer count = managementScheduleDoctorService.deleteScheduleDoctorByScheduleDepartmentId(scheduleDepartmentId);
+        return ApiResponse.successResponse(count);
     }
 }

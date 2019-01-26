@@ -67,6 +67,19 @@ public interface ManagementScheduleDoctorService {
     ScheduleDoctor getScheduleDoctorByDoctorIdAndScheduleTimeAndType(Integer doctorId, String scheduleTime, Integer type);
 
     /**
+     * 通过医生排班id删除医生排班
+     * @param scheduleDoctorId 医生排班id
+     */
+    void deleteScheduleDoctorById(Integer scheduleDoctorId);
+
+    /**
+     * 通过科室排班id删除医生排班
+     * @param scheduleDepartmentId 科室排班id
+     * @return 删除的医生排班数量
+     */
+    Integer deleteScheduleDoctorByScheduleDepartmentId(Integer scheduleDepartmentId);
+
+    /**
      * 通过科室排班id获取医生排班数量
      *
      * @param scheduleDepartmentId 科室排班id
