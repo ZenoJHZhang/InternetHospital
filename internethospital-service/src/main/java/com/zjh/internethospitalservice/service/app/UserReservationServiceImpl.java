@@ -31,7 +31,7 @@ import java.util.List;
  * @author: 张江浩
  * @date: 2018/11/29 13:29
  */
-@Service("userReservation")
+@Service("userReservationService")
 public class UserReservationServiceImpl implements UserReservationService {
     private final PatientService patientService;
     private final UserReservationImgMapper userReservationImgMapper;

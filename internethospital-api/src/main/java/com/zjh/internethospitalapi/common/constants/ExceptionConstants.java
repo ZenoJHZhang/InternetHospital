@@ -49,5 +49,7 @@ public class ExceptionConstants {
     public static final String DELETE_DEPARTMENT_FAIL = "删除科室失败，请稍后再试";
     public static final String DEPARTMENT_HAS_NO_DOCTOR = "科室内无医生，请先添加医生再排班";
     public static final String NOT_EXPERT_DEPARTMENT = "此科室非专家科室";
-    public static final String NOT_EXPERT_SCHDULE_DOCTOR = "此医生排班非专家医生排班";
+    public static final String NOT_EXPERT_SCHEDULE_DOCTOR = "此医生排班非专家医生排班";
+    public static final String INSERT_DOCTOR_INTO_DEPARTMENT_FAIL = "为医生添加科室失败，请稍后再试";
+    public static final String DOCTOR_ALREADY_IN_DEPARTMENT = "科室已存在该医生，请修改需要添加医生的科室，避免重复添加";
 }

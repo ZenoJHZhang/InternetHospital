@@ -11,8 +11,11 @@ import com.zjh.internethospitalservice.mapper.DoctorDepartmentMapper;
 import com.zjh.internethospitalservice.mapper.DoctorMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import tk.mybatis.mapper.entity.Example;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -30,7 +33,8 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
     private final DepartmentMapper departmentMapper;
 
     @Autowired
-    private ManagementDoctorDepartmentServiceImpl(DoctorDepartmentMapper doctorDepartmentMapper, DoctorMapper doctorMapper, DepartmentMapper departmentMapper){
+    public ManagementDoctorDepartmentServiceImpl(DoctorDepartmentMapper doctorDepartmentMapper,
+                                                  DoctorMapper doctorMapper, DepartmentMapper departmentMapper) {
         this.doctorDepartmentMapper = doctorDepartmentMapper;
         this.doctorMapper = doctorMapper;
         this.departmentMapper = departmentMapper;
@@ -40,19 +44,19 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
     public List<Doctor> listDoctorByDepartmentId(Integer departmentId) {
         DoctorDepartment doctorDepartment = new DoctorDepartment();
         Department department = departmentMapper.selectByPrimaryKey(departmentId);
-        if (department == null){
+        if (department == null) {
             throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
         }
         doctorDepartment.setDepartmentId(departmentId);
         List<Doctor> doctorList = new ArrayList<>();
         List<DoctorDepartment> doctorDepartmentList = doctorDepartmentMapper.select(doctorDepartment);
-        if (doctorDepartmentList.size() == 0){
+        if (doctorDepartmentList.size() == 0) {
             throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_HAS_NO_DOCTOR);
         }
-        for (DoctorDepartment o:doctorDepartmentList
-             ) {
+        for (DoctorDepartment o : doctorDepartmentList
+                ) {
             Doctor doctor = doctorMapper.selectByPrimaryKey(o.getDoctorId());
-            if (doctor == null){
+            if (doctor == null) {
                 throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
             }
             doctorList.add(doctor);
@@ -61,7 +65,30 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
     }
 
     @Override
-    public void addDoctorIntoDepartment(Integer doctorId, Integer departmentId) {
-
+    @Transactional(rollbackFor = Exception.class)
+    public void addDoctorIntoDepartment(Integer doctorId, List<Integer> departmentIdList) {
+        if (doctorMapper.selectByPrimaryKey(doctorId) == null) {
+            throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
+        }
+        for (Integer departmentId : departmentIdList
+                ) {
+            DoctorDepartment doctorDepartment = new DoctorDepartment();
+            doctorDepartment.setDoctorId(doctorId);
+            Department department = departmentMapper.selectByPrimaryKey(departmentId);
+            if (department == null) {
+                throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
+            }
+            doctorDepartment.setDepartmentId(departmentId);
+            if (doctorDepartmentMapper.selectOne(doctorDepartment) != null) {
+                throw new InternetHospitalException(
+                        department.getDepartmentName() + ExceptionConstants.DOCTOR_ALREADY_IN_DEPARTMENT);
+            }
+            doctorDepartment.setCreateTime(new Date());
+            doctorDepartment.setUpdateTime(new Date());
+            int i = doctorDepartmentMapper.insertSelective(doctorDepartment);
+            if (i != 1) {
+                throw new InternetHospitalException(ExceptionConstants.INSERT_DOCTOR_INTO_DEPARTMENT_FAIL);
+            }
+        }
     }
 }

@@ -15,14 +15,15 @@ public interface ManagementDoctorDepartmentService {
     /**
      * 通过科室id获取对应医生列表
      * @param departmentId  科室id
-     * @return
+     * @return 医生列表
      */
     List<Doctor> listDoctorByDepartmentId(Integer departmentId);
 
     /**
      * 将医生加入一个或多个科室内
-     * @param doctorId
-     * @param departmentId
+     * @param doctorId 医生id
+     * @param departmentIdList 科室id列表
+     * @return 重复添加的科室名
      */
-    void addDoctorIntoDepartment(Integer doctorId,Integer departmentId);
+    void addDoctorIntoDepartment(Integer doctorId,List<Integer> departmentIdList);
 }

@@ -2,12 +2,10 @@ package com.zjh.internethospitalservice.controller.app;
 
 import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.common.constants.Constants;
-import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
 import com.zjh.internethospitalapi.entity.UserReservation;
 import com.zjh.internethospitalapi.service.app.UserReservationService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
-import com.zjh.internethospitalservice.util.FileUtil;
 import com.zjh.internethospitalservice.util.JWTUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -17,7 +15,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.UUID;

@@ -7,7 +7,6 @@ import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.entity.Doctor;
-import com.zjh.internethospitalapi.entity.ScheduleDepartment;
 import com.zjh.internethospitalapi.entity.ScheduleDoctor;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDoctorService;
 import com.zjh.internethospitalservice.mapper.DepartmentMapper;
@@ -128,7 +127,7 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         }
         //判断是否为专家医生排班
         if (!scheduleDoctor.getType().equals(Integer.valueOf(Constants.ONE))) {
-            throw new InternetHospitalException(ExceptionConstants.NOT_EXPERT_SCHDULE_DOCTOR);
+            throw new InternetHospitalException(ExceptionConstants.NOT_EXPERT_SCHEDULE_DOCTOR);
         }
         scheduleDoctor.setUpdateTime(new Date());
         scheduleDoctorMapper.updateByPrimaryKeySelective(
