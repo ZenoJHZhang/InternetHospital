@@ -1,5 +1,7 @@
 package com.zjh.internethospitalservice.controller.management;
 
+import com.github.pagehelper.PageInfo;
+import com.zjh.internethospitalapi.entity.ScheduleDoctor;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDoctorService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import io.swagger.annotations.Api;
@@ -34,24 +36,24 @@ public class ManagementExpertScheduleController {
     @PostMapping("/insert")
     @ApiOperation("新增医生就诊排班")
     public ResponseEntity<ApiResponse> insert(
-            @ApiParam(value = "科室id", required = true,example = "1") @RequestParam Integer departmentId,
-            @ApiParam(value = "医生id",required = true,example = "1") @RequestParam Integer doctorId,
+            @ApiParam(value = "科室id", required = true, example = "1") @RequestParam Integer departmentId,
+            @ApiParam(value = "医生id", required = true, example = "1") @RequestParam Integer doctorId,
             @ApiParam(value = "排班时间", required = true) @RequestParam String scheduleTime,
             @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval,
-            @ApiParam(value = "总号源数", required = true,example = "1") @RequestParam Integer totalNumber){
+            @ApiParam(value = "总号源数", required = true, example = "1") @RequestParam Integer totalNumber) {
         Integer scheduleDoctorId = managementScheduleDoctorService.
-                insertExpertScheduleDoctor(departmentId, doctorId, scheduleTime, timeInterval, totalNumber);
+                insertExpertScheduleDoctor(departmentId, doctorId, timeInterval, scheduleTime, totalNumber);
         return ApiResponse.successResponse(scheduleDoctorId);
     }
 
     @PostMapping("/update")
     @ApiOperation("更新医生就诊排班")
     public ResponseEntity<ApiResponse> update(
-            @ApiParam(value = "医生排班id", required = true,example = "1") @RequestParam Integer scheduleDoctorId,
+            @ApiParam(value = "医生排班id", required = true, example = "1") @RequestParam Integer scheduleDoctorId,
             @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval,
-            @ApiParam(value = "总号源数", required = true,example = "1") @RequestParam Integer totalNumber
-    ){
-        managementScheduleDoctorService.updateExpertScheduleDoctor(scheduleDoctorId,timeInterval,totalNumber);
+            @ApiParam(value = "总号源数", required = true, example = "1") @RequestParam Integer totalNumber
+    ) {
+        managementScheduleDoctorService.updateExpertScheduleDoctor(scheduleDoctorId, timeInterval, totalNumber);
         return ApiResponse.successResponse(null);
     }
 
@@ -59,7 +61,22 @@ public class ManagementExpertScheduleController {
     @PostMapping("/delete")
     public ResponseEntity<ApiResponse> delete(
             @ApiParam(value = "医生排班id", required = true, example = "1") @RequestParam Integer scheduleDoctorId) {
-       managementScheduleDoctorService.deleteScheduleDoctorById(scheduleDoctorId);
+        managementScheduleDoctorService.deleteScheduleDoctorById(scheduleDoctorId);
         return ApiResponse.successResponse(null);
+    }
+
+    @ApiOperation("分页获取医生排班列表")
+    @PostMapping("/list")
+    public ResponseEntity<ApiResponse> list(
+            @ApiParam(value = "科室id", required = true, example = "1") @RequestParam Integer departmentId,
+            @ApiParam(value = "排班时间", required = true) @RequestParam String scheduleTime,
+            @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval,
+            @ApiParam(value = "类型", required = true, example = "1") @RequestParam Integer type,
+            @ApiParam(value = "页码", required = true, example = "1") @RequestParam Integer pageNumber,
+            @ApiParam(value = "页容量", required = true, example = "1") @RequestParam Integer pageSize
+    ) {
+        PageInfo<ScheduleDoctor> scheduleDoctorPageInfo = managementScheduleDoctorService.
+                listScheduleDoctorOfTimeInterval(departmentId, scheduleTime, timeInterval, type, pageNumber, pageSize);
+        return ApiResponse.successResponse(scheduleDoctorPageInfo);
     }
 }

@@ -1,6 +1,8 @@
 package com.zjh.internethospitalservice.controller.management;
 
+import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.entity.Doctor;
+import com.zjh.internethospitalapi.entity.ScheduleDepartment;
 import com.zjh.internethospitalapi.service.management.ManagementDoctorDepartmentService;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDepartmentService;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDoctorService;
@@ -91,5 +93,19 @@ public class ManagementNormalScheduleController {
         managementScheduleDepartmentService.deleteScheduleDepartmentById(scheduleDepartmentId);
         Integer count = managementScheduleDoctorService.deleteScheduleDoctorByScheduleDepartmentId(scheduleDepartmentId);
         return ApiResponse.successResponse(count);
+    }
+
+    @PostMapping("/list")
+    @ApiOperation("分页获取科室排班")
+    public ResponseEntity<ApiResponse> list(
+            @ApiParam(value = "科室id", required = true, example = "1") @RequestParam Integer departmentId,
+            @ApiParam(value = "排班时间", required = true) @RequestParam String scheduleTime,
+            @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval,
+            @ApiParam(value = "页码", required = true, example = "1") @RequestParam Integer pageNumber,
+            @ApiParam(value = "页容量", required = true, example = "1") @RequestParam Integer pageSize
+    ) {
+        PageInfo<ScheduleDepartment> scheduleDepartmentPageInfo = managementScheduleDepartmentService.
+                listScheduleDepartmentOfTimeInterval(departmentId, scheduleTime, timeInterval, pageNumber, pageSize);
+        return ApiResponse.successResponse(scheduleDepartmentPageInfo);
     }
 }

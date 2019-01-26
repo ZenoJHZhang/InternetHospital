@@ -1,6 +1,9 @@
 package com.zjh.internethospitalapi.service.management;
 
+import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.entity.ScheduleDepartment;
+
+import java.util.List;
 
 /**
  * 类的说明
@@ -35,6 +38,18 @@ public interface ManagementScheduleDepartmentService {
      * @return 科室排班
      */
     ScheduleDepartment getScheduleDepartmentByDepartmentIdAndScheduleTime(Integer departmentId,String scheduleTime);
+
+    /**
+     *通过科室id、排班时间、排版时段分页获取对应科室排班列表
+     * @param departmentId 科室id
+     * @param scheduleTime 排班时间
+     * @param timeInterval 排班时段
+     * @param pageNumber 页码
+     * @param pageSize 页容量
+     * @return 科室排班页表
+     */
+    PageInfo<ScheduleDepartment> listScheduleDepartmentOfTimeInterval(
+            Integer departmentId, String scheduleTime, String timeInterval,Integer pageNumber,Integer pageSize);
 
     /**
      * 通过科室排班id删除科室排班

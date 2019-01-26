@@ -1,5 +1,7 @@
 package com.zjh.internethospitalservice.service.management;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类的说明
@@ -54,7 +57,7 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
     @Override
     public void updateScheduleDepartment(Integer scheduleDepartmentId, String timeInterval, Integer totalNumber) {
         ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.selectByPrimaryKey(scheduleDepartmentId);
-        if (scheduleDepartment == null){
+        if (scheduleDepartment == null) {
             throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DEPARTMENT_NOT_EXIST);
         }
         scheduleDepartment.setUpdateTime(new Date());
@@ -62,7 +65,6 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
                 setScheduleDepartmentTotalNumberByTimeInterval(scheduleDepartment, timeInterval, totalNumber)
         );
     }
-
 
 
     @Override
@@ -74,35 +76,54 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
     }
 
     @Override
+    public PageInfo<ScheduleDepartment> listScheduleDepartmentOfTimeInterval(
+            Integer departmentId, String scheduleTime, String timeInterval, Integer pageNumber, Integer pageSize) {
+        ScheduleDepartment scheduleDepartment = new ScheduleDepartment();
+        scheduleDepartment.setDepartmentId(departmentId);
+        scheduleDepartment.setScheduleTime(scheduleTime);
+        PageHelper.startPage(pageNumber,pageSize);
+        List<ScheduleDepartment> scheduleDepartmentList = scheduleDepartmentMapper.select(
+                setScheduleDepartmentTotalNumberByTimeInterval(scheduleDepartment, timeInterval, null));
+        return new PageInfo<>(scheduleDepartmentList);
+    }
+
+    @Override
     public void deleteScheduleDepartmentById(Integer scheduleDepartmentId) {
         int i = scheduleDepartmentMapper.deleteByPrimaryKey(scheduleDepartmentId);
-        if (i != 1){
+        if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DEPARTMENT_NOT_EXIST);
         }
     }
 
     /**
      * 根据排班时段设置对应时段号源总数
+     * ps: 当号源数为 null时，则仅设置排班时段
      *
      * @param scheduleDepartment 科室排班
      * @param timeInterval       排班时段
      * @param totalNumber        号源数
-     * @return
+     * @return 科室排班
      */
     private ScheduleDepartment setScheduleDepartmentTotalNumberByTimeInterval(ScheduleDepartment scheduleDepartment,
                                                                               String timeInterval, Integer totalNumber) {
         switch (timeInterval) {
             case Constants.MORNING:
                 scheduleDepartment.setMorningHas(Constants.ONE);
-                scheduleDepartment.setMorningTotalNumber(totalNumber);
+                if (totalNumber != null) {
+                    scheduleDepartment.setMorningTotalNumber(totalNumber);
+                }
                 break;
             case Constants.AFTERNOON:
                 scheduleDepartment.setAfternoonHas(Constants.ONE);
-                scheduleDepartment.setAfternoonTotalNumber(totalNumber);
+                if (totalNumber != null) {
+                    scheduleDepartment.setAfternoonTotalNumber(totalNumber);
+                }
                 break;
             default:
                 scheduleDepartment.setNightHas(Constants.NIGHT);
-                scheduleDepartment.setNightTotalNumber(totalNumber);
+                if (totalNumber != null) {
+                    scheduleDepartment.setNightTotalNumber(totalNumber);
+                }
                 break;
         }
         return scheduleDepartment;

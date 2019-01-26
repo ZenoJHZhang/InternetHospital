@@ -1,5 +1,7 @@
 package com.zjh.internethospitalservice.service.management;
 
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
@@ -105,6 +107,7 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
         }
         ScheduleDoctor scheduleDoctor = new ScheduleDoctor();
+        scheduleDoctor.setScheduleTime(scheduleTime);
         scheduleDoctor.setDepartmentName(department.getDepartmentName());
         scheduleDoctor.setDepartmentId(departmentId);
         scheduleDoctor.setDoctorId(doctorId);
@@ -146,16 +149,30 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     @Override
     public void deleteScheduleDoctorById(Integer scheduleDoctorId) {
         int i = scheduleDoctorMapper.deleteByPrimaryKey(scheduleDoctorId);
-        if (i != 1){
-         throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_NOT_EXIST);
+        if (i != 1) {
+            throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_NOT_EXIST);
         }
     }
 
     @Override
     public Integer deleteScheduleDoctorByScheduleDepartmentId(Integer scheduleDepartmentId) {
         Example example = new Example(ScheduleDoctor.class);
-        example.createCriteria().andEqualTo("scheduleDepartmentId",scheduleDepartmentId);
+        example.createCriteria().andEqualTo("scheduleDepartmentId", scheduleDepartmentId);
         return scheduleDoctorMapper.deleteByExample(example);
+    }
+
+    @Override
+    public PageInfo<ScheduleDoctor> listScheduleDoctorOfTimeInterval(
+            Integer departmentId, String scheduleTime, String timeInterval,Integer type, Integer pageNumber, Integer pageSize) {
+
+        ScheduleDoctor scheduleDoctor = new ScheduleDoctor();
+        scheduleDoctor.setType(type);
+        scheduleDoctor.setDepartmentId(departmentId);
+        scheduleDoctor.setScheduleTime(scheduleTime);
+        PageHelper.startPage(pageNumber,pageSize);
+        List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.
+                select(setScheduleDoctorTotalNumberByTimeInterval(scheduleDoctor, timeInterval, null));
+        return new PageInfo<>(scheduleDoctorList);
     }
 
     @Override
@@ -168,26 +185,32 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
 
     /**
      * 根据排班时段设置对应时段号源总数
-     *
+     * ps：号源数为0时，仅设置医生排班时段
      * @param scheduleDoctor 医生排班
      * @param timeInterval   排班时段
      * @param totalNumber    号源数
-     * @return
+     * @return 医生排班
      */
     private ScheduleDoctor setScheduleDoctorTotalNumberByTimeInterval(ScheduleDoctor scheduleDoctor,
                                                                       String timeInterval, Integer totalNumber) {
         switch (timeInterval) {
             case Constants.MORNING:
                 scheduleDoctor.setDoctorMorningHas(Constants.ONE);
-                scheduleDoctor.setDoctorMorningTotalNumber(totalNumber);
+                if (totalNumber != null) {
+                    scheduleDoctor.setDoctorMorningTotalNumber(totalNumber);
+                }
                 break;
             case Constants.AFTERNOON:
                 scheduleDoctor.setDoctorAfternoonHas(Constants.ONE);
-                scheduleDoctor.setDoctorAfternoonTotalNumber(totalNumber);
+                if (totalNumber != null) {
+                    scheduleDoctor.setDoctorAfternoonTotalNumber(totalNumber);
+                }
                 break;
             default:
                 scheduleDoctor.setDoctorNightHas(Constants.ONE);
-                scheduleDoctor.setDoctorNightTotalNumber(totalNumber);
+                if (totalNumber != null) {
+                    scheduleDoctor.setDoctorNightTotalNumber(totalNumber);
+                }
                 break;
         }
         return scheduleDoctor;
