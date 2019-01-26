@@ -87,6 +87,62 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     }
 
     @Override
+    public Integer insertExpertScheduleDoctor(Integer departmentId, Integer doctorId, String timeInterval, String scheduleTime, Integer totalNumber) {
+        //是否有专家医生排班重复
+        if (getScheduleDoctorByDoctorIdAndScheduleTimeAndType(doctorId, scheduleTime, Integer.valueOf(Constants.ONE)) != null) {
+            throw new InternetHospitalException(ExceptionConstants.SAME_SCHEDULE_DOCTOR);
+        }
+        Department department = departmentMapper.selectByPrimaryKey(departmentId);
+        if (department == null) {
+            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
+        }
+        if (!department.getDeptType().equals(Integer.valueOf(Constants.ONE))) {
+            throw new InternetHospitalException(ExceptionConstants.NOT_EXPERT_DEPARTMENT);
+        }
+        Doctor doctor = doctorMapper.selectByPrimaryKey(doctorId);
+        if (doctor == null) {
+            throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
+        }
+        ScheduleDoctor scheduleDoctor = new ScheduleDoctor();
+        scheduleDoctor.setDepartmentName(department.getDepartmentName());
+        scheduleDoctor.setDepartmentId(departmentId);
+        scheduleDoctor.setDoctorId(doctorId);
+        scheduleDoctor.setDoctorName(doctor.getDoctorName());
+        scheduleDoctor.setType(Integer.valueOf(Constants.ONE));
+        scheduleDoctor.setCreateTime(new Date());
+        scheduleDoctor.setUpdateTime(new Date());
+        return scheduleDoctorMapper.insertSelective(
+                setScheduleDoctorTotalNumberByTimeInterval(scheduleDoctor, timeInterval, totalNumber)
+        );
+    }
+
+    @Override
+    public void updateExpertScheduleDoctor(Integer scheduleDoctorId, String timeInterval, Integer totalNumber) {
+        ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(scheduleDoctorId);
+        if (scheduleDoctor == null) {
+            throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_NOT_EXIST);
+        }
+        //判断是否为专家医生排班
+        if (!scheduleDoctor.getType().equals(Integer.valueOf(Constants.ONE))) {
+            throw new InternetHospitalException(ExceptionConstants.NOT_EXPERT_SCHDULE_DOCTOR);
+        }
+        scheduleDoctor.setUpdateTime(new Date());
+        scheduleDoctorMapper.updateByPrimaryKeySelective(
+                setScheduleDoctorTotalNumberByTimeInterval(scheduleDoctor, timeInterval, totalNumber)
+        );
+    }
+
+    @Override
+    public ScheduleDoctor getScheduleDoctorByDoctorIdAndScheduleTimeAndType
+            (Integer doctorId, String scheduleTime, Integer type) {
+        Example example = new Example(ScheduleDoctor.class);
+        example.createCriteria().andEqualTo("doctorId", doctorId)
+                .andEqualTo("scheduleTime", scheduleTime)
+                .andEqualTo("type", type);
+        return scheduleDoctorMapper.selectOneByExample(example);
+    }
+
+    @Override
     public Integer countScheduleDoctorByScheduleDepartment(Integer scheduleDepartmentId) {
         Example example = new Example(ScheduleDoctor.class);
         example.createCriteria().andEqualTo("scheduleDepartmentId", scheduleDepartmentId);

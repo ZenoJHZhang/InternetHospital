@@ -34,9 +34,9 @@ public class ManagementDepartmentController {
     @GetMapping("/listAllDepartmentByType")
     @ApiOperation(value = "根据科室类型获取所有科室")
     public ResponseEntity<ApiResponse> listAllDepartmentByType(
-            @ApiParam(value = "科室类别 0 普通科室 ；1 专家科室", required = true) @RequestParam Integer departmentType,
-            @ApiParam(value = "页码", required = true) @RequestParam Integer pageNumber,
-            @ApiParam(value = "页容量", required = true) @RequestParam Integer pageSize) {
+            @ApiParam(value = "科室类别 0 普通科室 ；1 专家科室", required = true,example = "1") @RequestParam Integer departmentType,
+            @ApiParam(value = "页码", required = true,example = "1") @RequestParam Integer pageNumber,
+            @ApiParam(value = "页容量", required = true,example = "1") @RequestParam Integer pageSize) {
         PageInfo<Department> departmentPageInfo = managementDepartmentService.
                 listAllDepartmentByType(departmentType, pageNumber, pageSize);
         return ApiResponse.successResponse(departmentPageInfo);
@@ -75,9 +75,9 @@ public class ManagementDepartmentController {
     @PostMapping("/selectDepartmentByName")
     @RequiresRoles(value = "doctorAdmin")
     public ResponseEntity<ApiResponse> selectDepartmentByName(
-            @ApiParam(value = "科室名", required = true) @RequestParam String departmentName,
-            @ApiParam(value = "页码", required = true) @RequestParam Integer pageNumber,
-            @ApiParam(value = "页容量", required = true) @RequestParam Integer pageSize) {
+            @ApiParam(value = "科室名", required = true,example = "1") @RequestParam String departmentName,
+            @ApiParam(value = "页码", required = true,example = "1") @RequestParam Integer pageNumber,
+            @ApiParam(value = "页容量", required = true,example = "1") @RequestParam Integer pageSize) {
         PageInfo<Department> departmentPageInfo =
                 managementDepartmentService.selectDepartmentByName(departmentName, pageNumber, pageSize);
         return  ApiResponse.successResponse(departmentPageInfo);

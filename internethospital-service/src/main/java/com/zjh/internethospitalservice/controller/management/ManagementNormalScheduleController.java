@@ -45,10 +45,10 @@ public class ManagementNormalScheduleController {
     @PostMapping("/insert")
     @ApiOperation("新增科室就诊排班")
     public ResponseEntity<ApiResponse> insert(
-            @ApiParam(value = "科室id", required = true) @RequestParam Integer departmentId,
+            @ApiParam(value = "科室id", required = true,example = "1") @RequestParam Integer departmentId,
             @ApiParam(value = "排班时间", required = true) @RequestParam String scheduleTime,
             @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval,
-            @ApiParam(value = "总号源数", required = true) @RequestParam Integer totalNumber) {
+            @ApiParam(value = "总号源数", required = true,example = "1") @RequestParam Integer totalNumber) {
         Integer scheduleDepartmentId = managementScheduleDepartmentService.
                 insertScheduleDepartment(departmentId, timeInterval, scheduleTime, totalNumber);
         List<Doctor> doctorList = managementDoctorDepartmentService.listDoctorByDepartmentId(departmentId);
@@ -76,9 +76,9 @@ public class ManagementNormalScheduleController {
     @PostMapping("/update")
     @ApiOperation("更新科室就诊排班")
     public ResponseEntity<ApiResponse> update(
-            @ApiParam(value = "科室排班id", required = true) @RequestParam Integer scheduleDepartmentId,
+            @ApiParam(value = "科室排班id", required = true,example = "1") @RequestParam Integer scheduleDepartmentId,
             @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval,
-            @ApiParam(value = "总号源数", required = true) @RequestParam Integer totalNumber
+            @ApiParam(value = "总号源数", required = true,example = "1") @RequestParam Integer totalNumber
     ){
         managementScheduleDepartmentService.updateScheduleDepartment(scheduleDepartmentId,timeInterval,totalNumber);
         managementScheduleDoctorService.updateNormalScheduleDoctor(scheduleDepartmentId,timeInterval,totalNumber);

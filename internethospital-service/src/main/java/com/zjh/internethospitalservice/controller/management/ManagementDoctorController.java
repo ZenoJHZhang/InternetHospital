@@ -51,9 +51,9 @@ public class ManagementDoctorController {
     @ApiOperation(value = "根据科室id获取医生列表")
     @RequiresRoles(value = "doctorAdmin")
     public ResponseEntity<ApiResponse> listDoctorByDepartmentId(
-            @ApiParam(value = "科室id", required = true) @RequestParam Integer departmentId,
-            @ApiParam(value = "页码", required = true) @RequestParam Integer pageNumber,
-            @ApiParam(value = "页容量", required = true) @RequestParam Integer pageSize
+            @ApiParam(value = "科室id", required = true,example = "1") @RequestParam Integer departmentId,
+            @ApiParam(value = "页码", required = true,example = "1") @RequestParam Integer pageNumber,
+            @ApiParam(value = "页容量", required = true,example = "1") @RequestParam Integer pageSize
     ) {
         PageInfo<Doctor> doctorPageInfo = managementDoctorService.listDoctorByDepartmentId(departmentId, pageNumber, pageSize);
         return ApiResponse.successResponse(doctorPageInfo);
@@ -63,7 +63,7 @@ public class ManagementDoctorController {
     @ApiOperation(value = "删除医生")
     @RequiresRoles(value = "doctorAdmin")
     public ResponseEntity<ApiResponse> deleteDoctor(
-            @ApiParam(value = "医生id", required = true) @RequestParam Integer doctorId) {
+            @ApiParam(value = "医生id", required = true,example = "1") @RequestParam Integer doctorId) {
         managementDoctorService.deleteDoctor(doctorId);
         return ApiResponse.successResponse(null);
     }

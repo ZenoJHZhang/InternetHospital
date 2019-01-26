@@ -28,7 +28,11 @@ public interface ManagementScheduleDepartmentService {
      */
     void updateScheduleDepartment(Integer scheduleDepartmentId,String timeInterval,Integer totalNumber);
 
-
-
+    /**
+     *通过科室id以及排班时间获取科室排班
+     * @param departmentId 科室id
+     * @param scheduleTime 排班时间
+     * @return 科室排班
+     */
     ScheduleDepartment getScheduleDepartmentByDepartmentIdAndScheduleTime(Integer departmentId,String scheduleTime);
 }

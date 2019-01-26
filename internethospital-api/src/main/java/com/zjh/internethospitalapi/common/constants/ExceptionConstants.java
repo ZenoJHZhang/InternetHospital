@@ -48,4 +48,6 @@ public class ExceptionConstants {
     public static final String UPDATE_DEPARTMENT_FAIL = "更新科室失败，请稍后再试";
     public static final String DELETE_DEPARTMENT_FAIL = "删除科室失败，请稍后再试";
     public static final String DEPARTMENT_HAS_NO_DOCTOR = "科室内无医生，请先添加医生再排班";
+    public static final String NOT_EXPERT_DEPARTMENT = "此科室非专家科室";
+    public static final String NOT_EXPERT_SCHDULE_DOCTOR = "此医生排班非专家医生排班";
 }
