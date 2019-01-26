@@ -72,4 +72,16 @@ public class ManagementNormalScheduleController {
         }
         return ApiResponse.successResponse(doctorIdList);
     }
+
+    @PostMapping("/update")
+    @ApiOperation("更新科室就诊排班")
+    public ResponseEntity<ApiResponse> update(
+            @ApiParam(value = "科室排班id", required = true) @RequestParam Integer scheduleDepartmentId,
+            @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval,
+            @ApiParam(value = "总号源数", required = true) @RequestParam Integer totalNumber
+    ){
+        managementScheduleDepartmentService.updateScheduleDepartment(scheduleDepartmentId,timeInterval,totalNumber);
+        managementScheduleDoctorService.updateNormalScheduleDoctor(scheduleDepartmentId,timeInterval,totalNumber);
+        return ApiResponse.successResponse(null);
+    }
 }
