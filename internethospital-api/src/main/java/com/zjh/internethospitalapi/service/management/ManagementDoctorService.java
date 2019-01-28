@@ -19,14 +19,21 @@ public interface ManagementDoctorService {
     void insertDoctor(Doctor doctor);
 
     /**
-     * 更新医生
+     * 有选择性的更新医生
      *
-     * @param doctor 医生
+     * @param doctorId 医生id
+     * @param doctorNumber 医生工号
+     * @param phone 医生手机号
+     * @param doctorTitle 医生职称
+     * @param imgId 医生头像图片id
+     * @param goodAt 医生擅长
      */
-    void updateDoctor(Doctor doctor);
+    void updateDoctorSelective(Integer doctorId,String doctorNumber,String phone,String doctorTitle,Integer imgId,String goodAt);
 
     /**
      * 删除医生并删除对应user
+     * 还需要删除医生科室联系
+     * PS 需要判断今日以及之后是否有排班，如有则不能删除
      *
      * @param doctorId 医生id
      */

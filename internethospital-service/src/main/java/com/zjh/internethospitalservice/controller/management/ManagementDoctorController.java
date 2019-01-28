@@ -39,9 +39,9 @@ public class ManagementDoctorController {
     @RequiresRoles(value = "doctorAdmin")
     public ResponseEntity<ApiResponse> insertDoctor(
             @ApiParam(required = true, value = "医生") @RequestBody Doctor doctor) {
-        String message = doctorPattern(doctor);
-        if (message != null){
-            return ApiResponse.response(400,message,null);
+        String message = doctorPattern(doctor.getPhone(), doctor.getDoctorIdCard());
+        if (message != null) {
+            return ApiResponse.response(400, message, null);
         }
         managementDoctorService.insertDoctor(doctor);
         return ApiResponse.successResponse(null);
@@ -51,9 +51,9 @@ public class ManagementDoctorController {
     @ApiOperation(value = "根据科室id获取医生列表")
     @RequiresRoles(value = "doctorAdmin")
     public ResponseEntity<ApiResponse> listDoctorByDepartmentId(
-            @ApiParam(value = "科室id", required = true,example = "1") @RequestParam Integer departmentId,
-            @ApiParam(value = "页码", required = true,example = "1") @RequestParam Integer pageNumber,
-            @ApiParam(value = "页容量", required = true,example = "1") @RequestParam Integer pageSize
+            @ApiParam(value = "科室id", required = true, example = "1") @RequestParam Integer departmentId,
+            @ApiParam(value = "页码", required = true, example = "1") @RequestParam Integer pageNumber,
+            @ApiParam(value = "页容量", required = true, example = "1") @RequestParam Integer pageSize
     ) {
         PageInfo<Doctor> doctorPageInfo = managementDoctorService.listDoctorByDepartmentId(departmentId, pageNumber, pageSize);
         return ApiResponse.successResponse(doctorPageInfo);
@@ -63,35 +63,45 @@ public class ManagementDoctorController {
     @ApiOperation(value = "删除医生")
     @RequiresRoles(value = "doctorAdmin")
     public ResponseEntity<ApiResponse> deleteDoctor(
-            @ApiParam(value = "医生id", required = true,example = "1") @RequestParam Integer doctorId) {
+            @ApiParam(value = "医生id", required = true, example = "1") @RequestParam Integer doctorId) {
         managementDoctorService.deleteDoctor(doctorId);
         return ApiResponse.successResponse(null);
     }
 
-    @PostMapping("/updateDoctor")
+    @PostMapping("/updateDoctorSelective")
     @ApiOperation(value = "更新医生")
     @RequiresRoles(value = "doctorAdmin")
-    public ResponseEntity<ApiResponse> updateDoctor(
-            @ApiParam(value = "医生",required = true) @RequestBody Doctor doctor){
-        String message = doctorPattern(doctor);
-        if (message != null){
-            return ApiResponse.response(400,message,null);
+    public ResponseEntity<ApiResponse> updateDoctorSelective(
+            @ApiParam(value = "医生id", required = true, example = "1") @RequestParam Integer doctorId,
+            @ApiParam(value = "医生工号") @RequestParam(required = false) String doctorNumber,
+            @ApiParam(value = "医生手机号") @RequestParam(required = false) String phone,
+            @ApiParam(value = "医生职称") @RequestParam(required = false) String doctorTitle,
+            @ApiParam(value = "医生头像图片id", example = "1") @RequestParam(required = false) Integer imgId,
+            @ApiParam(value = "医生擅长") @RequestParam(required = false) String goodAt) {
+        String message = doctorPattern(phone, null);
+        if (message != null) {
+            return ApiResponse.response(400, message, null);
         }
-        managementDoctorService.updateDoctor(doctor);
+        managementDoctorService.updateDoctorSelective(doctorId, doctorNumber, phone, doctorTitle, imgId, goodAt);
         return ApiResponse.successResponse(null);
     }
 
-    private String doctorPattern(Doctor doctor){
+    private String doctorPattern(String phone, String doctorIdCard) {
         String phonePattern = Constants.PHONE_PATTERN;
-        boolean isPhoneMatch = Pattern.matches(phonePattern, doctor.getPhone());
-        boolean isIdCardMatch = Pattern.matches(Constants.ID_CARD_PATTERN, doctor.getDoctorIdCard());
+        boolean isPhoneMatch = true;
+        boolean isIdCardMatch = true;
+        if (phone != null){
+             isPhoneMatch = Pattern.matches(phonePattern, phone);
+        }
+        if (doctorIdCard != null){
+            isIdCardMatch = Pattern.matches(Constants.ID_CARD_PATTERN, doctorIdCard);
+        }
         if (!isPhoneMatch) {
             return "手机号格式错误";
         }
         if (!isIdCardMatch) {
             return "身份证格式错误";
-        }
-        else {
+        } else {
             return null;
         }
     }

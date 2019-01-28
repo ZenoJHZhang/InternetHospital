@@ -55,7 +55,10 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
         }
         for (DoctorDepartment o : doctorDepartmentList
                 ) {
-            Doctor doctor = doctorMapper.selectByPrimaryKey(o.getDoctorId());
+            Example example = new Example(Doctor.class);
+            example.createCriteria().andEqualTo("id",o.getDoctorId())
+                    .andEqualTo("isDelete",0);
+            Doctor doctor = doctorMapper.selectOneByExample(example);
             if (doctor == null) {
                 throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
             }
@@ -67,7 +70,11 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void addDoctorIntoDepartment(Integer doctorId, List<Integer> departmentIdList) {
-        if (doctorMapper.selectByPrimaryKey(doctorId) == null) {
+        Example example = new Example(Doctor.class);
+        example.createCriteria().andEqualTo("id",doctorId)
+                .andEqualTo("isDelete",0);
+        Doctor doctor = doctorMapper.selectOneByExample(example);
+        if (doctor == null){
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
         }
         for (Integer departmentId : departmentIdList
@@ -83,6 +90,36 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
                 throw new InternetHospitalException(
                         department.getDepartmentName() + ExceptionConstants.DOCTOR_ALREADY_IN_DEPARTMENT);
             }
+            doctorDepartment.setCreateTime(new Date());
+            doctorDepartment.setUpdateTime(new Date());
+            int i = doctorDepartmentMapper.insertSelective(doctorDepartment);
+            if (i != 1) {
+                throw new InternetHospitalException(ExceptionConstants.INSERT_DOCTOR_INTO_DEPARTMENT_FAIL);
+            }
+        }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void updateDoctorDepartment(Integer doctorId, List<Integer> departmentIdList) {
+        Example example1 = new Example(Doctor.class);
+        example1.createCriteria().andEqualTo("id",doctorId)
+                .andEqualTo("isDelete",0);
+        Doctor doctor = doctorMapper.selectOneByExample(example1);
+        if (doctor == null){
+            throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
+        }
+        Example example = new Example(DoctorDepartment.class);
+        example.createCriteria().andEqualTo("doctorId",doctorId);
+        doctorDepartmentMapper.deleteByExample(example);
+        for (Integer departmentId:departmentIdList){
+            Department department = departmentMapper.selectByPrimaryKey(departmentId);
+            if (department == null) {
+                throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
+            }
+            DoctorDepartment doctorDepartment = new DoctorDepartment();
+            doctorDepartment.setDoctorId(doctorId);
+            doctorDepartment.setDepartmentId(departmentId);
             doctorDepartment.setCreateTime(new Date());
             doctorDepartment.setUpdateTime(new Date());
             int i = doctorDepartmentMapper.insertSelective(doctorDepartment);

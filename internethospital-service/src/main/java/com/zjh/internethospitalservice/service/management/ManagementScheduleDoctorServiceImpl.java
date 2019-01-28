@@ -48,7 +48,10 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         if (department == null) {
             throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
         }
-        Doctor doctor = doctorMapper.selectByPrimaryKey(doctorId);
+        Example example = new Example(Doctor.class);
+        example.createCriteria().andEqualTo("id",doctorId)
+                .andEqualTo("isDelete",0);
+        Doctor doctor = doctorMapper.selectOneByExample(example);
         if (doctor == null) {
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
         }
@@ -101,7 +104,10 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         if (!department.getDeptType().equals(Integer.valueOf(Constants.ONE))) {
             throw new InternetHospitalException(ExceptionConstants.NOT_EXPERT_DEPARTMENT);
         }
-        Doctor doctor = doctorMapper.selectByPrimaryKey(doctorId);
+        Example example = new Example(Doctor.class);
+        example.createCriteria().andEqualTo("id",doctorId)
+                .andEqualTo("isDelete",0);
+        Doctor doctor = doctorMapper.selectOneByExample(example);
         if (doctor == null) {
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
         }

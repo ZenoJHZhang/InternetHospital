@@ -56,7 +56,7 @@ public class Doctor {
      * 医生头像id
      */
     @Column(name = "img_id")
-    private String imgId;
+    private Integer imgId;
 
     /**
      * 擅长
@@ -91,4 +91,9 @@ public class Doctor {
      */
     @Column(name = "update_time")
     private Date updateTime;
+
+    /**
+     * 0 未删除 1 删除
+     */
+    private Integer isDelete;
 }

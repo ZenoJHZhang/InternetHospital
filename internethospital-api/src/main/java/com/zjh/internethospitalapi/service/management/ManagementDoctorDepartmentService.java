@@ -26,4 +26,12 @@ public interface ManagementDoctorDepartmentService {
      * @return 重复添加的科室名
      */
     void addDoctorIntoDepartment(Integer doctorId,List<Integer> departmentIdList);
+
+    /**
+     * 更新医生所加入的科室
+     * @param doctorId  医生id
+     * @param departmentIdList 科室列表
+     * @return 加入的科室id列表
+     */
+    void updateDoctorDepartment(Integer doctorId,List<Integer> departmentIdList);
 }
