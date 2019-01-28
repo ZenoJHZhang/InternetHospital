@@ -311,26 +311,20 @@ public class UserReservationServiceImpl implements UserReservationService {
     private UserReservation appointmentExpert(UserReservation userReservation) {
         String timeInterval = userReservation.getTimeInterval();
         ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(userReservation.getScheduleDoctorId());
-        ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.selectByPrimaryKey(userReservation.getScheduleDepartmentId());
         //区分时间段
         if (timeInterval.equals(Constants.MORNING)) {
             scheduleDoctor.setDoctorMorningNumber(scheduleDoctor.getDoctorMorningNumber() + 1);
-            scheduleDepartment.setMorningNumber(scheduleDepartment.getMorningNumber() + 1);
             userReservation.setRegNo(scheduleDoctor.getDoctorMorningNumber());
         } else if (timeInterval.equals(Constants.AFTERNOON)) {
             scheduleDoctor.setDoctorAfternoonNumber(scheduleDoctor.getDoctorAfternoonNumber() + 1);
-            scheduleDepartment.setAfternoonNumber(scheduleDepartment.getAfternoonNumber() + 1);
             userReservation.setRegNo(scheduleDoctor.getDoctorAfternoonNumber());
         } else if (timeInterval.equals(Constants.NIGHT)) {
             scheduleDoctor.setDoctorNightNumber(scheduleDoctor.getDoctorNightNumber() + 1);
-            scheduleDepartment.setNightNumber(scheduleDepartment.getNightNumber() + 1);
             userReservation.setRegNo(scheduleDoctor.getDoctorNightNumber());
         }
         scheduleDoctor.setUpdateTime(new Date());
-        scheduleDepartment.setUpdateTime(new Date());
         int result = scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
-        int result2 = scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
-        if (result != 1 || result2 != 1) {
+        if (result != 1) {
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_INSERT_FAIL);
         }
         return userReservation;
