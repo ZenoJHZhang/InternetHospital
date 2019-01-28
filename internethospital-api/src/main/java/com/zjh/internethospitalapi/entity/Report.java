@@ -74,4 +74,6 @@ public class Report {
 
     @Column(name = "doc_app")
     private String docApp;
+
+    private Integer isDelete;
 }

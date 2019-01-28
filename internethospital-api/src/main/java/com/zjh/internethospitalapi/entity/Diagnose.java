@@ -60,4 +60,6 @@ public class Diagnose {
      * 处理
      */
     private String dispose;
+
+    private Integer isDelete;
 }

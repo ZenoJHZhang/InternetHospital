@@ -102,4 +102,6 @@ public class Refund {
      * 退款类型
      */
     private String type;
+
+    private Integer isDelete;
 }

@@ -48,4 +48,6 @@ public class Admin {
 
     @Column(name = "update_time")
     private Date updateTime;
+
+    private Integer isDelete;
 }

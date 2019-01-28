@@ -54,4 +54,6 @@ public class Recipe {
 
     @Column(name = "create_time")
     private Date createTime;
+
+    private Integer isDelete;
 }

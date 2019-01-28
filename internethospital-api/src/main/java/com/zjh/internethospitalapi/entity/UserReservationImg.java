@@ -29,4 +29,6 @@ public class UserReservationImg {
      */
     @Column(name = "update_time")
     private Date updateTime;
+
+    private Integer isDelete;
 }

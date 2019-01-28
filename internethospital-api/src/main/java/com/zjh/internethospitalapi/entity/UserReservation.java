@@ -275,4 +275,6 @@ public class UserReservation {
      */
     @Transient
     private String payStateDescription;
+
+    private Integer isDelete;
 }

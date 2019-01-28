@@ -133,5 +133,7 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
                 throw new InternetHospitalException(ExceptionConstants.INSERT_DOCTOR_INTO_DEPARTMENT_FAIL);
             }
         }
+        doctor.setDeptNum(departmentIdList.size());
+        doctorMapper.updateByPrimaryKey(doctor);
     }
 }

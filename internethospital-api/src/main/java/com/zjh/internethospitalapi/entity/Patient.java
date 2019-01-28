@@ -51,4 +51,6 @@ public class Patient {
 
     @Transient
     private Integer age;
+
+    private Integer isDelete;
 }

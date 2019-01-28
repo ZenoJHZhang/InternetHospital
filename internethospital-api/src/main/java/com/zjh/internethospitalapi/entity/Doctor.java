@@ -67,7 +67,7 @@ public class Doctor {
      * 医生所属科室数量
      */
     @Column(name = "dept_num")
-    private String deptNum;
+    private Integer deptNum;
 
     /**
      * 排序  越大越前面

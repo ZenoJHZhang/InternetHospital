@@ -33,7 +33,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public User userLogin(String phone, String password) {
         Example example = new Example(User.class);
-        example.createCriteria().andEqualTo("phone", phone);
+        example.createCriteria().andEqualTo("phone", phone).andEqualTo("isDelete",0);;
         /**
          * 获得数据库中原先加盐加密后的密码，进行解码，判断是否正确登录
          */
@@ -82,7 +82,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public boolean isSameUserPhone(String phone) {
         Example example = new Example(User.class);
-        example.createCriteria().andEqualTo("phone", phone);
+        example.createCriteria().andEqualTo("phone", phone).andEqualTo("isDelete",0);
         User user = userMapper.selectOneByExample(example);
         return user != null;
     }
@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserDto getUserInfo(String phone) {
         Example example = new Example(User.class);
-        example.createCriteria().andEqualTo("phone", phone);
+        example.createCriteria().andEqualTo("phone", phone).andEqualTo("isDelete",0);
         User user = userMapper.selectOneByExample(example);
         if(user == null){
             throw new InternetHospitalException(ExceptionConstants.USER_NOT_EXIST);
@@ -102,6 +102,12 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void deleteUser(Integer userId) {
-        userMapper.deleteByPrimaryKey(userId);
+       User user = new User();
+       user.setId(userId);
+       user.setIsDelete(1);
+        int i = userMapper.updateByPrimaryKeySelective(user);
+        if (i != 1){
+            throw new InternetHospitalException(ExceptionConstants.DELETE_USER_FAIL);
+        }
     }
 }

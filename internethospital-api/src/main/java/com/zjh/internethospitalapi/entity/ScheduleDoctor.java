@@ -87,6 +87,8 @@ public class ScheduleDoctor {
     @Column(name = "update_time")
     private Date updateTime;
 
+    private Integer isDelete;
+
     /**
      * 特定时段所剩号源
      */

@@ -49,4 +49,6 @@ public class Img {
      */
     @Transient
     private String path;
+
+    private Integer isDelete;
 }
