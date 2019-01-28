@@ -54,4 +54,5 @@ public class ExceptionConstants {
     public static final String DOCTOR_ALREADY_IN_DEPARTMENT = "科室已存在该医生，请修改需要添加医生的科室，避免重复添加";
     public static final String DOCTOR_HAS_SCHEDULE = "删除医生失败，此医生仍有排班工作，请删除此医生排班后，再删除医生";
     public static final String DELETE_USER_FAIL = "删除用户失败，请稍后再试";
+    public static final String PATIENT_NOT_EXIST = "病人不存在";
 }

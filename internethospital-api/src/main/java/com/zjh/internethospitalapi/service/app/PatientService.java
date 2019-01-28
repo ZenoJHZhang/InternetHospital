@@ -61,4 +61,11 @@ public interface PatientService {
      */
     void updatePatient(Patient patient,Integer userId);
 
+ /**
+  * 判断病人是否存在
+  * @param id 病人id
+  * @param userId 用户id
+  */
+ void judgePatientExist(Integer id,Integer userId);
+
 }

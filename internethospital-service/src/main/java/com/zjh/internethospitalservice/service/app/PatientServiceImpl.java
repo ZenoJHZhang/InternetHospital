@@ -39,6 +39,7 @@ public class PatientServiceImpl implements PatientService {
     public PageInfo<Patient> listPatient(Integer userId, Integer pageNo, Integer pageSize) {
         Patient patient = new Patient();
         patient.setUserId(userId);
+        patient.setIsDelete(0);
         PageHelper.startPage(pageNo, pageSize);
         List<Patient> patientList = patientMapper.select(patient);
         return new PageInfo<>(patientList);
@@ -61,7 +62,9 @@ public class PatientServiceImpl implements PatientService {
     @Override
     public boolean isSamePatient(Patient patient, Integer userId) {
         Example example = new Example(Patient.class);
-        example.createCriteria().andEqualTo("userId", userId).andNotEqualTo("id",patient.getId());
+        example.createCriteria().andEqualTo("userId", userId)
+                .andEqualTo("isDelete",0)
+                .andNotEqualTo("id",patient.getId());
         example.and().orEqualTo("idCard", patient.getIdCard())
                 .orEqualTo("phone", patient.getPhone());
         Patient patientSelected = patientMapper.selectOneByExample(example);
@@ -76,7 +79,12 @@ public class PatientServiceImpl implements PatientService {
             Example example = new Example(Patient.class);
             example.createCriteria().andEqualTo("userId",userId)
                     .andEqualTo("id",patient.getId());
-            i += patientMapper.deleteByExample(example);
+           if (patientMapper.selectOne(patient) != null){
+               patient = patientMapper.selectOne(patient);
+               patient.setIsDelete(1);
+               patient.setUpdateTime(new Date());
+               i += patientMapper.updateByPrimaryKeySelective(patient);
+           }
         }
         if (i !=  patientList.size()){
             throw new InternetHospitalException(ExceptionConstants.PATIENT_DELETE_FAIL);
@@ -85,11 +93,18 @@ public class PatientServiceImpl implements PatientService {
 
     @Override
     public Patient selectPatientById(Integer id,Integer userId) {
-        Patient patient =  patientMapper.selectByPrimaryKey(id);
-        String birth = patient.getBirth();
+        Patient patient = new Patient();
+        patient.setUserId(userId);
+        patient.setId(id);
+        patient.setIsDelete(0);
+        Patient selectPatient = patientMapper.selectOne(patient);
+        if (selectPatient == null) {
+            throw new InternetHospitalException(ExceptionConstants.PATIENT_NOT_EXIST);
+        }
+        String birth = selectPatient.getBirth();
         Integer age = AgeUtil.getAgeFromBirth(birth);
-        patient.setAge(age);
-        return patient;
+        selectPatient.setAge(age);
+        return selectPatient;
     }
 
     @Override
@@ -97,9 +112,21 @@ public class PatientServiceImpl implements PatientService {
         Example example = new Example(Patient.class);
         example.createCriteria().andEqualTo("userId",userId)
                 .andEqualTo("id",patient.getId());
-        int i = patientMapper.updateByExample(patient,example);
+        judgePatientExist(patient.getId(),userId);
+        int i = patientMapper.updateByExampleSelective(patient,example);
         if(i != 1){
             throw new InternetHospitalException(ExceptionConstants.PATIENT_UPDATE_FAIL);
+        }
+    }
+
+    @Override
+    public void judgePatientExist(Integer id, Integer userId) {
+        Patient patient = new Patient();
+        patient.setUserId(userId);
+        patient.setId(id);
+        patient.setIsDelete(0);
+        if ( patientMapper.selectOne(patient) == null) {
+            throw new InternetHospitalException(ExceptionConstants.PATIENT_NOT_EXIST);
         }
     }
 }
