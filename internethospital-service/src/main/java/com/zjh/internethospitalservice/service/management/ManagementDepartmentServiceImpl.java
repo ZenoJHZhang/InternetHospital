@@ -33,7 +33,7 @@ public class ManagementDepartmentServiceImpl implements ManagementDepartmentServ
     @Override
     public PageInfo<Department> listAllDepartmentByType(Integer departmentType, Integer pageNumber, Integer pageSize) {
         Example example = new Example(Department.class);
-        example.createCriteria().andEqualTo("deptType",departmentType);
+        example.createCriteria().andEqualTo("deptType",departmentType).andEqualTo("isDelete",0);
         PageHelper.startPage(pageNumber,pageSize);
         List<Department> departmentList = departmentMapper.selectByExample(example);
         return new PageInfo<>(departmentList);
@@ -58,7 +58,7 @@ public class ManagementDepartmentServiceImpl implements ManagementDepartmentServ
     @Override
     public PageInfo<Department> selectDepartmentByName(String departmentName, Integer pageNumber, Integer pageSize) {
         Example example = new Example(Department.class);
-        example.createCriteria().andLike("departmentName",departmentName);
+        example.createCriteria().andLike("departmentName",departmentName).andEqualTo("isDelete",0);
         PageHelper.startPage(pageNumber,pageSize);
         List<Department> departmentList = departmentMapper.selectByExample(example);
         return new PageInfo<>(departmentList);

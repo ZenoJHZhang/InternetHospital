@@ -115,4 +115,6 @@ public class Department {
      * 科室介绍
      */
     private String introduce;
+
+    private Integer isDelete;
 }

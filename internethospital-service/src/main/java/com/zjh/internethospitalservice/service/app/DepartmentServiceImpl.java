@@ -46,7 +46,7 @@ public class DepartmentServiceImpl implements DepartmentService {
     @Override
     public List<Department> listExpertDepartment() {
         Example example = new Example(Department.class);
-        example.createCriteria().andEqualTo("deptType",1);
+        example.createCriteria().andEqualTo("deptType",1).andEqualTo("isDelete",0);
         return departmentMapper.selectByExample(example);
     }
 

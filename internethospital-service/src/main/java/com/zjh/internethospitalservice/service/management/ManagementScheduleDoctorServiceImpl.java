@@ -44,7 +44,9 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     public Integer insertNormalScheduleDoctor(Integer scheduleDepartmentId, Integer departmentId, Integer doctorId,
                                               String timeInterval, String scheduleTime, Integer totalNumber) {
         ScheduleDoctor scheduleDoctor = new ScheduleDoctor();
-        Department department = departmentMapper.selectByPrimaryKey(departmentId);
+        Example departmentExample = new Example(Department.class);
+        departmentExample.createCriteria().andEqualTo("id",departmentId).andEqualTo("isDelete",0);
+        Department department = departmentMapper.selectOneByExample(departmentExample);
         if (department == null) {
             throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
         }
@@ -97,7 +99,10 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         if (getScheduleDoctorByDoctorIdAndScheduleTimeAndType(doctorId, scheduleTime, Integer.valueOf(Constants.ONE)) != null) {
             throw new InternetHospitalException(ExceptionConstants.SAME_SCHEDULE_DOCTOR);
         }
-        Department department = departmentMapper.selectByPrimaryKey(departmentId);
+        Example departmentExample = new Example(Department.class);
+        departmentExample.createCriteria().andEqualTo("id",departmentId)
+                .andEqualTo("isDelete",0);
+        Department department = departmentMapper.selectOneByExample(departmentExample);
         if (department == null) {
             throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
         }

@@ -5,6 +5,7 @@ import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
+import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.entity.ScheduleDepartment;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDepartmentService;
 import com.zjh.internethospitalservice.mapper.DepartmentMapper;
@@ -37,6 +38,13 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
 
     @Override
     public Integer insertScheduleDepartment(Integer departmentId, String timeInterval, String scheduleTime, Integer totalNumber) {
+        //判断科室是否存在
+        Example example = new Example(Department.class);
+        example.createCriteria().andEqualTo("id",departmentId).andEqualTo("isDelete",0);
+        Department department = departmentMapper.selectOneByExample(example);
+        if (department == null){
+            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
+        }
         //判断是否有重复时段的相同科室排班
         if (getScheduleDepartmentByDepartmentIdAndScheduleTime(departmentId, scheduleTime) != null) {
             throw new InternetHospitalException(ExceptionConstants.SAME_SCHEDULE_DEPARTMENT);
