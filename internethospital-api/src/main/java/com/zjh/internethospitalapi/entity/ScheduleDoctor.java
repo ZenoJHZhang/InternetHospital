@@ -90,6 +90,11 @@ public class ScheduleDoctor {
     private Integer isDelete;
 
     /**
+     * 0 排班还未开始 ；1 排班已开始，无法删除
+     */
+    private Integer isStart;
+
+    /**
      * 特定时段所剩号源
      */
     @Transient

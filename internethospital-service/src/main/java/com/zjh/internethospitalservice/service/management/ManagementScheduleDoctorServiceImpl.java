@@ -7,6 +7,7 @@ import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.entity.Doctor;
+import com.zjh.internethospitalapi.entity.ScheduleDepartment;
 import com.zjh.internethospitalapi.entity.ScheduleDoctor;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDoctorService;
 import com.zjh.internethospitalservice.mapper.DepartmentMapper;
@@ -16,6 +17,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
+import java.time.LocalDate;
 import java.util.Date;
 import java.util.List;
 
@@ -158,7 +160,10 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
 
     @Override
     public void deleteScheduleDoctorById(Integer scheduleDoctorId) {
-        int i = scheduleDoctorMapper.deleteByPrimaryKey(scheduleDoctorId);
+        Example example = new Example(ScheduleDoctor.class);
+        example.createCriteria().andEqualTo("id", scheduleDoctorId)
+                .andEqualTo("isStart",0);
+        int i = scheduleDoctorMapper.deleteByExample(example);
         if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_NOT_EXIST);
         }
@@ -167,7 +172,8 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     @Override
     public Integer deleteScheduleDoctorByScheduleDepartmentId(Integer scheduleDepartmentId) {
         Example example = new Example(ScheduleDoctor.class);
-        example.createCriteria().andEqualTo("scheduleDepartmentId", scheduleDepartmentId);
+        example.createCriteria().andEqualTo("scheduleDepartmentId", scheduleDepartmentId)
+                .andEqualTo("isStart",0);
         return scheduleDoctorMapper.deleteByExample(example);
     }
 
@@ -191,6 +197,16 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         example.createCriteria().andEqualTo("scheduleDepartmentId", scheduleDepartmentId);
         List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
         return scheduleDoctorList.size();
+    }
+
+    @Override
+    public void setScheduleDoctorStart() {
+        ScheduleDoctor scheduleDoctor = new ScheduleDoctor();
+        scheduleDoctor.setIsStart(1);
+        LocalDate date = LocalDate.now();
+        Example example = new Example(ScheduleDepartment.class);
+        example.createCriteria().andEqualTo("scheduleTime",date.toString());
+        scheduleDoctorMapper.updateByExampleSelective(scheduleDoctor,example);
     }
 
     /**

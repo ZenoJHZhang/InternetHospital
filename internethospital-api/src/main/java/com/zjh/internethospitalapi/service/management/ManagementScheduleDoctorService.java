@@ -100,4 +100,9 @@ public interface ManagementScheduleDoctorService {
      * @return 医生排班数量
      */
     Integer countScheduleDoctorByScheduleDepartment(Integer scheduleDepartmentId);
+
+    /**
+     * 使医生排班开始执行，并无法删除
+     */
+    void setScheduleDoctorStart();
 }

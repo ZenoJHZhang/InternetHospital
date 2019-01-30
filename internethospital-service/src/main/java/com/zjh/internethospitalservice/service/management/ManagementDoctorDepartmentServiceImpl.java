@@ -34,7 +34,7 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
 
     @Autowired
     public ManagementDoctorDepartmentServiceImpl(DoctorDepartmentMapper doctorDepartmentMapper,
-                                                  DoctorMapper doctorMapper, DepartmentMapper departmentMapper) {
+                                                 DoctorMapper doctorMapper, DepartmentMapper departmentMapper) {
         this.doctorDepartmentMapper = doctorDepartmentMapper;
         this.doctorMapper = doctorMapper;
         this.departmentMapper = departmentMapper;
@@ -44,7 +44,7 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
     public List<Doctor> listDoctorByDepartmentId(Integer departmentId) {
         DoctorDepartment doctorDepartment = new DoctorDepartment();
         Example example = new Example(Department.class);
-        example.createCriteria().andEqualTo("id",departmentId).andEqualTo("isDelete",0);
+        example.createCriteria().andEqualTo("id", departmentId).andEqualTo("isDelete", 0);
         Department department = departmentMapper.selectOneByExample(example);
         if (department == null) {
             throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
@@ -58,13 +58,12 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
         for (DoctorDepartment o : doctorDepartmentList
                 ) {
             Example example1 = new Example(Doctor.class);
-            example.createCriteria().andEqualTo("id",o.getDoctorId())
-                    .andEqualTo("isDelete",0);
+            example1.createCriteria().andEqualTo("id", o.getDoctorId())
+                    .andEqualTo("isDelete", 0);
             Doctor doctor = doctorMapper.selectOneByExample(example1);
-            if (doctor == null) {
-                throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
+            if (doctor != null) {
+                doctorList.add(doctor);
             }
-            doctorList.add(doctor);
         }
         return doctorList;
     }
@@ -73,10 +72,10 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
     @Transactional(rollbackFor = Exception.class)
     public void addDoctorIntoDepartment(Integer doctorId, List<Integer> departmentIdList) {
         Example example = new Example(Doctor.class);
-        example.createCriteria().andEqualTo("id",doctorId)
-                .andEqualTo("isDelete",0);
+        example.createCriteria().andEqualTo("id", doctorId)
+                .andEqualTo("isDelete", 0);
         Doctor doctor = doctorMapper.selectOneByExample(example);
-        if (doctor == null){
+        if (doctor == null) {
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
         }
         for (Integer departmentId : departmentIdList
@@ -84,7 +83,7 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
             DoctorDepartment doctorDepartment = new DoctorDepartment();
             doctorDepartment.setDoctorId(doctorId);
             Example example1 = new Example(Department.class);
-            example.createCriteria().andEqualTo("id",departmentId).andEqualTo("isDelete",0);
+            example.createCriteria().andEqualTo("id", departmentId).andEqualTo("isDelete", 0);
             Department department = departmentMapper.selectOneByExample(example1);
             if (department == null) {
                 throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
@@ -107,18 +106,18 @@ public class ManagementDoctorDepartmentServiceImpl implements ManagementDoctorDe
     @Override
     public void updateDoctorDepartment(Integer doctorId, List<Integer> departmentIdList) {
         Example doctorExample = new Example(Doctor.class);
-        doctorExample.createCriteria().andEqualTo("id",doctorId)
-                .andEqualTo("isDelete",0);
+        doctorExample.createCriteria().andEqualTo("id", doctorId)
+                .andEqualTo("isDelete", 0);
         Doctor doctor = doctorMapper.selectOneByExample(doctorExample);
-        if (doctor == null){
+        if (doctor == null) {
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
         }
         Example example = new Example(DoctorDepartment.class);
-        example.createCriteria().andEqualTo("doctorId",doctorId);
+        example.createCriteria().andEqualTo("doctorId", doctorId);
         doctorDepartmentMapper.deleteByExample(example);
-        for (Integer departmentId:departmentIdList){
+        for (Integer departmentId : departmentIdList) {
             Example departmentExample = new Example(Department.class);
-            example.createCriteria().andEqualTo("id",departmentId).andEqualTo("isDelete",0);
+            example.createCriteria().andEqualTo("id", departmentId).andEqualTo("isDelete", 0);
             Department department = departmentMapper.selectOneByExample(departmentExample);
             if (department == null) {
                 throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);

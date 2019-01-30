@@ -34,4 +34,5 @@ public interface ScheduleDoctorService {
      * @param scheduleDoctor
      */
     void updateScheduleDoctor(ScheduleDoctor scheduleDoctor);
+
 }

@@ -56,4 +56,9 @@ public interface ManagementScheduleDepartmentService {
      * @param scheduleDepartmentId 科室排班id
      */
     void deleteScheduleDepartmentById(Integer scheduleDepartmentId);
+
+    /**
+     * 开始实行科室排班，并使其不可删除
+     */
+    void setScheduleDepartmentStart();
 }

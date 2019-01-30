@@ -14,6 +14,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
 
@@ -97,10 +99,23 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
 
     @Override
     public void deleteScheduleDepartmentById(Integer scheduleDepartmentId) {
-        int i = scheduleDepartmentMapper.deleteByPrimaryKey(scheduleDepartmentId);
+        Example example = new Example(ScheduleDepartment.class);
+        example.createCriteria().andEqualTo("id",scheduleDepartmentId)
+                .andEqualTo("isStart",0);
+        int i = scheduleDepartmentMapper.deleteByExample(example);
         if (i != 1) {
-            throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DEPARTMENT_NOT_EXIST);
+            throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DEPARTMENT_HAS_STARTED);
         }
+    }
+
+    @Override
+    public void setScheduleDepartmentStart() {
+        ScheduleDepartment scheduleDepartment = new ScheduleDepartment();
+        scheduleDepartment.setIsStart(1);
+        LocalDate date = LocalDate.now();
+        Example example = new Example(ScheduleDepartment.class);
+        example.createCriteria().andEqualTo("scheduleTime",date.toString());
+        scheduleDepartmentMapper.updateByExampleSelective(scheduleDepartment,example);
     }
 
     /**
