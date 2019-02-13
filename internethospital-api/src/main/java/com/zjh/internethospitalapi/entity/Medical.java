@@ -24,7 +24,7 @@ public class Medical {
     /**
      * 药品类型
      */
-    private Integer type;
+    private String type;
 
     /**
      * 药品单价

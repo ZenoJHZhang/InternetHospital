@@ -59,6 +59,7 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         if (doctor == null) {
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
         }
+        scheduleDoctor.setScheduleTime(scheduleTime);
         scheduleDoctor.setScheduleDepartmentId(scheduleDepartmentId);
         scheduleDoctor.setDepartmentName(department.getDepartmentName());
         scheduleDoctor.setDepartmentId(departmentId);
