@@ -56,5 +56,10 @@ public class ExceptionConstants {
     public static final String DELETE_USER_FAIL = "删除用户失败，请稍后再试";
     public static final String PATIENT_NOT_EXIST = "病人不存在";
     public static final String SCHEDULE_DEPARTMENT_HAS_STARTED = "此科室排班已开始，无法删除";
-    public static final String SCHDULE_DOCTOR_HAS_STARTED= "此医生排班已开始，无法删除";
+    public static final String SCHEDULE_DOCTOR_HAS_STARTED = "此医生排班已开始，无法删除";
+    public static final String SAME_MEDICAL = "此药品已在库中";
+    public static final String UPDATE_MEDICAL_FAIL = "更新药品失败，请稍后再试";
+    public static final String INSERT_MEDICAL_FAIL = "添加药品失败，请稍后再试";
+    public static final String DELETE_MEDICAL_FAIL = "删除药品失败，请稍后再试";
+    public static final String MEDICAL_NOT_EXIST = "药品不存在";
 }

@@ -6,10 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.AuthorizationException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.List;
 
 /**
  * @Author 张江浩
@@ -45,9 +48,21 @@ public class ExceptionController {
     }
 
     @ExceptionHandler(InternetHospitalException.class)
-    public ResponseEntity<ApiResponse> handleInstantiationException(InternetHospitalException e){
+    public ResponseEntity<ApiResponse> handleInternetHospitalException(InternetHospitalException e){
         log.error(e.getMessage(),e);
         return ApiResponse.response(400,e.getMessage(),null);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiResponse> handleMethodArgumentNotValidException(MethodArgumentNotValidException e){
+        String message = null;
+        List<ObjectError> allErrors = e.getBindingResult().getAllErrors();
+        for (ObjectError error:allErrors
+             ) {
+            message = error.getDefaultMessage();
+            log.error(message,e);
+        }
+        return ApiResponse.response(400,message,null);
     }
 
     @ExceptionHandler(Exception.class)

@@ -2,9 +2,11 @@ package com.zjh.internethospitalapi.entity;
 
 import lombok.Data;
 
-import java.util.Date;
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import java.util.Date;
 
+@Entity
 @Data
 public class Medical {
     @Id
@@ -14,31 +16,37 @@ public class Medical {
     /**
      * 药品名字
      */
+    @NotBlank(message = "药品名字不能为空")
     private String name;
 
     /**
      * 药品单位
      */
+    @NotBlank(message = "药品单位不能为空")
     private String unit;
 
     /**
      * 药品类型
      */
+    @NotBlank(message = "药品类型不能为空")
     private String type;
 
     /**
      * 药品单价
      */
-    private Long price;
+    @NotBlank(message = "药品价格不能为空")
+    private String price;
 
     /**
      * 规格
      */
+    @NotBlank(message = "药品规格不能为空")
     private String norms;
 
     /**
      * 产地
      */
+    @NotBlank(message = "药品产地不能为空")
     private String origin;
 
     @Column(name = "create_time")
