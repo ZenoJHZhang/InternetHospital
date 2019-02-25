@@ -14,8 +14,7 @@ public class Recipe {
     /**
      * 问诊记录id
      */
-    @Column(name = "reservation_id")
-    private Integer reservationId;
+    private String userReservationUuId;
 
     /**
      * 开处方的医生id

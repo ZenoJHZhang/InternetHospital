@@ -14,8 +14,7 @@ public class Diagnose {
     /**
      * 问诊记录id
      */
-    @Column(name = "reservation_id")
-    private Integer reservationId;
+    private String userReservationUuId;
 
     /**
      * 主诉

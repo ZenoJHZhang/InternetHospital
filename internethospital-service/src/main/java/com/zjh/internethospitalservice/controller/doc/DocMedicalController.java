@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 类的说明
@@ -63,5 +64,23 @@ public class DocMedicalController {
             sameMedicalNumber = sameMedicalNumber + i;
         }
         return ApiResponse.successResponse(sameMedicalNumber);
+    }
+
+    @ApiOperation(value = "更新药品")
+    @PostMapping("/updateMedical")
+    public ResponseEntity<ApiResponse> updateMedical(@ApiParam(value = "药品",required = true) @RequestParam Medical medical){
+        docMedicalService.updateMedical(medical);
+        return ApiResponse.successResponse(null);
+    }
+
+    @ApiOperation(value = "批量删除药品")
+    @PostMapping("/deleteMedicalList")
+    public ResponseEntity<ApiResponse> deleteMedicalList(
+            @ApiParam(value = "药品id列表",required = true) @RequestParam List<Integer> medicalIdList){
+        for (Integer id:medicalIdList
+             ) {
+            docMedicalService.deleteMedical(id);
+        }
+        return ApiResponse.successResponse(null);
     }
 }
