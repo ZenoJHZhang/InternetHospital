@@ -34,11 +34,11 @@ public interface ManagementDepartmentService {
     void updateDepartment(Department department);
 
     /**
-     * 根据科室名分页模糊搜索科室
-     * @param departmentName 科室名
+     * 根据科室名/科室编号分页模糊搜索科室
+     * @param departmentMessage 科室名
      * @param pageNumber  页码
      * @param pageSize 页容量
      * @return
      */
-    PageInfo<Department> selectDepartmentByName(String departmentName,Integer pageNumber,Integer pageSize);
+    PageInfo<Department> selectDepartmentByNameOrNumber(String departmentMessage, Integer pageNumber, Integer pageSize);
 }

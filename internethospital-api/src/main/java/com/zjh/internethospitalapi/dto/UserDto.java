@@ -1,10 +1,13 @@
 package com.zjh.internethospitalapi.dto;
 
+import lombok.Data;
+
 import javax.persistence.Column;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类的说明
@@ -13,6 +16,7 @@ import java.util.Date;
  * @author: 张江浩
  * @date: 2018/12/29 13:52
  */
+@Data
 public class UserDto {
     /**
      * id
@@ -48,4 +52,11 @@ public class UserDto {
      * 用户权限id
      */
     private Integer roleId;
+
+    /**
+     * 用户权限描述数组（仅配和前端管理使用，其实里面只有一个权限内容）
+     * 设计为一个账号仅能有一种权限
+     * 且不同权限，同一手机号是不能注册的
+     */
+    private List<String> roles;
 }

@@ -3,8 +3,10 @@ package com.zjh.internethospitalservice.service.app;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.dto.UserDto;
+import com.zjh.internethospitalapi.entity.Role;
 import com.zjh.internethospitalapi.entity.User;
 import com.zjh.internethospitalapi.service.app.UserService;
+import com.zjh.internethospitalservice.mapper.RoleMapper;
 import com.zjh.internethospitalservice.mapper.UserMapper;
 import com.zjh.internethospitalservice.util.PasswordUtil;
 import org.springframework.beans.BeanUtils;
@@ -12,7 +14,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 类的说明
@@ -24,10 +28,12 @@ import java.util.Date;
 @Service("userService")
 public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
+    private final RoleMapper roleMapper;
 
     @Autowired
-    public UserServiceImpl(UserMapper userMapper) {
+    public UserServiceImpl(UserMapper userMapper, RoleMapper roleMapper) {
         this.userMapper = userMapper;
+        this.roleMapper = roleMapper;
     }
 
     @Override
@@ -97,6 +103,11 @@ public class UserServiceImpl implements UserService {
         }
         UserDto userDto = new UserDto();
         BeanUtils.copyProperties(user,userDto);
+        Role  role = new Role();
+        role.setId(userDto.getRoleId());
+        List<String> roleList = new ArrayList<>();
+        roleList.add(roleMapper.selectOne(role).getRole());
+        userDto.setRoles(roleList);
         return userDto;
     }
 

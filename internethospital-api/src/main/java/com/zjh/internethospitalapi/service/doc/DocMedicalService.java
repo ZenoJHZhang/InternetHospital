@@ -4,7 +4,7 @@ import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.entity.Medical;
 
 /**
- * 类的说明
+ * 仅是药品相关
  *
  * @version 1.00
  * @author: 张江浩

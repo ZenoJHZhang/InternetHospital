@@ -56,9 +56,10 @@ public class ManagementDepartmentServiceImpl implements ManagementDepartmentServ
     }
 
     @Override
-    public PageInfo<Department> selectDepartmentByName(String departmentName, Integer pageNumber, Integer pageSize) {
+    public PageInfo<Department> selectDepartmentByNameOrNumber(String departmentMessage, Integer pageNumber, Integer pageSize) {
         Example example = new Example(Department.class);
-        example.createCriteria().andLike("departmentName",departmentName).andEqualTo("isDelete",0);
+        example.createCriteria().orLike("departmentName",departmentMessage).orLike("departmentNumber",departmentMessage);
+        example.and().andEqualTo("isDelete",0);
         PageHelper.startPage(pageNumber,pageSize);
         List<Department> departmentList = departmentMapper.selectByExample(example);
         return new PageInfo<>(departmentList);

@@ -1,7 +1,8 @@
 package com.zjh.internethospitalapi.service.doc;
 
 /**
- * 类的说明
+ * 医生修改用户就诊信息
+ * 开处方，开药
  *
  * @author 张江浩
  * @version 1.00

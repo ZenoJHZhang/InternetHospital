@@ -7,6 +7,7 @@ import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +45,7 @@ public class ManagementDepartmentController {
 
     @ApiOperation(value = "新增科室")
     @PostMapping("/insertDepartment")
-    @RequiresRoles(value = "doctorAdmin")
+    @RequiresRoles(value={"doctorAdmin","superAdmin"},logical= Logical.OR)
     public ResponseEntity<ApiResponse> insertDepartment(
             @ApiParam(value = "科室", required = true) @RequestBody Department department) {
         String message = judgeDepartment(department);
@@ -58,7 +59,7 @@ public class ManagementDepartmentController {
 
     @ApiOperation(value = "更新科室")
     @PostMapping("/updateDepartment")
-    @RequiresRoles(value = "doctorAdmin")
+    @RequiresRoles(value={"doctorAdmin","superAdmin"},logical= Logical.OR)
     public ResponseEntity<ApiResponse> updateDepartment(
             @ApiParam(value = "科室", required = true) @RequestBody Department department) {
         String message = judgeDepartment(department);
@@ -71,15 +72,15 @@ public class ManagementDepartmentController {
     }
 
 
-    @ApiOperation(value = "根据科室名模糊搜索科室")
+    @ApiOperation(value = "根据科室名/科室编号模糊搜索科室")
     @PostMapping("/selectDepartmentByName")
-    @RequiresRoles(value = "doctorAdmin")
-    public ResponseEntity<ApiResponse> selectDepartmentByName(
-            @ApiParam(value = "科室名", required = true,example = "1") @RequestParam String departmentName,
+    @RequiresRoles(value={"doctorAdmin","superAdmin"},logical= Logical.OR)
+    public ResponseEntity<ApiResponse> selectDepartmentByNameOrNumber(
+            @ApiParam(value = "科室名/科室编号", required = true,example = "1") @RequestParam String departmentMessage,
             @ApiParam(value = "页码", required = true,example = "1") @RequestParam Integer pageNumber,
             @ApiParam(value = "页容量", required = true,example = "1") @RequestParam Integer pageSize) {
         PageInfo<Department> departmentPageInfo =
-                managementDepartmentService.selectDepartmentByName(departmentName, pageNumber, pageSize);
+                managementDepartmentService.selectDepartmentByNameOrNumber(departmentMessage, pageNumber, pageSize);
         return  ApiResponse.successResponse(departmentPageInfo);
     }
 

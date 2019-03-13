@@ -22,7 +22,7 @@ import java.util.List;
  * @date: 2019/1/30 16:03
  */
 @RestController
-@RequestMapping("/docMedicalController")
+@RequestMapping("/docMedical")
 @Api(tags = "【医疗模块】药品相关API")
 public class DocMedicalController {
     private final DocMedicalService docMedicalService;

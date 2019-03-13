@@ -98,6 +98,8 @@ public class UserReservationController {
         UserReservation userReservation = new UserReservation();
         //已付款等待视频
         userReservation.setStatus(4);
+        //挂号费支付状态修改
+        userReservation.setClinicPayStatus("1");
         userReservation.setUuId(userReservationUUId);
         userReservationService.updateUserReservationSelective(userReservation);
         return ApiResponse.successResponse(null);
