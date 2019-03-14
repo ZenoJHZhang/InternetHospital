@@ -39,49 +39,13 @@ public class Department {
     /**
      * 科室图片id
      */
-    private String img_id;
+    private Integer imgId;
 
     /**
      * 科室人数
      */
     @Column(name = "count_of_people")
     private String countOfPeople;
-
-    /**
-     * 上午是否可挂号1为可以0为不可以
-     */
-    @Column(name = "morning_is_order")
-    private String morningIsOrder;
-
-    /**
-     * 上午号源数
-     */
-    @Column(name = "morning_source")
-    private Integer morningSource;
-
-    /**
-     * 下午是否可挂号1为可以0为不可以
-     */
-    @Column(name = "afternoon_is_order")
-    private String afternoonIsOrder;
-
-    /**
-     * 下午号源数
-     */
-    @Column(name = "afternoon_source")
-    private Integer afternoonSource;
-
-    /**
-     * 晚上是否可挂号1为可以0为不可以
-     */
-    @Column(name = "night_is_order")
-    private String nightIsOrder;
-
-    /**
-     * 晚上号源数
-     */
-    @Column(name = "night_source")
-    private Integer nightSource;
 
     /**
      * 科室挂号价格
@@ -117,4 +81,10 @@ public class Department {
     private String introduce;
 
     private Integer isDelete;
+
+    /**
+     * 图片全路径
+     */
+    @Transient
+    private String imgPath;
 }

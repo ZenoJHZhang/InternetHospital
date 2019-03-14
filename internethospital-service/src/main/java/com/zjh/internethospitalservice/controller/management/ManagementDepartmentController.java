@@ -35,9 +35,9 @@ public class ManagementDepartmentController {
     @GetMapping("/listAllDepartmentByType")
     @ApiOperation(value = "根据科室类型获取所有科室")
     public ResponseEntity<ApiResponse> listAllDepartmentByType(
-            @ApiParam(value = "科室类别 0 普通科室 ；1 专家科室", required = true,example = "1") @RequestParam Integer departmentType,
-            @ApiParam(value = "页码", required = true,example = "1") @RequestParam Integer pageNumber,
-            @ApiParam(value = "页容量", required = true,example = "1") @RequestParam Integer pageSize) {
+            @ApiParam(value = "科室类别 0 普通科室 ；1 专家科室 ;2 全部科室", required = true, example = "1") @RequestParam Integer departmentType,
+            @ApiParam(value = "页码", required = true, example = "1") @RequestParam Integer pageNumber,
+            @ApiParam(value = "页容量", required = true, example = "1") @RequestParam Integer pageSize) {
         PageInfo<Department> departmentPageInfo = managementDepartmentService.
                 listAllDepartmentByType(departmentType, pageNumber, pageSize);
         return ApiResponse.successResponse(departmentPageInfo);
@@ -45,7 +45,7 @@ public class ManagementDepartmentController {
 
     @ApiOperation(value = "新增科室")
     @PostMapping("/insertDepartment")
-    @RequiresRoles(value={"doctorAdmin","superAdmin"},logical= Logical.OR)
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> insertDepartment(
             @ApiParam(value = "科室", required = true) @RequestBody Department department) {
         String message = judgeDepartment(department);
@@ -59,7 +59,7 @@ public class ManagementDepartmentController {
 
     @ApiOperation(value = "更新科室")
     @PostMapping("/updateDepartment")
-    @RequiresRoles(value={"doctorAdmin","superAdmin"},logical= Logical.OR)
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> updateDepartment(
             @ApiParam(value = "科室", required = true) @RequestBody Department department) {
         String message = judgeDepartment(department);
@@ -72,28 +72,47 @@ public class ManagementDepartmentController {
     }
 
 
-    @ApiOperation(value = "根据科室名/科室编号模糊搜索科室")
-    @PostMapping("/selectDepartmentByName")
-    @RequiresRoles(value={"doctorAdmin","superAdmin"},logical= Logical.OR)
-    public ResponseEntity<ApiResponse> selectDepartmentByNameOrNumber(
-            @ApiParam(value = "科室名/科室编号", required = true,example = "1") @RequestParam String departmentMessage,
-            @ApiParam(value = "页码", required = true,example = "1") @RequestParam Integer pageNumber,
-            @ApiParam(value = "页容量", required = true,example = "1") @RequestParam Integer pageSize) {
+    @ApiOperation(value = "根据科室名/科室编号模糊搜索科室,并根据科室类型进行筛选")
+    @PostMapping("/listDepartmentByNameOrNumberWithDepartmentMessage")
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
+    public ResponseEntity<ApiResponse> listDepartmentByNameOrNumberWithDepartmentMessage(
+            @ApiParam(value = "科室名/科室编号", required = true, example = "1") @RequestParam String departmentMessage,
+            @ApiParam(value = "科室类别 0 普通科室 ；1 专家科室 ;2 全部科室", required = true, example = "1") @RequestParam Integer departmentType,
+            @ApiParam(value = "页码", required = true, example = "1") @RequestParam Integer pageNumber,
+            @ApiParam(value = "页容量", required = true, example = "1") @RequestParam Integer pageSize) {
         PageInfo<Department> departmentPageInfo =
-                managementDepartmentService.selectDepartmentByNameOrNumber(departmentMessage, pageNumber, pageSize);
-        return  ApiResponse.successResponse(departmentPageInfo);
+                managementDepartmentService.listDepartmentByNameOrNumberWithDepartmentMessage(departmentMessage, departmentType, pageNumber, pageSize);
+        return ApiResponse.successResponse(departmentPageInfo);
+    }
+
+    @ApiOperation(value = "根据科室id获取科室信息")
+    @GetMapping("/getDepartmentById")
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
+    public ResponseEntity<ApiResponse> getDepartmentById(
+            @ApiParam(value = "科室id", required = true, example = "1") @RequestParam Integer departmentId) {
+        return ApiResponse.successResponse(managementDepartmentService.getDepartmentById(departmentId));
     }
 
     private String judgeDepartment(Department department) {
         String message;
         String departmentName = department.getDepartmentName();
         String departmentNumber = department.getDepartmentNumber();
+        String price = department.getPrice();
+        Integer imgId = department.getImgId();
         if (departmentName == null) {
             message = "科室名不得为空";
             return message;
         }
         if (departmentNumber == null) {
             message = "科室号码不得为空";
+            return message;
+        }
+        if (price == null) {
+            message = "科室挂号价格不得为空";
+            return message;
+        }
+        if (imgId == null) {
+            message = "科室示例图片不得为空";
             return message;
         } else {
             return null;

@@ -23,12 +23,14 @@ public interface ManagementDepartmentService {
 
     /**
      * 新增科室
+     * 重复科室不可新增
      * @param department 科室
      */
     void insertDepartment(Department department);
 
     /**
      * 更新科室
+     * 重复或科室下有排班（即 isStart ！= 2）不可更新
      * @param department 科室
      */
     void updateDepartment(Department department);
@@ -36,9 +38,18 @@ public interface ManagementDepartmentService {
     /**
      * 根据科室名/科室编号分页模糊搜索科室
      * @param departmentMessage 科室名
+     * @param departmentType 科室类型
      * @param pageNumber  页码
      * @param pageSize 页容量
      * @return
      */
-    PageInfo<Department> selectDepartmentByNameOrNumber(String departmentMessage, Integer pageNumber, Integer pageSize);
+    PageInfo<Department> listDepartmentByNameOrNumberWithDepartmentMessage
+    (String departmentMessage,Integer departmentType, Integer pageNumber, Integer pageSize);
+
+    /**
+     * 通过科室id获取科室内容
+     * @param departmentId 科室id
+     * @return 科室
+     */
+    Department getDepartmentById(Integer departmentId);
 }

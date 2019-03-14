@@ -56,6 +56,9 @@ public class UserServiceImpl implements UserService {
             user.setPassword(newMd5Password);
             userMapper.updateByPrimaryKeySelective(user);
         }
+        else{
+            return null;
+        }
         return user;
     }
 
