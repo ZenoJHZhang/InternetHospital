@@ -45,7 +45,16 @@ public final class Constants {
     /**
      * 图片上传服务器基地址
      */
-    public static final String IMG_UPLOAD_BASE_URL = "C:/image/";
+
+    /**
+     * 远程服务器
+     */
+//    public static final String IMG_UPLOAD_BASE_URL = "C:/image/";
+
+    /**
+     * 本地
+     */
+    public static final String IMG_UPLOAD_BASE_URL = "E:\\image\\";
 
     /**
      * 从服务器获取图片基地址

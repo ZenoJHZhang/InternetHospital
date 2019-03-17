@@ -53,5 +53,6 @@ server:
   ssl:
     key-store: 1718543_www.woniuyiliao.cn.pfx
     key-store-password: 28BmGQBh
+  max-http-header-size: 102400
 
 

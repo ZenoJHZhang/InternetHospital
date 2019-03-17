@@ -21,11 +21,11 @@ public interface ImgService {
     List<Img> listIndexCarousel();
 
     /**
-     * 添加首页轮播图
+     * 添加图片
      * @param img
-     * @return
+     * @return imgId
      */
-    void insertIndexCarousel(Img img);
+    Integer insertImg(Img img);
 
     /**
      * 获得网络诊室页面轮播图

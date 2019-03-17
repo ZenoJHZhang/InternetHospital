@@ -1,5 +1,6 @@
 package com.zjh.internethospitalservice.service.img;
 
+import com.sun.org.apache.regexp.internal.RE;
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
@@ -55,13 +56,14 @@ public class ImgServiceImpl implements ImgService {
     }
 
     @Override
-    public void insertIndexCarousel(Img img) {
+    public Integer insertImg(Img img) {
         img.setCreateTime(new Date());
         img.setUpdateTime(new Date());
         int result =  imgMapper.insert(img);
         if (result != 1) {
             throw new InternetHospitalException(ExceptionConstants.IMG_INSERT_FAIL);
         }
+        return img.getId();
     }
 
     @Override

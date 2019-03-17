@@ -2,6 +2,7 @@ package com.zjh.internethospitalapi.service.management;
 
 import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.entity.Department;
+import com.zjh.internethospitalapi.entity.Img;
 
 /**
  * 类的说明
@@ -52,4 +53,11 @@ public interface ManagementDepartmentService {
      * @return 科室
      */
     Department getDepartmentById(Integer departmentId);
+
+    /**
+     * 更新科室图片
+     * @param imgId 图片id
+     * @param departmentId 科室id
+     */
+    void updateDepartmentImg(Integer imgId, Integer departmentId);
 }

@@ -2,6 +2,7 @@ package com.zjh.internethospitalservice.controller.img;
 
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.service.img.ImgService;
+import com.zjh.internethospitalapi.service.management.ManagementDepartmentService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import com.zjh.internethospitalservice.util.FileUtil;
 import io.swagger.annotations.Api;
@@ -12,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 /**
  * 类的说明
@@ -26,10 +29,12 @@ import org.springframework.web.multipart.MultipartFile;
 public class ImgController {
 
     private final ImgService imgService;
+    private final ManagementDepartmentService managementDepartmentService;
 
     @Autowired
-    public ImgController(ImgService imgService) {
+    public ImgController(ImgService imgService, ManagementDepartmentService managementDepartmentService) {
         this.imgService = imgService;
+        this.managementDepartmentService = managementDepartmentService;
     }
 
     @GetMapping("/listIndexCarousel")
@@ -77,4 +82,16 @@ public class ImgController {
             @ApiParam(required = true, value = "图片id",example = "1") @RequestParam Integer id) {
         return FileUtil.deleteFile(id);
     }
+
+    @PostMapping("/insertDepartmentImg")
+    @ApiOperation(value = "添加科室示例图")
+    public ResponseEntity<ApiResponse> insertDepartmentImg(@RequestParam String imgStr
+            ,@RequestParam Integer departmentId) throws IOException {
+        Integer imgId = FileUtil.enCodingBase64(imgStr, Constants.IMG_TYPE_DEPARMENT, "科室示例图");
+        managementDepartmentService.updateDepartmentImg(imgId,departmentId);
+        return ApiResponse.successResponse(null);
+    }
+
+
+
 }

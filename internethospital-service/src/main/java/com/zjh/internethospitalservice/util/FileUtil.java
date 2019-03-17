@@ -10,9 +10,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
+import sun.misc.BASE64Decoder;
 
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.UUID;
 
 /**
@@ -40,18 +43,14 @@ public class FileUtil {
         String filePath = Constants.IMG_UPLOAD_BASE_URL + imgType +
                 "/";
         File dest = new File(filePath, uuidName);
-        Img img = new Img();
-        img.setImgUuid(uuid);
-        img.setType(imgType);
-        img.setSuffix(suffix);
-        img.setDescription(description);
+        Img img = makeImgDetail(uuid,imgType,suffix,description);
         try {
             file.transferTo(dest);
         } catch (IOException e) {
             e.printStackTrace();
             throw new RuntimeException("文件上传失败");
         }
-        imgService.insertIndexCarousel(img);
+        imgService.insertImg(img);
         return ApiResponse.successResponse(img);
     }
 
@@ -76,5 +75,45 @@ public class FileUtil {
             imgService.deleteImgById(id);
         }
         return ApiResponse.successResponse(result);
+    }
+
+    /**
+     * base64转图片并保存
+     * @param imgStr base64
+     * @param imgType 图片类型
+     * @param description 图片描述
+     * @return 图片在数据库内的id
+     */
+    public static Integer enCodingBase64(String imgStr, String imgType, String description) throws IOException {
+        imgStr = imgStr.replace("data:image/png;base64,","");
+        BASE64Decoder decoder = new BASE64Decoder();
+        String suffix = "png";
+        String uuid = UUID.randomUUID().toString();
+        String uuidName = uuid + "." + suffix;
+        String filePath = Constants.IMG_UPLOAD_BASE_URL + imgType +
+                "/"+uuidName;
+        byte[] b = decoder.decodeBuffer(imgStr);
+        for(int i=0;i<b.length;++i)
+        {
+            if(b[i]<0)
+            {//调整异常数据
+                b[i]+=256;
+            }
+        }
+        OutputStream out = new FileOutputStream(filePath);
+        out.write(b);
+        out.flush();
+        out.close();
+        Img img = makeImgDetail(uuid,imgType,suffix,description);
+        return imgService.insertImg(img);
+    }
+
+    private static Img makeImgDetail(String uuid,String imgType,String suffix,String description){
+        Img img = new Img();
+        img.setImgUuid(uuid);
+        img.setType(imgType);
+        img.setSuffix(suffix);
+        img.setDescription(description);
+        return img;
     }
 }

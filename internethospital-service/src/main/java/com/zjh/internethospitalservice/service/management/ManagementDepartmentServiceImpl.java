@@ -12,10 +12,12 @@ import com.zjh.internethospitalapi.service.management.ManagementDepartmentServic
 import com.zjh.internethospitalservice.mapper.DepartmentMapper;
 import com.zjh.internethospitalservice.mapper.ImgMapper;
 import com.zjh.internethospitalservice.mapper.ScheduleDepartmentMapper;
+import com.zjh.internethospitalservice.util.ImgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -105,18 +107,26 @@ public class ManagementDepartmentServiceImpl implements ManagementDepartmentServ
         return department;
     }
 
+    @Override
+    public void updateDepartmentImg(Integer imgId, Integer departmentId) {
+        Department department = new Department();
+        department.setId(departmentId);
+        department.setImgId(imgId);
+        int i = departmentMapper.updateByPrimaryKeySelective(department);
+        if (i != 1){
+            throw new InternetHospitalException(ExceptionConstants.UPDATE_DEPARTMENT_FAIL);
+        }
+    }
+
     private String getDepartmentImgPath(Integer imgId){
         Img img = imgMapper.selectByPrimaryKey(imgId);
-        StringBuilder imgPath = new StringBuilder();
-        imgPath
-                .append(Constants.IMG_DOWNLOAD_BASE_URL).append(img.getType()).append("/").append(img.getImgUuid())
-                .append(".").append(img.getSuffix());
-        return imgPath.toString();
+        String imgPath = ImgUtil.imgPathGenerate(img);
+        return imgPath;
     }
 
     /**
      * 判断是否为重复的科室
-     * 判断条件为 科室名和科室编号不能相同
+     * 判断条件为 科室名和科室编号以及科室电话不能相同
      * @param department
      * @return true 重复 false 不重复
      */
@@ -128,6 +138,11 @@ public class ManagementDepartmentServiceImpl implements ManagementDepartmentServ
              ) {
             if ((o.getDepartmentName().equals(department.getDepartmentName()) )
                     || (o.getDepartmentNumber().equals(department.getDepartmentNumber()))){
+                if (department.getPhone() != null && o.getPhone() != null){
+                    if (o.getPhone().equals(department.getPhone())){
+                        return true;
+                    }
+                }
                 return true;
             }
         }
