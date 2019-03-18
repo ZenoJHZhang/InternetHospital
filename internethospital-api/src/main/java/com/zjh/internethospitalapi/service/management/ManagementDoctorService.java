@@ -1,7 +1,10 @@
 package com.zjh.internethospitalapi.service.management;
 
 import com.github.pagehelper.PageInfo;
+import com.zjh.internethospitalapi.dto.DoctorDto;
 import com.zjh.internethospitalapi.entity.Doctor;
+
+import java.util.List;
 
 /**
  * 类的说明
@@ -62,9 +65,17 @@ public interface ManagementDoctorService {
      * 根据科室id获取医生列表
      *
      * @param departmentId 科室id
-     * @param pageNo 页码
-     * @param pageSize 页容量
      * @return
      */
-    PageInfo<Doctor> listDoctorByDepartmentId(Integer departmentId,Integer pageNo,Integer pageSize);
+    List<Doctor> listDoctorByDepartmentId(Integer departmentId);
+
+    /**
+     * 根据医生姓名/工号进行模糊搜索，并通过科室进行筛选
+     * @param doctorMessage 医生信息
+     * @param departmentId 科室id
+     * @param pageNo 页码
+     * @param pageSize 页容量
+     * @return 医生分页信息
+     */
+    PageInfo<Doctor> listDoctorByNameOrNumberWithDepartmentId(String doctorMessage,Integer departmentId,Integer pageNo,Integer pageSize);
 }

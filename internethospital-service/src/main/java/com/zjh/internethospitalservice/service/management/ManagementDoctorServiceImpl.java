@@ -1,5 +1,6 @@
 package com.zjh.internethospitalservice.service.management;
 
+import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
@@ -16,9 +17,7 @@ import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import javax.persistence.Id;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 类的说明
@@ -37,7 +36,9 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
     private final ScheduleDoctorMapper scheduleDoctorMapper;
 
     @Autowired
-    public ManagementDoctorServiceImpl(UserService userService, DoctorMapper doctorMapper, DoctorDepartmentMapper doctorDepartmentMapper, ScheduleDoctorMapper scheduleDoctorMapper) {
+    public ManagementDoctorServiceImpl(
+            UserService userService, DoctorDepartmentMapper doctorDepartmentMapper,
+            ScheduleDoctorMapper scheduleDoctorMapper, DoctorMapper doctorMapper) {
         this.userService = userService;
         this.doctorMapper = doctorMapper;
         this.doctorDepartmentMapper = doctorDepartmentMapper;
@@ -65,34 +66,34 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
     }
 
     @Override
-    public void updateDoctorSelective(Integer doctorId,String doctorNumber, String phone,
+    public void updateDoctorSelective(Integer doctorId, String doctorNumber, String phone,
                                       String doctorTitle, Integer imgId, String goodAt) {
         Example example = new Example(Doctor.class);
-        example.createCriteria().andEqualTo("id",doctorId)
-                .andEqualTo("isDelete",0);
+        example.createCriteria().andEqualTo("id", doctorId)
+                .andEqualTo("isDelete", 0);
         Doctor doctor = doctorMapper.selectOneByExample(example);
-        if (doctor == null){
+        if (doctor == null) {
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
         }
-        if (doctorNumber != null){
+        if (doctorNumber != null) {
             doctor.setDoctorNumber(doctorNumber);
         }
-        if (phone != null){
+        if (phone != null) {
             doctor.setPhone(phone);
         }
-        isSameDoctor(doctorNumber,phone,doctor.getDoctorIdCard(),doctorId);
-        if (doctorTitle != null){
+        isSameDoctor(doctorNumber, phone, doctor.getDoctorIdCard(), doctorId);
+        if (doctorTitle != null) {
             doctor.setDoctorTitle(doctorTitle);
         }
-        if (imgId != null){
+        if (imgId != null) {
             doctor.setImgId(imgId);
         }
-        if (goodAt != null){
+        if (goodAt != null) {
             doctor.setGoodAt(goodAt);
         }
         doctor.setUpdateTime(new Date());
         int i = doctorMapper.updateByPrimaryKey(doctor);
-        if (i != 1){
+        if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.UPDATE_DOCTOR_FAIL);
         }
     }
@@ -103,15 +104,15 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
         Doctor doctor = getDoctorById(doctorId);
         Integer userId = doctor.getUserId();
         Example example = new Example(ScheduleDoctor.class);
-        example.createCriteria().andEqualTo("doctorId",doctorId)
-        .andGreaterThanOrEqualTo("scheduleTime",new Date());
+        example.createCriteria().andEqualTo("doctorId", doctorId)
+                .andGreaterThanOrEqualTo("scheduleTime", new Date());
         List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
-        if (scheduleDoctorList.size() > 0){
+        if (scheduleDoctorList.size() > 0) {
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_HAS_SCHEDULE);
         }
-       doctor.setIsDelete(1);
+        doctor.setIsDelete(1);
         int i = doctorMapper.updateByPrimaryKey(doctor);
-        if (i != 1){
+        if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.DELETE_DOCTOR_FAIL);
         }
         userService.deleteUser(userId);
@@ -120,10 +121,10 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
     @Override
     public Doctor getDoctorById(Integer doctorId) {
         Example example = new Example(Doctor.class);
-        example.createCriteria().andEqualTo("id",doctorId)
-                .andEqualTo("isDelete",0);
+        example.createCriteria().andEqualTo("id", doctorId)
+                .andEqualTo("isDelete", 0);
         Doctor doctor = doctorMapper.selectOneByExample(example);
-        if (doctor == null){
+        if (doctor == null) {
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
         }
         return doctor;
@@ -143,23 +144,25 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
     }
 
     @Override
-    public PageInfo<Doctor> listDoctorByDepartmentId(Integer departmentId,Integer pageNo,Integer pageSize) {
+    public List<Doctor> listDoctorByDepartmentId(Integer departmentId) {
         Example example = new Example(DoctorDepartment.class);
-        example.createCriteria().andEqualTo("departmentId",departmentId);
+        example.createCriteria().andEqualTo("departmentId", departmentId).andEqualTo("isDelete", 0);
         List<DoctorDepartment> doctorDepartmentList = doctorDepartmentMapper.selectByExample(example);
         List<Doctor> doctorList = new ArrayList<>();
-        for (DoctorDepartment doctorDepartment:doctorDepartmentList
-             ) {
+        for (DoctorDepartment doctorDepartment : doctorDepartmentList
+        ) {
             Integer doctorId = doctorDepartment.getDoctorId();
-            Example example1 = new Example(Doctor.class);
-            example.createCriteria().andEqualTo("id",doctorId)
-                    .andEqualTo("isDelete",0);
-            Doctor doctor = doctorMapper.selectOneByExample(example1);
-            if (doctor == null){
-                throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
-            }
+            Doctor doctor = getDoctorById(doctorId);
             doctorList.add(doctor);
         }
+        return doctorList;
+    }
+
+    @Override
+    public PageInfo<Doctor> listDoctorByNameOrNumberWithDepartmentId(String doctorMessage, Integer departmentId,
+                                                                     Integer pageNo, Integer pageSize) {
+        PageHelper.startPage(pageNo,pageSize);
+        List<Doctor> doctorList = doctorMapper.listDoctorByNameOrNumberWithDepartmentId(doctorMessage.trim(), departmentId);
         return new PageInfo<>(doctorList);
     }
 

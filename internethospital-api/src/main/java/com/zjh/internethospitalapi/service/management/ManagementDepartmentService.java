@@ -26,15 +26,17 @@ public interface ManagementDepartmentService {
      * 新增科室
      * 重复科室不可新增
      * @param department 科室
+     * @return 科室id
      */
-    void insertDepartment(Department department);
+    Integer insertDepartment(Department department);
 
     /**
      * 更新科室
      * 重复或科室下有排班（即 isStart ！= 2）不可更新
      * @param department 科室
+     * @return 科室id
      */
-    void updateDepartment(Department department);
+    Integer updateDepartment(Department department);
 
     /**
      * 根据科室名/科室编号分页模糊搜索科室
@@ -60,4 +62,10 @@ public interface ManagementDepartmentService {
      * @param departmentId 科室id
      */
     void updateDepartmentImg(Integer imgId, Integer departmentId);
+
+    /**
+     * 删除科室
+     * @param departmentId 科室id
+     */
+    void deleteDepartment(Integer departmentId);
 }

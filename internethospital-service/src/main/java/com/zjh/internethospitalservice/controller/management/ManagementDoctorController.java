@@ -8,6 +8,7 @@ import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -47,18 +48,6 @@ public class ManagementDoctorController {
         return ApiResponse.successResponse(null);
     }
 
-    @PostMapping("/listDoctorByDepartmentId")
-    @ApiOperation(value = "根据科室id获取医生列表")
-    @RequiresRoles(value = "doctorAdmin")
-    public ResponseEntity<ApiResponse> listDoctorByDepartmentId(
-            @ApiParam(value = "科室id", required = true, example = "1") @RequestParam Integer departmentId,
-            @ApiParam(value = "页码", required = true, example = "1") @RequestParam Integer pageNumber,
-            @ApiParam(value = "页容量", required = true, example = "1") @RequestParam Integer pageSize
-    ) {
-        PageInfo<Doctor> doctorPageInfo = managementDoctorService.listDoctorByDepartmentId(departmentId, pageNumber, pageSize);
-        return ApiResponse.successResponse(doctorPageInfo);
-    }
-
     @PostMapping("/deleteDoctor")
     @ApiOperation(value = "删除医生")
     @RequiresRoles(value = "doctorAdmin")
@@ -84,6 +73,19 @@ public class ManagementDoctorController {
         }
         managementDoctorService.updateDoctorSelective(doctorId, doctorNumber, phone, doctorTitle, imgId, goodAt);
         return ApiResponse.successResponse(null);
+    }
+
+    @PostMapping("/listDoctorByNameOrNumberWithDepartmentId")
+    @ApiOperation(value = "根据医生姓名/工号进行模糊搜索，并通过科室进行筛选")
+//    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
+    public ResponseEntity<ApiResponse> listDoctorByNameOrNumberWithDepartmentId(
+            @ApiParam(value = "医生信息", required = true) @RequestParam String doctorMessage,
+            @ApiParam(value = "科室id",required = true,example = "1")  @RequestParam Integer departmentId,
+            @ApiParam(value = "页码", required = true, example = "1") @RequestParam Integer pageNumber,
+            @ApiParam(value = "页容量", required = true, example = "1") @RequestParam Integer pageSize) {
+        PageInfo<Doctor> doctorPageInfo = managementDoctorService.
+                listDoctorByNameOrNumberWithDepartmentId(doctorMessage, departmentId, pageNumber, pageSize);
+        return ApiResponse.successResponse(doctorPageInfo);
     }
 
     private String doctorPattern(String phone, String doctorIdCard) {

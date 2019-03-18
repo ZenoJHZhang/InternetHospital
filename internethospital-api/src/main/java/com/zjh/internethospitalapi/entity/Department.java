@@ -45,7 +45,7 @@ public class Department {
      * 科室人数
      */
     @Column(name = "count_of_people")
-    private String countOfPeople;
+    private Integer countOfPeople;
 
     /**
      * 科室挂号价格

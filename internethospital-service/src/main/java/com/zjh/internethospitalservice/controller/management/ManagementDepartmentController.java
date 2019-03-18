@@ -52,9 +52,8 @@ public class ManagementDepartmentController {
         if (message != null) {
             return ApiResponse.response(400, message, null);
         } else {
-            managementDepartmentService.insertDepartment(department);
+            return ApiResponse.successResponse(managementDepartmentService.insertDepartment(department));
         }
-        return ApiResponse.successResponse(null);
     }
 
     @ApiOperation(value = "更新科室")
@@ -66,9 +65,9 @@ public class ManagementDepartmentController {
         if (message != null) {
             return ApiResponse.response(400, message, null);
         } else {
-            managementDepartmentService.updateDepartment(department);
+            return ApiResponse.successResponse(managementDepartmentService.updateDepartment(department));
         }
-        return ApiResponse.successResponse(null);
+
     }
 
 
@@ -81,7 +80,7 @@ public class ManagementDepartmentController {
             @ApiParam(value = "页码", required = true, example = "1") @RequestParam Integer pageNumber,
             @ApiParam(value = "页容量", required = true, example = "1") @RequestParam Integer pageSize) {
         PageInfo<Department> departmentPageInfo =
-                managementDepartmentService.listDepartmentByNameOrNumberWithDepartmentMessage(departmentMessage, departmentType, pageNumber, pageSize);
+                managementDepartmentService.listDepartmentByNameOrNumberWithDepartmentMessage(departmentMessage.trim(), departmentType, pageNumber, pageSize);
         return ApiResponse.successResponse(departmentPageInfo);
     }
 
@@ -93,18 +92,28 @@ public class ManagementDepartmentController {
         return ApiResponse.successResponse(managementDepartmentService.getDepartmentById(departmentId));
     }
 
+    @ApiOperation(value = "根据科室id删除科室")
+    @PostMapping("/deleteDepartment")
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
+    public ResponseEntity<ApiResponse> deleteDepartment(
+            @ApiParam(value = "科室id", required = true, example = "1") @RequestParam Integer departmentId) {
+        managementDepartmentService.deleteDepartment(departmentId);
+        return ApiResponse.successResponse(null);
+    }
+
     private String judgeDepartment(Department department) {
         String message;
         String departmentName = department.getDepartmentName();
         String departmentNumber = department.getDepartmentNumber();
         String price = department.getPrice();
         Integer imgId = department.getImgId();
+        String phone = department.getPhone();
         if (departmentName == null) {
             message = "科室名不得为空";
             return message;
         }
         if (departmentNumber == null) {
-            message = "科室号码不得为空";
+            message = "科室编号不得为空";
             return message;
         }
         if (price == null) {
@@ -113,6 +122,10 @@ public class ManagementDepartmentController {
         }
         if (imgId == null) {
             message = "科室示例图片不得为空";
+            return message;
+        }
+        if (phone == null) {
+            message = "科室联系电话不得为空";
             return message;
         } else {
             return null;
