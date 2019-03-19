@@ -4,19 +4,15 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
-import com.zjh.internethospitalapi.entity.Doctor;
-import com.zjh.internethospitalapi.entity.DoctorDepartment;
-import com.zjh.internethospitalapi.entity.ScheduleDoctor;
+import com.zjh.internethospitalapi.entity.*;
 import com.zjh.internethospitalapi.service.app.UserService;
 import com.zjh.internethospitalapi.service.management.ManagementDoctorService;
-import com.zjh.internethospitalservice.mapper.DoctorDepartmentMapper;
-import com.zjh.internethospitalservice.mapper.DoctorMapper;
-import com.zjh.internethospitalservice.mapper.ScheduleDoctorMapper;
+import com.zjh.internethospitalservice.mapper.*;
+import com.zjh.internethospitalservice.util.ImgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
-import javax.persistence.Id;
 import java.util.*;
 
 /**
@@ -34,15 +30,19 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
     private final DoctorMapper doctorMapper;
     private final DoctorDepartmentMapper doctorDepartmentMapper;
     private final ScheduleDoctorMapper scheduleDoctorMapper;
+    private final ImgMapper imgMapper;
+    private final DepartmentMapper departmentMapper;
 
     @Autowired
     public ManagementDoctorServiceImpl(
             UserService userService, DoctorDepartmentMapper doctorDepartmentMapper,
-            ScheduleDoctorMapper scheduleDoctorMapper, DoctorMapper doctorMapper) {
+            ScheduleDoctorMapper scheduleDoctorMapper, DoctorMapper doctorMapper, ImgMapper imgMapper, DepartmentMapper departmentMapper) {
         this.userService = userService;
         this.doctorMapper = doctorMapper;
         this.doctorDepartmentMapper = doctorDepartmentMapper;
         this.scheduleDoctorMapper = scheduleDoctorMapper;
+        this.imgMapper = imgMapper;
+        this.departmentMapper = departmentMapper;
     }
 
     @Override
@@ -68,13 +68,7 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
     @Override
     public void updateDoctorSelective(Integer doctorId, String doctorNumber, String phone,
                                       String doctorTitle, Integer imgId, String goodAt) {
-        Example example = new Example(Doctor.class);
-        example.createCriteria().andEqualTo("id", doctorId)
-                .andEqualTo("isDelete", 0);
-        Doctor doctor = doctorMapper.selectOneByExample(example);
-        if (doctor == null) {
-            throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
-        }
+        Doctor doctor = getDoctorById(doctorId);
         if (doctorNumber != null) {
             doctor.setDoctorNumber(doctorNumber);
         }
@@ -127,6 +121,9 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
         if (doctor == null) {
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
         }
+        List<Department> departmentList = listDepartmentListByDoctorId(doctorId);
+        doctor.setImgPath(getDoctorImgPath(doctor.getImgId()));
+        doctor.setDepartmentList(departmentList);
         return doctor;
     }
 
@@ -163,7 +160,31 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
                                                                      Integer pageNo, Integer pageSize) {
         PageHelper.startPage(pageNo,pageSize);
         List<Doctor> doctorList = doctorMapper.listDoctorByNameOrNumberWithDepartmentId(doctorMessage.trim(), departmentId);
+        for (Doctor doctor:doctorList
+             ) {
+            List<Department> departmentList = listDepartmentListByDoctorId(doctor.getId());
+            doctor.setImgPath(getDoctorImgPath(doctor.getImgId()));
+            doctor.setDepartmentList(departmentList);
+        }
         return new PageInfo<>(doctorList);
     }
 
+    @Override
+    public List<Department> listDepartmentListByDoctorId(Integer doctorId) {
+        DoctorDepartment doctorDepartment = new DoctorDepartment();
+        doctorDepartment.setDoctorId(doctorId);
+        List<DoctorDepartment> doctorDepartmentList = doctorDepartmentMapper.select(doctorDepartment);
+        List<Department> departmentList = new ArrayList<>();
+        for (DoctorDepartment o:doctorDepartmentList
+             ) {
+            departmentList.add(departmentMapper.selectByPrimaryKey(o.getDepartmentId()));
+        }
+        return departmentList;
+    }
+
+
+    private String getDoctorImgPath(Integer imgId) {
+        Img img = imgMapper.selectByPrimaryKey(imgId);
+        return ImgUtil.imgPathGenerate(img);
+    }
 }

@@ -118,6 +118,7 @@ public class ManagementDepartmentServiceImpl implements ManagementDepartmentServ
         Department department = new Department();
         department.setId(departmentId);
         department.setImgId(imgId);
+        department.setUpdateTime(new Date());
         int i = departmentMapper.updateByPrimaryKeySelective(department);
         if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.UPDATE_DEPARTMENT_FAIL);
@@ -133,7 +134,11 @@ public class ManagementDepartmentServiceImpl implements ManagementDepartmentServ
         if(doctorDepartmentMapper.select(doctorDepartment).size() != 0){
             throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_HAS_DOCTOR);
         }
-        int i = departmentMapper.deleteByPrimaryKey(departmentId);
+        Department department = new Department();
+        department.setId(departmentId);
+        department.setIsDelete(1);
+        department.setUpdateTime(new Date());
+        int i = departmentMapper.updateByPrimaryKey(department);
         if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.DELETE_DEPARTMENT_FAIL);
         }

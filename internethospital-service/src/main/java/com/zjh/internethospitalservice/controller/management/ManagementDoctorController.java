@@ -77,7 +77,7 @@ public class ManagementDoctorController {
 
     @PostMapping("/listDoctorByNameOrNumberWithDepartmentId")
     @ApiOperation(value = "根据医生姓名/工号进行模糊搜索，并通过科室进行筛选")
-//    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> listDoctorByNameOrNumberWithDepartmentId(
             @ApiParam(value = "医生信息", required = true) @RequestParam String doctorMessage,
             @ApiParam(value = "科室id",required = true,example = "1")  @RequestParam Integer departmentId,
@@ -86,6 +86,14 @@ public class ManagementDoctorController {
         PageInfo<Doctor> doctorPageInfo = managementDoctorService.
                 listDoctorByNameOrNumberWithDepartmentId(doctorMessage, departmentId, pageNumber, pageSize);
         return ApiResponse.successResponse(doctorPageInfo);
+    }
+
+    @ApiOperation(value = "根据医生id获取医生信息")
+    @GetMapping("/getDoctorById")
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
+    public ResponseEntity<ApiResponse> getDoctorById(
+            @ApiParam(value = "医生id", required = true, example = "1") @RequestParam Integer doctorId) {
+        return ApiResponse.successResponse(managementDoctorService.getDoctorById(doctorId));
     }
 
     private String doctorPattern(String phone, String doctorIdCard) {

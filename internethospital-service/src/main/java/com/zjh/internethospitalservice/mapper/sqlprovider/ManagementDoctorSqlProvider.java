@@ -1,7 +1,5 @@
 package com.zjh.internethospitalservice.mapper.sqlprovider;
 
-import com.zjh.internethospitalapi.common.constants.Constants;
-import jdk.nashorn.internal.objects.annotations.Where;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.jdbc.SQL;
 
@@ -17,15 +15,17 @@ public class ManagementDoctorSqlProvider {
             @Param("doctorMessage") final String doctorMessage,
             @Param("departmentId") final Integer departmentId) {
         return new SQL() {{
-            SELECT("doctor.*");
+            SELECT_DISTINCT("doctor.*");
             FROM("doctor_department,doctor");
-            if (!departmentId.equals(0)){
+            if (!departmentId.equals(0)) {
                 WHERE(" doctor_department.department_id = #{departmentId}");
             }
-            if (!doctorMessage.equals("")){
-                WHERE("(doctor_name like #{doctorMessage} or doctor_number like #{doctorMessage})");
+            if (!doctorMessage.equals("")) {
+                WHERE("doctor_name like \"%\"#{doctorMessage}\"%\"" +
+                        "or doctor_number like \"%\"#{doctorMessage}\"%\"");
+
             }
-            WHERE("doctor.id = doctor_department.doctor_id");
+            WHERE("doctor.id = doctor_department.doctor_id and doctor.is_delete = 0 and doctor_department.is_delete = 0");
         }}.toString();
     }
 }

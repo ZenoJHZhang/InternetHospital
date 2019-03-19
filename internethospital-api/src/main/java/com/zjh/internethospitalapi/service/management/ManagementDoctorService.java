@@ -2,6 +2,7 @@ package com.zjh.internethospitalapi.service.management;
 
 import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.dto.DoctorDto;
+import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.entity.Doctor;
 
 import java.util.List;
@@ -78,4 +79,11 @@ public interface ManagementDoctorService {
      * @return 医生分页信息
      */
     PageInfo<Doctor> listDoctorByNameOrNumberWithDepartmentId(String doctorMessage,Integer departmentId,Integer pageNo,Integer pageSize);
+
+    /**
+     * 根据医生id获取医生所属科室列表信息
+     * @param doctorId 医生id
+     * @return 科室列表信息
+     */
+    List<Department> listDepartmentListByDoctorId(Integer doctorId);
 }
