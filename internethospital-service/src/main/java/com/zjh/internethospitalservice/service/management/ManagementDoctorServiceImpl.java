@@ -97,6 +97,9 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
         if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.DELETE_DOCTOR_FAIL);
         }
+        DoctorDepartment doctorDepartment = new DoctorDepartment();
+        doctorDepartment.setDoctorId(doctorId);
+        doctorDepartmentMapper.delete(doctorDepartment);
         userService.deleteUser(userId);
     }
 
