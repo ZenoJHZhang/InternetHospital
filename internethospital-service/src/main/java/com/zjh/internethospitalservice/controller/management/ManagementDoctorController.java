@@ -37,42 +37,37 @@ public class ManagementDoctorController {
 
     @PostMapping("/insertDoctor")
     @ApiOperation(value = "新增医生")
-    @RequiresRoles(value = "doctorAdmin")
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> insertDoctor(
             @ApiParam(required = true, value = "医生") @RequestBody Doctor doctor) {
-        String message = doctorPattern(doctor.getPhone(), doctor.getDoctorIdCard());
+        String message = doctorPattern(doctor);
         if (message != null) {
             return ApiResponse.response(400, message, null);
         }
-        managementDoctorService.insertDoctor(doctor);
-        return ApiResponse.successResponse(null);
+        Integer doctorId = managementDoctorService.insertDoctor(doctor);
+        return ApiResponse.successResponse(doctorId);
     }
 
     @PostMapping("/deleteDoctor")
     @ApiOperation(value = "删除医生")
-    @RequiresRoles(value = "doctorAdmin")
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> deleteDoctor(
             @ApiParam(value = "医生id", required = true, example = "1") @RequestParam Integer doctorId) {
         managementDoctorService.deleteDoctor(doctorId);
         return ApiResponse.successResponse(null);
     }
 
-    @PostMapping("/updateDoctorSelective")
+    @PostMapping("/updateDoctor")
     @ApiOperation(value = "更新医生")
-    @RequiresRoles(value = "doctorAdmin")
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> updateDoctorSelective(
-            @ApiParam(value = "医生id", required = true, example = "1") @RequestParam Integer doctorId,
-            @ApiParam(value = "医生工号") @RequestParam(required = false) String doctorNumber,
-            @ApiParam(value = "医生手机号") @RequestParam(required = false) String phone,
-            @ApiParam(value = "医生职称") @RequestParam(required = false) String doctorTitle,
-            @ApiParam(value = "医生头像图片id", example = "1") @RequestParam(required = false) Integer imgId,
-            @ApiParam(value = "医生擅长") @RequestParam(required = false) String goodAt) {
-        String message = doctorPattern(phone, null);
+            @ApiParam(value = "医生信息", required = true) @RequestBody Doctor doctor) {
+        String message = doctorPattern(doctor);
         if (message != null) {
             return ApiResponse.response(400, message, null);
         }
-        managementDoctorService.updateDoctorSelective(doctorId, doctorNumber, phone, doctorTitle, imgId, goodAt);
-        return ApiResponse.successResponse(null);
+        Integer doctorId = managementDoctorService.updateDoctorSelective(doctor);
+        return ApiResponse.successResponse(doctorId);
     }
 
     @PostMapping("/listDoctorByNameOrNumberWithDepartmentId")
@@ -80,7 +75,7 @@ public class ManagementDoctorController {
     @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> listDoctorByNameOrNumberWithDepartmentId(
             @ApiParam(value = "医生信息", required = true) @RequestParam String doctorMessage,
-            @ApiParam(value = "科室id",required = true,example = "1")  @RequestParam Integer departmentId,
+            @ApiParam(value = "科室id", required = true, example = "1") @RequestParam Integer departmentId,
             @ApiParam(value = "页码", required = true, example = "1") @RequestParam Integer pageNumber,
             @ApiParam(value = "页容量", required = true, example = "1") @RequestParam Integer pageSize) {
         PageInfo<Doctor> doctorPageInfo = managementDoctorService.
@@ -96,14 +91,17 @@ public class ManagementDoctorController {
         return ApiResponse.successResponse(managementDoctorService.getDoctorById(doctorId));
     }
 
-    private String doctorPattern(String phone, String doctorIdCard) {
+    private String doctorPattern(Doctor doctor) {
+        String phone = doctor.getPhone();
+        String doctorIdCard = doctor.getDoctorIdCard();
+        String doctorNumber = doctor.getDoctorNumber();
         String phonePattern = Constants.PHONE_PATTERN;
         boolean isPhoneMatch = true;
         boolean isIdCardMatch = true;
-        if (phone != null){
-             isPhoneMatch = Pattern.matches(phonePattern, phone);
+        if (phone != null) {
+            isPhoneMatch = Pattern.matches(phonePattern, phone);
         }
-        if (doctorIdCard != null){
+        if (doctorIdCard != null) {
             isIdCardMatch = Pattern.matches(Constants.ID_CARD_PATTERN, doctorIdCard);
         }
         if (!isPhoneMatch) {
@@ -111,6 +109,9 @@ public class ManagementDoctorController {
         }
         if (!isIdCardMatch) {
             return "身份证格式错误";
+        }
+        if (doctorNumber.length() > 10) {
+            return "医生工号长度不得大于10个字符";
         } else {
             return null;
         }

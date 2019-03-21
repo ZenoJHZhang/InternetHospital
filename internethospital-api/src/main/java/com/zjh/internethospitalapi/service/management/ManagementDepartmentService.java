@@ -68,4 +68,5 @@ public interface ManagementDepartmentService {
      * @param departmentId 科室id
      */
     void deleteDepartment(Integer departmentId);
+
 }

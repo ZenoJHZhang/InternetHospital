@@ -1,5 +1,6 @@
 package com.zjh.internethospitalapi.service.management;
 
+import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.entity.Doctor;
 
 import java.util.List;
@@ -19,19 +20,12 @@ public interface ManagementDoctorDepartmentService {
      */
     List<Doctor> listDoctorByDepartmentId(Integer departmentId);
 
-    /**
-     * 将医生加入一个或多个科室内
-     * @param doctorId 医生id
-     * @param departmentIdList 科室id列表
-     * @return 重复添加的科室名
-     */
-    void addDoctorIntoDepartment(Integer doctorId,List<Integer> departmentIdList);
 
     /**
      * 更新医生所加入的科室
+     * 先删再更，因此适用于所有的医生所属科室操作
      * @param doctorId  医生id
-     * @param departmentIdList 科室列表
-     * @return 加入的科室id列表
+     * @param departmentList 科室列表
      */
-    void updateDoctorDepartment(Integer doctorId,List<Integer> departmentIdList);
+    void updateDoctorDepartment(Integer doctorId,List<Department> departmentList);
 }

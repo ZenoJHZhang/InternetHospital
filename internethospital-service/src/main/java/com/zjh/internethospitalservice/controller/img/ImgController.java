@@ -3,6 +3,7 @@ package com.zjh.internethospitalservice.controller.img;
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.service.img.ImgService;
 import com.zjh.internethospitalapi.service.management.ManagementDepartmentService;
+import com.zjh.internethospitalapi.service.management.ManagementDoctorService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import com.zjh.internethospitalservice.util.FileUtil;
 import io.swagger.annotations.Api;
@@ -30,11 +31,13 @@ public class ImgController {
 
     private final ImgService imgService;
     private final ManagementDepartmentService managementDepartmentService;
+    private final ManagementDoctorService managementDoctorService;
 
     @Autowired
-    public ImgController(ImgService imgService, ManagementDepartmentService managementDepartmentService) {
+    public ImgController(ImgService imgService, ManagementDepartmentService managementDepartmentService, ManagementDoctorService managementDoctorService) {
         this.imgService = imgService;
         this.managementDepartmentService = managementDepartmentService;
+        this.managementDoctorService = managementDoctorService;
     }
 
     @GetMapping("/listIndexCarousel")
@@ -62,12 +65,6 @@ public class ImgController {
         return ApiResponse.successResponse(imgService.listUserReservationImg(userReservationId));
 }
 
-    @PostMapping("/insertDoctorImg")
-    @ApiOperation(value = "添加医生照片")
-    public ResponseEntity<ApiResponse> insertDoctorImg(@RequestParam(value = "file") MultipartFile file) {
-        return FileUtil.uploadFile(file,Constants.IMG_TYPE_DOCTOR,"医生照片");
-    }
-
     @PostMapping("/insertUserReservationImg")
     @ApiOperation(value = "上传用户就诊图片描述")
     @RequiresRoles(value = "user")
@@ -92,6 +89,13 @@ public class ImgController {
         return ApiResponse.successResponse(null);
     }
 
-
+    @PostMapping("/insertDoctorImg")
+    @ApiOperation(value = "添加医生头像")
+    public ResponseEntity<ApiResponse> insertDoctorImg(@RequestParam String imgStr
+            ,@RequestParam Integer doctorId) throws IOException {
+        Integer imgId = FileUtil.enCodingBase64(imgStr, Constants.IMG_TYPE_DOCTOR, "医生头像");
+        managementDoctorService.updateDoctorImg(doctorId,imgId);
+        return ApiResponse.successResponse(null);
+    }
 
 }

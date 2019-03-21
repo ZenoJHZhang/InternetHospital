@@ -71,7 +71,7 @@ public class UserServiceImpl implements UserService {
         user.setRoleId(roleId);
         user.setCreateTime(new Date());
         user.setUpdateTime(new Date());
-        Integer result = userMapper.insertSelective(user);
+        int result = userMapper.insertSelective(user);
         if (result != 1){
             throw new InternetHospitalException(ExceptionConstants.USER_INSERT_FAIL);
         }

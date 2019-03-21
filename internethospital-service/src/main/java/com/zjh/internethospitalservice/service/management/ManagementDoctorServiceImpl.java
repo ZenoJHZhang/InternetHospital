@@ -6,6 +6,7 @@ import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.*;
 import com.zjh.internethospitalapi.service.app.UserService;
+import com.zjh.internethospitalapi.service.management.ManagementDoctorDepartmentService;
 import com.zjh.internethospitalapi.service.management.ManagementDoctorService;
 import com.zjh.internethospitalservice.mapper.*;
 import com.zjh.internethospitalservice.util.ImgUtil;
@@ -32,21 +33,23 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
     private final ScheduleDoctorMapper scheduleDoctorMapper;
     private final ImgMapper imgMapper;
     private final DepartmentMapper departmentMapper;
+    private final ManagementDoctorDepartmentService managementDoctorDepartmentService;
 
     @Autowired
     public ManagementDoctorServiceImpl(
             UserService userService, DoctorDepartmentMapper doctorDepartmentMapper,
-            ScheduleDoctorMapper scheduleDoctorMapper, DoctorMapper doctorMapper, ImgMapper imgMapper, DepartmentMapper departmentMapper) {
+            ScheduleDoctorMapper scheduleDoctorMapper, DoctorMapper doctorMapper, ImgMapper imgMapper, DepartmentMapper departmentMapper, ManagementDoctorDepartmentService managementDoctorDepartmentService) {
         this.userService = userService;
         this.doctorMapper = doctorMapper;
         this.doctorDepartmentMapper = doctorDepartmentMapper;
         this.scheduleDoctorMapper = scheduleDoctorMapper;
         this.imgMapper = imgMapper;
         this.departmentMapper = departmentMapper;
+        this.managementDoctorDepartmentService = managementDoctorDepartmentService;
     }
 
     @Override
-    public void insertDoctor(Doctor doctor) {
+    public Integer insertDoctor(Doctor doctor) {
         String phone = doctor.getPhone();
         doctor.setCreateTime(new Date());
         doctor.setUpdateTime(new Date());
@@ -55,55 +58,40 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
             throw new InternetHospitalException(ExceptionConstants.SAME_USER_PHONE);
         } else {
             userService.isSameIdCard(doctor.getDoctorIdCard());
-            isSameDoctor(doctor.getDoctorNumber(), doctor.getPhone(), doctor.getDoctorIdCard(), doctor.getId());
+            isSameDoctor(doctor);
             Integer userId = userService.userRegister(phone, DEFAULT_PASSWORD, DOCTOR_ROLE_ID);
             doctor.setUserId(userId);
             int i = doctorMapper.insertSelective(doctor);
             if (i != 1) {
                 throw new InternetHospitalException(ExceptionConstants.INSERT_DOCTOR_FAIL);
             }
+            managementDoctorDepartmentService.updateDoctorDepartment(doctor.getId(), doctor.getDepartmentList());
+            doctor.setDeptNum(doctor.getDepartmentList().size());
+            doctorMapper.updateByPrimaryKeySelective(doctor);
         }
+        return doctor.getId();
     }
 
     @Override
-    public void updateDoctorSelective(Integer doctorId, String doctorNumber, String phone,
-                                      String doctorTitle, Integer imgId, String goodAt) {
-        Doctor doctor = getDoctorById(doctorId);
-        if (doctorNumber != null) {
-            doctor.setDoctorNumber(doctorNumber);
-        }
-        if (phone != null) {
-            doctor.setPhone(phone);
-        }
-        isSameDoctor(doctorNumber, phone, doctor.getDoctorIdCard(), doctorId);
-        if (doctorTitle != null) {
-            doctor.setDoctorTitle(doctorTitle);
-        }
-        if (imgId != null) {
-            doctor.setImgId(imgId);
-        }
-        if (goodAt != null) {
-            doctor.setGoodAt(goodAt);
-        }
+    public Integer updateDoctorSelective(Doctor doctor) {
+        isHasNotEndScheduleDoctor(doctor.getId());
+        isSameDoctor(doctor);
+        managementDoctorDepartmentService.updateDoctorDepartment(doctor.getId(), doctor.getDepartmentList());
+        doctor.setDeptNum(doctor.getDepartmentList().size());
         doctor.setUpdateTime(new Date());
-        int i = doctorMapper.updateByPrimaryKey(doctor);
+        int i = doctorMapper.updateByPrimaryKeySelective(doctor);
         if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.UPDATE_DOCTOR_FAIL);
         }
+        return doctor.getId();
     }
 
 
     @Override
     public void deleteDoctor(Integer doctorId) {
+        isHasNotEndScheduleDoctor(doctorId);
         Doctor doctor = getDoctorById(doctorId);
         Integer userId = doctor.getUserId();
-        Example example = new Example(ScheduleDoctor.class);
-        example.createCriteria().andEqualTo("doctorId", doctorId)
-                .andGreaterThanOrEqualTo("scheduleTime", new Date());
-        List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
-        if (scheduleDoctorList.size() > 0) {
-            throw new InternetHospitalException(ExceptionConstants.DOCTOR_HAS_SCHEDULE);
-        }
         doctor.setIsDelete(1);
         int i = doctorMapper.updateByPrimaryKey(doctor);
         if (i != 1) {
@@ -127,15 +115,24 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
         return doctor;
     }
 
-    @Override
-    public void isSameDoctor(String doctorNumber, String doctorPhone, String doctorIdCard, Integer doctorId) {
+
+    /**
+     * 判断是否为重复医生
+     * 由手机号，工号和身份证号判断
+     *
+     * @param doctor 医生信息
+     */
+    private void isSameDoctor(Doctor doctor) {
+        String doctorNumber = doctor.getDoctorNumber();
+        String doctorPhone = doctor.getPhone();
+        String doctorIdCard = doctor.getDoctorIdCard();
+        Integer doctorId = doctor.getId();
         Example example = new Example(Doctor.class);
         example.createCriteria().andNotEqualTo("id", doctorId);
         example.and().orEqualTo("phone", doctorPhone)
                 .orEqualTo("doctorNumber", doctorNumber)
                 .orEqualTo("doctorIdCard", doctorIdCard);
-        Doctor doctor = doctorMapper.selectOneByExample(example);
-        if (doctor != null) {
+        if (doctorMapper.selectByExample(example).size() != 0) {
             throw new InternetHospitalException(ExceptionConstants.SAME_DOCTOR);
         }
     }
@@ -158,10 +155,10 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
     @Override
     public PageInfo<Doctor> listDoctorByNameOrNumberWithDepartmentId(String doctorMessage, Integer departmentId,
                                                                      Integer pageNo, Integer pageSize) {
-        PageHelper.startPage(pageNo,pageSize);
+        PageHelper.startPage(pageNo, pageSize);
         List<Doctor> doctorList = doctorMapper.listDoctorByNameOrNumberWithDepartmentId(doctorMessage.trim(), departmentId);
-        for (Doctor doctor:doctorList
-             ) {
+        for (Doctor doctor : doctorList
+        ) {
             List<Department> departmentList = listDepartmentListByDoctorId(doctor.getId());
             doctor.setImgPath(getDoctorImgPath(doctor.getImgId()));
             doctor.setDepartmentList(departmentList);
@@ -173,18 +170,44 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
     public List<Department> listDepartmentListByDoctorId(Integer doctorId) {
         DoctorDepartment doctorDepartment = new DoctorDepartment();
         doctorDepartment.setDoctorId(doctorId);
+        doctorDepartment.setIsDelete(0);
         List<DoctorDepartment> doctorDepartmentList = doctorDepartmentMapper.select(doctorDepartment);
         List<Department> departmentList = new ArrayList<>();
-        for (DoctorDepartment o:doctorDepartmentList
-             ) {
+        for (DoctorDepartment o : doctorDepartmentList
+        ) {
             departmentList.add(departmentMapper.selectByPrimaryKey(o.getDepartmentId()));
         }
         return departmentList;
+    }
+
+    @Override
+    public void updateDoctorImg(Integer doctorId, Integer imgId) {
+        Doctor doctor = new Doctor();
+        doctor.setImgId(imgId);
+        doctor.setId(doctorId);
+        int i = doctorMapper.updateByPrimaryKeySelective(doctor);
+        if (i != 1) {
+            throw new InternetHospitalException(ExceptionConstants.UPDATE_DOCTOR_FAIL);
+        }
     }
 
 
     private String getDoctorImgPath(Integer imgId) {
         Img img = imgMapper.selectByPrimaryKey(imgId);
         return ImgUtil.imgPathGenerate(img);
+    }
+
+    /**
+     * 是否有未结束的医生排班在该医生下
+     *
+     * @param doctorId 医生id
+     */
+    private void isHasNotEndScheduleDoctor(Integer doctorId) {
+        Example example = new Example(ScheduleDoctor.class);
+        example.createCriteria().andEqualTo("doctorId", doctorId).
+                andNotEqualTo("isStart", 2).andEqualTo("isDelete", 0);
+        if (scheduleDoctorMapper.selectByExample(example).size() != 0) {
+            throw new InternetHospitalException(ExceptionConstants.DOCTOR_HAS_NOT_END_SCHEDULE);
+        }
     }
 }

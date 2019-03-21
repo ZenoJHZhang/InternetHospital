@@ -1,6 +1,7 @@
 package com.zjh.internethospitalservice.controller.management;
 
 import com.github.pagehelper.PageInfo;
+import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.service.management.ManagementDepartmentService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
@@ -12,6 +13,8 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.regex.Pattern;
 
 /**
  * 类的说明
@@ -102,6 +105,7 @@ public class ManagementDepartmentController {
     }
 
     private String judgeDepartment(Department department) {
+        String phonePattern = Constants.PHONE_PATTERN;
         String message;
         String departmentName = department.getDepartmentName();
         String departmentNumber = department.getDepartmentNumber();
@@ -126,6 +130,18 @@ public class ManagementDepartmentController {
         }
         if (phone == null) {
             message = "科室联系电话不得为空";
+            return message;
+        }
+        if (Pattern.matches(phonePattern, phone)) {
+            message = "科室手机号格式不符";
+            return message;
+        }
+        if (departmentName.length() > 10 || departmentName.length() < 2) {
+            message = "科室名长度在2到10个字符";
+            return message;
+        }
+        if (departmentNumber.length() > 10) {
+            message = "科室编号不得大于10个字符";
             return message;
         } else {
             return null;

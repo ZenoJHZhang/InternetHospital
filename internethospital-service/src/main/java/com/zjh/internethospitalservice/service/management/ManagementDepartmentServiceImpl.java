@@ -108,8 +108,15 @@ public class ManagementDepartmentServiceImpl implements ManagementDepartmentServ
 
     @Override
     public Department getDepartmentById(Integer departmentId) {
-        Department department = departmentMapper.selectByPrimaryKey(departmentId);
-        department.setImgPath(getDepartmentImgPath(department.getImgId()));
+        Example example = new Example(Department.class);
+        example.createCriteria().andEqualTo("id",departmentId).andEqualTo("isDelete",0);
+        Department department = departmentMapper.selectOneByExample(example);
+        if (department == null){
+            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
+        }
+        else {
+            department.setImgPath(getDepartmentImgPath(department.getImgId()));
+        }
         return department;
     }
 
@@ -192,7 +199,7 @@ public class ManagementDepartmentServiceImpl implements ManagementDepartmentServ
         example.createCriteria().andEqualTo("departmentId", departmentId).
                 andNotEqualTo("isStart", 2).andEqualTo("isDelete", 0);
         if (scheduleDoctorMapper.selectByExample(example).size() != 0) {
-            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_HAS_STARTING_SCHEDULE);
+            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_HAS_NOT_END_SCHEDULE);
         }
     }
 

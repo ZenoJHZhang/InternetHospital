@@ -19,20 +19,17 @@ public interface ManagementDoctorService {
      * 新增医生
      *
      * @param doctor 医生
+     * @return 医生id
      */
-    void insertDoctor(Doctor doctor);
+    Integer insertDoctor(Doctor doctor);
 
     /**
-     * 有选择性的更新医生
-     *
-     * @param doctorId 医生id
-     * @param doctorNumber 医生工号
-     * @param phone 医生手机号
-     * @param doctorTitle 医生职称
-     * @param imgId 医生头像图片id
-     * @param goodAt 医生擅长
+     * 更新医生
+     * 重复医生信息或医生下有排班（即 isStart ！= 2）不可更新
+     * @param doctor 医生信息
+     * @return doctorId
      */
-    void updateDoctorSelective(Integer doctorId,String doctorNumber,String phone,String doctorTitle,Integer imgId,String goodAt);
+    Integer updateDoctorSelective(Doctor doctor);
 
     /**
      * 删除医生并删除对应user
@@ -44,23 +41,12 @@ public interface ManagementDoctorService {
     void deleteDoctor(Integer doctorId);
 
     /**
-     * 根据id获取医生信息
+     * 根据id获取医生信息以及所属的科室信息
      *
      * @param doctorId 医生id
      * @return Doctor
      */
     Doctor getDoctorById(Integer doctorId);
-
-    /**
-     * 判断是否为重复医生
-     * 由手机号，工号和身份证号判断
-     *
-     * @param doctorNumber 医生工号
-     * @param doctorPhone  医生手机号
-     * @param doctorIdCard 医生身份证号
-     * @param doctorId     医生id
-     */
-    void isSameDoctor(String doctorNumber, String doctorPhone, String doctorIdCard, Integer doctorId);
 
     /**
      * 根据科室id获取医生列表
@@ -86,4 +72,11 @@ public interface ManagementDoctorService {
      * @return 科室列表信息
      */
     List<Department> listDepartmentListByDoctorId(Integer doctorId);
+
+    /**
+     * 更新医生头像
+     * @param doctorId 医生id
+     * @param imgId 头像图片id
+     */
+    void updateDoctorImg(Integer doctorId,Integer imgId);
 }

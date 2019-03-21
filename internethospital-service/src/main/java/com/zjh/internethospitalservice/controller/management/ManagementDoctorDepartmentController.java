@@ -32,14 +32,4 @@ public class ManagementDoctorDepartmentController {
     public ManagementDoctorDepartmentController(ManagementDoctorDepartmentService managementDoctorDepartmentService) {
         this.managementDoctorDepartmentService = managementDoctorDepartmentService;
     }
-
-    @ApiOperation(value = "为医生添加一个或多个科室")
-    @PostMapping("/updateDoctorIntoDepartment")
-    public ResponseEntity<ApiResponse> updateDoctorIntoDepartment(
-            @ApiParam(value = "医生id",required = true,example = "1") @RequestParam Integer doctorId,
-            @ApiParam(value = "科室id列表",required = true) @RequestParam List<Integer> departmentIdList
-            ){
-        managementDoctorDepartmentService.updateDoctorDepartment(doctorId,departmentIdList);
-        return ApiResponse.successResponse(null);
-    }
 }

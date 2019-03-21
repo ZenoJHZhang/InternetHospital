@@ -62,7 +62,8 @@ public class ExceptionConstants {
     public static final String INSERT_MEDICAL_FAIL = "添加药品失败，请稍后再试";
     public static final String DELETE_MEDICAL_FAIL = "删除药品失败，请稍后再试";
     public static final String MEDICAL_NOT_EXIST = "药品不存在";
-    public static final String DEPARTMENT_HAS_STARTING_SCHEDULE = "科室内有未结束的排班，修改失败";
+    public static final String DEPARTMENT_HAS_NOT_END_SCHEDULE = "科室内有未结束的排班，修改失败";
     public static final String SAME_DEPARTMENT = "重复科室信息，请修改后再试";
     public static final String DEPARTMENT_HAS_DOCTOR = "科室内已有医生，删除失败！";
+    public static final String DOCTOR_HAS_NOT_END_SCHEDULE = "医生有未结束的排班，修改失败";
 }

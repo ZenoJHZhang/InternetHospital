@@ -9,6 +9,8 @@ import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.entity.Doctor;
 import com.zjh.internethospitalapi.entity.ScheduleDepartment;
 import com.zjh.internethospitalapi.entity.ScheduleDoctor;
+import com.zjh.internethospitalapi.service.management.ManagementDepartmentService;
+import com.zjh.internethospitalapi.service.management.ManagementDoctorService;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDoctorService;
 import com.zjh.internethospitalservice.mapper.DepartmentMapper;
 import com.zjh.internethospitalservice.mapper.DoctorMapper;
@@ -34,31 +36,24 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     private final ScheduleDoctorMapper scheduleDoctorMapper;
     private final DoctorMapper doctorMapper;
     private final DepartmentMapper departmentMapper;
+    private final ManagementDoctorService managementDoctorService;
+    private final ManagementDepartmentService managementDepartmentService;
 
     @Autowired
-    public ManagementScheduleDoctorServiceImpl(ScheduleDoctorMapper scheduleDoctorMapper, DoctorMapper doctorMapper, DepartmentMapper departmentMapper) {
+    public ManagementScheduleDoctorServiceImpl(ScheduleDoctorMapper scheduleDoctorMapper, DoctorMapper doctorMapper, DepartmentMapper departmentMapper, ManagementDoctorService managementDoctorService, ManagementDepartmentService managementDepartmentService) {
         this.scheduleDoctorMapper = scheduleDoctorMapper;
         this.doctorMapper = doctorMapper;
         this.departmentMapper = departmentMapper;
+        this.managementDoctorService = managementDoctorService;
+        this.managementDepartmentService = managementDepartmentService;
     }
 
     @Override
     public Integer insertNormalScheduleDoctor(Integer scheduleDepartmentId, Integer departmentId, Integer doctorId,
                                               String timeInterval, String scheduleTime, Integer totalNumber) {
         ScheduleDoctor scheduleDoctor = new ScheduleDoctor();
-        Example departmentExample = new Example(Department.class);
-        departmentExample.createCriteria().andEqualTo("id",departmentId).andEqualTo("isDelete",0);
-        Department department = departmentMapper.selectOneByExample(departmentExample);
-        if (department == null) {
-            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
-        }
-        Example example = new Example(Doctor.class);
-        example.createCriteria().andEqualTo("id",doctorId)
-                .andEqualTo("isDelete",0);
-        Doctor doctor = doctorMapper.selectOneByExample(example);
-        if (doctor == null) {
-            throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
-        }
+        Department department = managementDepartmentService.getDepartmentById(departmentId);
+        Doctor doctor = managementDoctorService.getDoctorById(doctorId);
         scheduleDoctor.setScheduleTime(scheduleTime);
         scheduleDoctor.setScheduleDepartmentId(scheduleDepartmentId);
         scheduleDoctor.setDepartmentName(department.getDepartmentName());
@@ -82,7 +77,7 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         int doctorTotalNumber = totalNumber / size;
         int lastDoctorTotalNumber = totalNumber - (size - 1) * doctorTotalNumber;
         for (int i = 0; i < size; i++) {
-            Integer averageNumber;
+            int averageNumber;
             if (i == (size - 1)) {
                 averageNumber = lastDoctorTotalNumber;
             } else {
@@ -102,23 +97,11 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         if (getScheduleDoctorByDoctorIdAndScheduleTimeAndType(doctorId, scheduleTime, Integer.valueOf(Constants.ONE)) != null) {
             throw new InternetHospitalException(ExceptionConstants.SAME_SCHEDULE_DOCTOR);
         }
-        Example departmentExample = new Example(Department.class);
-        departmentExample.createCriteria().andEqualTo("id",departmentId)
-                .andEqualTo("isDelete",0);
-        Department department = departmentMapper.selectOneByExample(departmentExample);
-        if (department == null) {
-            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
-        }
+        Department department = managementDepartmentService.getDepartmentById(departmentId);
         if (!department.getDeptType().equals(Integer.valueOf(Constants.ONE))) {
             throw new InternetHospitalException(ExceptionConstants.NOT_EXPERT_DEPARTMENT);
         }
-        Example example = new Example(Doctor.class);
-        example.createCriteria().andEqualTo("id",doctorId)
-                .andEqualTo("isDelete",0);
-        Doctor doctor = doctorMapper.selectOneByExample(example);
-        if (doctor == null) {
-            throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
-        }
+        Doctor doctor = managementDoctorService.getDoctorById(doctorId);
         ScheduleDoctor scheduleDoctor = new ScheduleDoctor();
         scheduleDoctor.setScheduleTime(scheduleTime);
         scheduleDoctor.setDepartmentName(department.getDepartmentName());
@@ -163,7 +146,7 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     public void deleteScheduleDoctorById(Integer scheduleDoctorId) {
         Example example = new Example(ScheduleDoctor.class);
         example.createCriteria().andEqualTo("id", scheduleDoctorId)
-                .andEqualTo("isStart",0);
+                .andEqualTo("isStart", 0);
         int i = scheduleDoctorMapper.deleteByExample(example);
         if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_NOT_EXIST);
@@ -174,19 +157,19 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     public Integer deleteScheduleDoctorByScheduleDepartmentId(Integer scheduleDepartmentId) {
         Example example = new Example(ScheduleDoctor.class);
         example.createCriteria().andEqualTo("scheduleDepartmentId", scheduleDepartmentId)
-                .andEqualTo("isStart",0);
+                .andEqualTo("isStart", 0);
         return scheduleDoctorMapper.deleteByExample(example);
     }
 
     @Override
     public PageInfo<ScheduleDoctor> listScheduleDoctorOfTimeInterval(
-            Integer departmentId, String scheduleTime, String timeInterval,Integer type, Integer pageNumber, Integer pageSize) {
+            Integer departmentId, String scheduleTime, String timeInterval, Integer type, Integer pageNumber, Integer pageSize) {
 
         ScheduleDoctor scheduleDoctor = new ScheduleDoctor();
         scheduleDoctor.setType(type);
         scheduleDoctor.setDepartmentId(departmentId);
         scheduleDoctor.setScheduleTime(scheduleTime);
-        PageHelper.startPage(pageNumber,pageSize);
+        PageHelper.startPage(pageNumber, pageSize);
         List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.
                 select(setScheduleDoctorTotalNumberByTimeInterval(scheduleDoctor, timeInterval, null));
         return new PageInfo<>(scheduleDoctorList);
@@ -206,13 +189,14 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         scheduleDoctor.setIsStart(1);
         LocalDate date = LocalDate.now();
         Example example = new Example(ScheduleDepartment.class);
-        example.createCriteria().andEqualTo("scheduleTime",date.toString());
-        scheduleDoctorMapper.updateByExampleSelective(scheduleDoctor,example);
+        example.createCriteria().andEqualTo("scheduleTime", date.toString());
+        scheduleDoctorMapper.updateByExampleSelective(scheduleDoctor, example);
     }
 
     /**
      * 根据排班时段设置对应时段号源总数
      * ps：号源数为0时，仅设置医生排班时段
+     *
      * @param scheduleDoctor 医生排班
      * @param timeInterval   排班时段
      * @param totalNumber    号源数

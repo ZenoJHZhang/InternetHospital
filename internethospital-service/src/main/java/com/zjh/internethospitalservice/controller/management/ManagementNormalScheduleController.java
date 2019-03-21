@@ -59,7 +59,7 @@ public class ManagementNormalScheduleController {
         int doctorTotalNumber = totalNumber / size;
         int lastDoctorTotalNumber = totalNumber - (size - 1) * doctorTotalNumber;
         for (int i = 0; i < size; i++) {
-            Integer averageNumber;
+            int averageNumber;
             if (i == (size - 1)) {
                 averageNumber = lastDoctorTotalNumber;
             } else {
