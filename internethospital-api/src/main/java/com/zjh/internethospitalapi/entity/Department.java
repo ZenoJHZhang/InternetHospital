@@ -42,12 +42,6 @@ public class Department {
     private Integer imgId;
 
     /**
-     * 科室人数
-     */
-    @Column(name = "count_of_people")
-    private Integer countOfPeople;
-
-    /**
      * 科室挂号价格
      */
     private String price;

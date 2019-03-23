@@ -121,4 +121,11 @@ public class ScheduleDepartment {
      */
     private Integer isStart;
 
+    /**
+     * 排班时段具体描述
+     * 上午 下午 晚上
+     */
+    @Transient
+    private String timeInterval;
+
 }

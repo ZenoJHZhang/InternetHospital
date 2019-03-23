@@ -1,6 +1,7 @@
 package com.zjh.internethospitalservice.controller.management;
 
 import com.github.pagehelper.PageInfo;
+import com.zjh.internethospitalapi.dto.ScheduleDepartmentDto;
 import com.zjh.internethospitalapi.entity.Doctor;
 import com.zjh.internethospitalapi.entity.ScheduleDepartment;
 import com.zjh.internethospitalapi.service.management.ManagementDoctorDepartmentService;
@@ -89,23 +90,20 @@ public class ManagementNormalScheduleController {
     @PostMapping("/delete")
     @ApiOperation("删除科室排班")
     public ResponseEntity<ApiResponse> delete(
-            @ApiParam(value = "科室排班id", required = true, example = "1") @RequestParam Integer scheduleDepartmentId) {
-        managementScheduleDepartmentService.deleteScheduleDepartmentById(scheduleDepartmentId);
-        Integer count = managementScheduleDoctorService.deleteScheduleDoctorByScheduleDepartmentId(scheduleDepartmentId);
-        return ApiResponse.successResponse(count);
+            @ApiParam(value = "科室排班id", required = true, example = "1") @RequestParam Integer scheduleDepartmentId,
+            @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval) {
+        managementScheduleDepartmentService.deleteScheduleDepartmentByIdWithTimeInterval(scheduleDepartmentId,timeInterval);
+        managementScheduleDoctorService.deleteScheduleDoctorByScheduleDepartmentIdWithTimeInterval(scheduleDepartmentId,timeInterval);
+        return ApiResponse.successResponse(null);
     }
 
     @PostMapping("/list")
-    @ApiOperation("分页获取科室排班")
+    @ApiOperation("根据排班日期获取对应科室排班")
     public ResponseEntity<ApiResponse> list(
             @ApiParam(value = "科室id", required = true, example = "1") @RequestParam Integer departmentId,
-            @ApiParam(value = "排班时间", required = true) @RequestParam String scheduleTime,
-            @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval,
-            @ApiParam(value = "页码", required = true, example = "1") @RequestParam Integer pageNumber,
-            @ApiParam(value = "页容量", required = true, example = "1") @RequestParam Integer pageSize
-    ) {
-        PageInfo<ScheduleDepartment> scheduleDepartmentPageInfo = managementScheduleDepartmentService.
-                listScheduleDepartmentOfTimeInterval(departmentId, scheduleTime, timeInterval, pageNumber, pageSize);
-        return ApiResponse.successResponse(scheduleDepartmentPageInfo);
+            @ApiParam(value = "排班时间", required = true) @RequestParam String scheduleTime) {
+        List<ScheduleDepartmentDto> scheduleDepartmentDtoList = managementScheduleDepartmentService.
+                listScheduleDepartmentOfScheduleTime(departmentId, scheduleTime);
+        return ApiResponse.successResponse(scheduleDepartmentDtoList);
     }
 }

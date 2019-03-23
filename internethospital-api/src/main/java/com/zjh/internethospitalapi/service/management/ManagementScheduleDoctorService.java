@@ -74,11 +74,11 @@ public interface ManagementScheduleDoctorService {
     void deleteScheduleDoctorById(Integer scheduleDoctorId);
 
     /**
-     * 通过科室排班id删除医生排班
+     * 通过科室排班id以及时段更改医生排班
+     * 如果三个时段都没排班，则删除
      * @param scheduleDepartmentId 科室排班id
-     * @return 删除的医生排班数量
      */
-    Integer deleteScheduleDoctorByScheduleDepartmentId(Integer scheduleDepartmentId);
+    void deleteScheduleDoctorByScheduleDepartmentIdWithTimeInterval(Integer scheduleDepartmentId,String timeInterval);
 
     /**
      * 通过科室id，排班时间，排班时段分页获取医生排班

@@ -77,6 +77,10 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         int doctorTotalNumber = totalNumber / size;
         int lastDoctorTotalNumber = totalNumber - (size - 1) * doctorTotalNumber;
         for (int i = 0; i < size; i++) {
+            //医生排班已开始，无法更新
+            if (scheduleDoctorList.get(i).getIsStart() == 1) {
+                throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_HAS_STARTED);
+            }
             int averageNumber;
             if (i == (size - 1)) {
                 averageNumber = lastDoctorTotalNumber;
@@ -118,10 +122,7 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
 
     @Override
     public void updateExpertScheduleDoctor(Integer scheduleDoctorId, String timeInterval, Integer totalNumber) {
-        ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(scheduleDoctorId);
-        if (scheduleDoctor == null) {
-            throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_NOT_EXIST);
-        }
+        ScheduleDoctor scheduleDoctor = isScheduleDoctorStarting(scheduleDoctorId);
         //判断是否为专家医生排班
         if (!scheduleDoctor.getType().equals(Integer.valueOf(Constants.ONE))) {
             throw new InternetHospitalException(ExceptionConstants.NOT_EXPERT_SCHEDULE_DOCTOR);
@@ -154,11 +155,40 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     }
 
     @Override
-    public Integer deleteScheduleDoctorByScheduleDepartmentId(Integer scheduleDepartmentId) {
+    public void deleteScheduleDoctorByScheduleDepartmentIdWithTimeInterval(Integer scheduleDepartmentId,String timeInterval) {
         Example example = new Example(ScheduleDoctor.class);
-        example.createCriteria().andEqualTo("scheduleDepartmentId", scheduleDepartmentId)
-                .andEqualTo("isStart", 0);
-        return scheduleDoctorMapper.deleteByExample(example);
+        example.createCriteria().andEqualTo("scheduleDepartmentId", scheduleDepartmentId);
+        List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
+        for (ScheduleDoctor scheduleDoctor:scheduleDoctorList
+             ) {
+            if(scheduleDoctor.getIsStart() != 0){
+                throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_HAS_STARTED);
+            }
+            switch (timeInterval) {
+                case Constants.MORNING:
+                        scheduleDoctor.setDoctorMorningHas(Constants.ZERO);
+                    scheduleDoctor.setDoctorMorningTotalNumber(0);
+                    break;
+                case Constants.AFTERNOON:
+                    scheduleDoctor.setDoctorAfternoonHas(Constants.ZERO);
+                    scheduleDoctor.setDoctorAfternoonTotalNumber(0);
+                    break;
+                default:
+                    scheduleDoctor.setDoctorNightHas(Constants.ZERO);
+                    scheduleDoctor.setDoctorNightTotalNumber(0);
+                    break;
+            }
+            scheduleDoctor.setUpdateTime(new Date());
+            if(scheduleDoctor.getDoctorMorningHas().equals(Constants.ZERO) &&
+                    scheduleDoctor.getDoctorAfternoonHas().equals(Constants.ZERO) &&
+                    scheduleDoctor.getDoctorNightHas().equals(Constants.ZERO)){
+                scheduleDoctorMapper.deleteByPrimaryKey(scheduleDoctor.getId());
+            }
+            else {
+                scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
+            }
+        }
+
     }
 
     @Override
@@ -223,6 +253,23 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
                     scheduleDoctor.setDoctorNightTotalNumber(totalNumber);
                 }
                 break;
+        }
+        return scheduleDoctor;
+    }
+
+    /**
+     * 判断医生排班是否存在以及是否已经开始
+     *
+     * @param scheduleDoctorId 医生排班id
+     * @return 科室排班
+     */
+    private ScheduleDoctor isScheduleDoctorStarting(Integer scheduleDoctorId) {
+        ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(scheduleDoctorId);
+        if (scheduleDoctor == null) {
+            throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_NOT_EXIST);
+        }
+        if (scheduleDoctor.getIsStart() == 1) {
+            throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_HAS_STARTED);
         }
         return scheduleDoctor;
     }

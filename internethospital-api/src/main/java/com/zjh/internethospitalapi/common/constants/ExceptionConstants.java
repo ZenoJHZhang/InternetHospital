@@ -28,7 +28,7 @@ public class ExceptionConstants {
     public static final String UPDATE_SCHEDULE_DEPARTMENT_FAIL = "更新科室排班失败,请稍后再试";
     public static final String ERROR_TIME_INTERVAL ="排班时段不存在";
     public static final String SAME_SCHEDULE_DOCTOR = "当日、该时段此医生此排班情况已存在，请更改排班时段或更改此时段号源总数，谢谢。";
-    public static final String SAME_SCHEDULE_DEPARTMENT = "当日、该时段此科室此排班情况已存在，请更改排班时段或更改此时段号源总数，谢谢。";
+    public static final String SAME_SCHEDULE_DEPARTMENT = "当日、该时段此科室已排班，请勿重复排班。";
     public static final String SCHEDULE_DEPARTMENT_NOT_EXIST ="科室排班不存在";
     public static final String SCHEDULE_DOCTOR_NOT_EXIST = "医生排班不存在";
     public static final String DELETE_SCHEDULE_DEPARTMENT_FAIL = "删除科室排班失败，请稍后再试";
@@ -55,8 +55,8 @@ public class ExceptionConstants {
     public static final String DOCTOR_HAS_SCHEDULE = "删除医生失败，此医生仍有排班工作，请删除此医生排班后，再删除医生";
     public static final String DELETE_USER_FAIL = "删除用户失败，请稍后再试";
     public static final String PATIENT_NOT_EXIST = "病人不存在";
-    public static final String SCHEDULE_DEPARTMENT_HAS_STARTED = "此科室排班已开始，无法删除";
-    public static final String SCHEDULE_DOCTOR_HAS_STARTED = "此医生排班已开始，无法删除";
+    public static final String SCHEDULE_DEPARTMENT_HAS_STARTED = "此科室排班已开始，修改失败";
+    public static final String SCHEDULE_DOCTOR_HAS_STARTED = "此医生排班已开始，修改失败";
     public static final String SAME_MEDICAL = "此药品已在库中";
     public static final String UPDATE_MEDICAL_FAIL = "更新药品失败，请稍后再试";
     public static final String INSERT_MEDICAL_FAIL = "添加药品失败，请稍后再试";
