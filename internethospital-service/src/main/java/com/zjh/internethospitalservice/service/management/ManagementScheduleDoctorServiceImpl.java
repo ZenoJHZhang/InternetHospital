@@ -5,6 +5,9 @@ import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
+import com.zjh.internethospitalapi.dto.ExpertScheduleDto;
+import com.zjh.internethospitalapi.dto.ScheduleDoctorDto;
+import com.zjh.internethospitalapi.dto.TodayScheduleDoctorDto;
 import com.zjh.internethospitalapi.entity.Department;
 import com.zjh.internethospitalapi.entity.Doctor;
 import com.zjh.internethospitalapi.entity.ScheduleDepartment;
@@ -20,7 +23,9 @@ import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -155,18 +160,18 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     }
 
     @Override
-    public void deleteScheduleDoctorByScheduleDepartmentIdWithTimeInterval(Integer scheduleDepartmentId,String timeInterval) {
+    public void deleteScheduleDoctorByScheduleDepartmentIdWithTimeInterval(Integer scheduleDepartmentId, String timeInterval) {
         Example example = new Example(ScheduleDoctor.class);
         example.createCriteria().andEqualTo("scheduleDepartmentId", scheduleDepartmentId);
         List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
-        for (ScheduleDoctor scheduleDoctor:scheduleDoctorList
-             ) {
-            if(scheduleDoctor.getIsStart() != 0){
+        for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
+        ) {
+            if (scheduleDoctor.getIsStart() != 0) {
                 throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_HAS_STARTED);
             }
             switch (timeInterval) {
                 case Constants.MORNING:
-                        scheduleDoctor.setDoctorMorningHas(Constants.ZERO);
+                    scheduleDoctor.setDoctorMorningHas(Constants.ZERO);
                     scheduleDoctor.setDoctorMorningTotalNumber(0);
                     break;
                 case Constants.AFTERNOON:
@@ -179,12 +184,11 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
                     break;
             }
             scheduleDoctor.setUpdateTime(new Date());
-            if(scheduleDoctor.getDoctorMorningHas().equals(Constants.ZERO) &&
+            if (scheduleDoctor.getDoctorMorningHas().equals(Constants.ZERO) &&
                     scheduleDoctor.getDoctorAfternoonHas().equals(Constants.ZERO) &&
-                    scheduleDoctor.getDoctorNightHas().equals(Constants.ZERO)){
+                    scheduleDoctor.getDoctorNightHas().equals(Constants.ZERO)) {
                 scheduleDoctorMapper.deleteByPrimaryKey(scheduleDoctor.getId());
-            }
-            else {
+            } else {
                 scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
             }
         }
@@ -192,17 +196,58 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     }
 
     @Override
-    public PageInfo<ScheduleDoctor> listScheduleDoctorOfTimeInterval(
-            Integer departmentId, String scheduleTime, String timeInterval, Integer type, Integer pageNumber, Integer pageSize) {
-
-        ScheduleDoctor scheduleDoctor = new ScheduleDoctor();
-        scheduleDoctor.setType(type);
-        scheduleDoctor.setDepartmentId(departmentId);
-        scheduleDoctor.setScheduleTime(scheduleTime);
-        PageHelper.startPage(pageNumber, pageSize);
-        List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.
-                select(setScheduleDoctorTotalNumberByTimeInterval(scheduleDoctor, timeInterval, null));
-        return new PageInfo<>(scheduleDoctorList);
+    public ExpertScheduleDto listScheduleDoctorByScheduleTimeOfType(
+            Integer departmentId, String scheduleTime, Integer type) {
+        //首先查出属于这个专家科室的医生列表
+        Department department = departmentMapper.selectByPrimaryKey(departmentId);
+        if (department == null) {
+            throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_NOT_EXIST);
+        }
+        if (department.getDeptType() != 1) {
+            throw new InternetHospitalException(ExceptionConstants.NOT_EXPERT_DEPARTMENT);
+        }
+        ExpertScheduleDto expertScheduleDto = new ExpertScheduleDto();
+        List<TodayScheduleDoctorDto> todayScheduleDoctorDtoList = new LinkedList<>();
+        List<Doctor> doctorList = managementDoctorService.listDoctorByDepartmentId(departmentId);
+        for (Doctor doctor : doctorList
+        ) {
+            TodayScheduleDoctorDto todayScheduleDoctorDto = new TodayScheduleDoctorDto();
+            List<ScheduleDoctorDto> scheduleDoctorDtoList = new LinkedList<>();
+            //同一排班日期，同一医生的专家排班只能有一个
+            Example example = new Example(ScheduleDoctor.class);
+            example.createCriteria().andEqualTo("doctorId", doctor.getId()).andEqualTo("scheduleTime", scheduleTime).andEqualTo("type", type);
+            ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectOneByExample(example);
+            if (scheduleDoctor != null) {
+                if (scheduleDoctor.getDoctorMorningHas().equals(Constants.ONE)) {
+                    ScheduleDoctorDto scheduleDoctorDto = new ScheduleDoctorDto();
+                    scheduleDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
+                    scheduleDoctorDto.setScheduleTime(scheduleTime);
+                    scheduleDoctorDto.setTimeInterval(Constants.MORNING);
+                    scheduleDoctorDto.setTotalNumber(scheduleDoctor.getDoctorMorningTotalNumber());
+                    scheduleDoctorDtoList.add(scheduleDoctorDto);
+                } if (scheduleDoctor.getDoctorAfternoonHas().equals(Constants.ONE)) {
+                    ScheduleDoctorDto scheduleDoctorDto = new ScheduleDoctorDto();
+                    scheduleDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
+                    scheduleDoctorDto.setScheduleTime(scheduleTime);
+                    scheduleDoctorDto.setTimeInterval(Constants.AFTERNOON);
+                    scheduleDoctorDto.setTotalNumber(scheduleDoctor.getDoctorAfternoonTotalNumber());
+                    scheduleDoctorDtoList.add(scheduleDoctorDto);
+                } if(scheduleDoctor.getDoctorNightHas().equals(Constants.ONE)) {
+                    ScheduleDoctorDto scheduleDoctorDto = new ScheduleDoctorDto();
+                    scheduleDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
+                    scheduleDoctorDto.setScheduleTime(scheduleTime);
+                    scheduleDoctorDto.setTimeInterval(Constants.NIGHT);
+                    scheduleDoctorDto.setTotalNumber(scheduleDoctor.getDoctorNightTotalNumber());
+                    scheduleDoctorDtoList.add(scheduleDoctorDto);
+                }
+            }
+            todayScheduleDoctorDto.setScheduleDoctorDtoList(scheduleDoctorDtoList);
+            todayScheduleDoctorDto.setDoctorId(doctor.getId());
+            todayScheduleDoctorDto.setDoctorName(doctor.getDoctorName());
+            todayScheduleDoctorDtoList.add(todayScheduleDoctorDto);
+        }
+        expertScheduleDto.setTodayScheduleDoctorDtoList(todayScheduleDoctorDtoList);
+        return expertScheduleDto;
     }
 
     @Override

@@ -1,7 +1,10 @@
 package com.zjh.internethospitalapi.service.management;
 
 import com.github.pagehelper.PageInfo;
+import com.zjh.internethospitalapi.dto.ExpertScheduleDto;
 import com.zjh.internethospitalapi.entity.ScheduleDoctor;
+
+import java.util.List;
 
 /**
  * 类的说明
@@ -81,17 +84,14 @@ public interface ManagementScheduleDoctorService {
     void deleteScheduleDoctorByScheduleDepartmentIdWithTimeInterval(Integer scheduleDepartmentId,String timeInterval);
 
     /**
-     * 通过科室id，排班时间，排班时段分页获取医生排班
+     * 通过科室id，排班时间，医生排班类型获取医生排班
      * @param departmentId 科室id
      * @param scheduleTime 医生排班时间
-     * @param timeInterval 医生排班时段
      * @param type 医生排班类型
-     * @param pageNumber 页码
-     * @param pageSize 页容量
-     * @return 医生排班页表
+     * @return 该科室下当日医生排班
      */
-    PageInfo<ScheduleDoctor> listScheduleDoctorOfTimeInterval(
-            Integer departmentId,String scheduleTime,String timeInterval,Integer type,Integer pageNumber,Integer pageSize);
+    ExpertScheduleDto listScheduleDoctorByScheduleTimeOfType(
+            Integer departmentId,String scheduleTime,Integer type);
 
     /**
      * 通过科室排班id获取医生排班数量
