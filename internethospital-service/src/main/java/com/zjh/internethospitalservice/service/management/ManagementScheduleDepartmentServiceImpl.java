@@ -121,8 +121,9 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
 
 
     @Override
-    public void deleteScheduleDepartmentByIdWithTimeInterval(Integer scheduleDepartmentId, String timeInterval) {
+    public Integer deleteScheduleDepartmentByIdWithTimeInterval(Integer scheduleDepartmentId, String timeInterval) {
         ScheduleDepartment scheduleDepartment = isScheduleDepartmentStarting(scheduleDepartmentId);
+        Integer departmentId = scheduleDepartment.getDepartmentId();
         switch (timeInterval) {
             case Constants.MORNING:
                 scheduleDepartment.setMorningHas(Constants.ZERO);
@@ -146,6 +147,7 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
         } else {
             scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
         }
+        return departmentId;
     }
 
     @Override

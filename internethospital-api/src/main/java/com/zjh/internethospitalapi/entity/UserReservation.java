@@ -9,6 +9,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
 import java.util.Date;
+import java.util.List;
 
 @Data
 @Table(name = "user_reservation")
@@ -255,6 +256,8 @@ public class UserReservation {
     @Column(name = "condition_desc")
     private String conditionDesc;
 
+    private Integer isDelete;
+
     @Transient
     private Patient patient;
 
@@ -276,5 +279,15 @@ public class UserReservation {
     @Transient
     private String payStateDescription;
 
-    private Integer isDelete;
+    @Transient
+    private List<String> imgPathList;
+
+    @Transient
+    private String patientSex;
+
+    /**
+     * 总状态描述
+     */
+    @Transient
+    private String statusDescription;
 }

@@ -216,7 +216,7 @@ public class UserReservationServiceImpl implements UserReservationService {
             for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
                     ) {
                 DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
-                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorMorningNumber());
+                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorMorningNumber()+1);
                 dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorMorningTotalNumber());
                 dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
                 dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
@@ -230,7 +230,7 @@ public class UserReservationServiceImpl implements UserReservationService {
             for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
                     ) {
                 DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
-                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorAfternoonNumber());
+                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorAfternoonNumber()+1);
                 dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorAfternoonTotalNumber());
                 dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
                 dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
@@ -244,7 +244,7 @@ public class UserReservationServiceImpl implements UserReservationService {
             for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
                     ) {
                 DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
-                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorNightNumber());
+                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorNightNumber()+1);
                 dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorNightTotalNumber());
                 dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
                 dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());

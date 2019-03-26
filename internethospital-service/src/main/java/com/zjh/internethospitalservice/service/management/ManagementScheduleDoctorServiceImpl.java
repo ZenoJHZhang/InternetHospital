@@ -1,7 +1,5 @@
 package com.zjh.internethospitalservice.service.management;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
@@ -17,13 +15,13 @@ import com.zjh.internethospitalapi.service.management.ManagementDoctorService;
 import com.zjh.internethospitalapi.service.management.ManagementScheduleDoctorService;
 import com.zjh.internethospitalservice.mapper.DepartmentMapper;
 import com.zjh.internethospitalservice.mapper.DoctorMapper;
+import com.zjh.internethospitalservice.mapper.ScheduleDepartmentMapper;
 import com.zjh.internethospitalservice.mapper.ScheduleDoctorMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
@@ -43,14 +41,16 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     private final DepartmentMapper departmentMapper;
     private final ManagementDoctorService managementDoctorService;
     private final ManagementDepartmentService managementDepartmentService;
+    private final ScheduleDepartmentMapper scheduleDepartmentMapper;
 
     @Autowired
-    public ManagementScheduleDoctorServiceImpl(ScheduleDoctorMapper scheduleDoctorMapper, DoctorMapper doctorMapper, DepartmentMapper departmentMapper, ManagementDoctorService managementDoctorService, ManagementDepartmentService managementDepartmentService) {
+    public ManagementScheduleDoctorServiceImpl(ScheduleDoctorMapper scheduleDoctorMapper, DoctorMapper doctorMapper, DepartmentMapper departmentMapper, ManagementDoctorService managementDoctorService, ManagementDepartmentService managementDepartmentService, ScheduleDepartmentMapper scheduleDepartmentMapper) {
         this.scheduleDoctorMapper = scheduleDoctorMapper;
         this.doctorMapper = doctorMapper;
         this.departmentMapper = departmentMapper;
         this.managementDoctorService = managementDoctorService;
         this.managementDepartmentService = managementDepartmentService;
+        this.scheduleDepartmentMapper = scheduleDepartmentMapper;
     }
 
     @Override
@@ -149,50 +149,20 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
     }
 
     @Override
-    public void deleteScheduleDoctorById(Integer scheduleDoctorId) {
-        Example example = new Example(ScheduleDoctor.class);
-        example.createCriteria().andEqualTo("id", scheduleDoctorId)
-                .andEqualTo("isStart", 0);
-        int i = scheduleDoctorMapper.deleteByExample(example);
-        if (i != 1) {
-            throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_NOT_EXIST);
-        }
-    }
-
-    @Override
-    public void deleteScheduleDoctorByScheduleDepartmentIdWithTimeInterval(Integer scheduleDepartmentId, String timeInterval) {
-        Example example = new Example(ScheduleDoctor.class);
-        example.createCriteria().andEqualTo("scheduleDepartmentId", scheduleDepartmentId);
-        List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
-        for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
-        ) {
-            if (scheduleDoctor.getIsStart() != 0) {
-                throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_HAS_STARTED);
-            }
-            switch (timeInterval) {
-                case Constants.MORNING:
-                    scheduleDoctor.setDoctorMorningHas(Constants.ZERO);
-                    scheduleDoctor.setDoctorMorningTotalNumber(0);
-                    break;
-                case Constants.AFTERNOON:
-                    scheduleDoctor.setDoctorAfternoonHas(Constants.ZERO);
-                    scheduleDoctor.setDoctorAfternoonTotalNumber(0);
-                    break;
-                default:
-                    scheduleDoctor.setDoctorNightHas(Constants.ZERO);
-                    scheduleDoctor.setDoctorNightTotalNumber(0);
-                    break;
-            }
-            scheduleDoctor.setUpdateTime(new Date());
-            if (scheduleDoctor.getDoctorMorningHas().equals(Constants.ZERO) &&
-                    scheduleDoctor.getDoctorAfternoonHas().equals(Constants.ZERO) &&
-                    scheduleDoctor.getDoctorNightHas().equals(Constants.ZERO)) {
-                scheduleDoctorMapper.deleteByPrimaryKey(scheduleDoctor.getId());
-            } else {
-                scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
+    public void deleteScheduleDoctorByScheduleDepartmentIdWithTimeInterval(Integer scheduleDoctorId, String timeInterval,
+                                                                           Integer type, Integer scheduleDepartmentId) {
+        if (type.equals(0)){
+            Example example = new Example(ScheduleDoctor.class);
+            example.createCriteria().andEqualTo("scheduleDepartmentId",scheduleDepartmentId);
+            List<ScheduleDoctor> scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
+            for (ScheduleDoctor scheduleDoctor:scheduleDoctorList
+                 ) {
+                deleteScheduleDoctor(scheduleDoctor.getId(),timeInterval);
             }
         }
-
+        else if(type.equals(1)){
+            deleteScheduleDoctor(scheduleDoctorId,timeInterval);
+        }
     }
 
     @Override
@@ -225,14 +195,16 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
                     scheduleDoctorDto.setTimeInterval(Constants.MORNING);
                     scheduleDoctorDto.setTotalNumber(scheduleDoctor.getDoctorMorningTotalNumber());
                     scheduleDoctorDtoList.add(scheduleDoctorDto);
-                } if (scheduleDoctor.getDoctorAfternoonHas().equals(Constants.ONE)) {
+                }
+                if (scheduleDoctor.getDoctorAfternoonHas().equals(Constants.ONE)) {
                     ScheduleDoctorDto scheduleDoctorDto = new ScheduleDoctorDto();
                     scheduleDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
                     scheduleDoctorDto.setScheduleTime(scheduleTime);
                     scheduleDoctorDto.setTimeInterval(Constants.AFTERNOON);
                     scheduleDoctorDto.setTotalNumber(scheduleDoctor.getDoctorAfternoonTotalNumber());
                     scheduleDoctorDtoList.add(scheduleDoctorDto);
-                } if(scheduleDoctor.getDoctorNightHas().equals(Constants.ONE)) {
+                }
+                if (scheduleDoctor.getDoctorNightHas().equals(Constants.ONE)) {
                     ScheduleDoctorDto scheduleDoctorDto = new ScheduleDoctorDto();
                     scheduleDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
                     scheduleDoctorDto.setScheduleTime(scheduleTime);
@@ -317,5 +289,39 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
             throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_HAS_STARTED);
         }
         return scheduleDoctor;
+    }
+
+    /**
+     * 删除或更新医生排班对应时段为0
+     * @param scheduleDoctorId 医生排班id
+     * @param timeInterval 排班时段
+     */
+    private void deleteScheduleDoctor(Integer scheduleDoctorId,String timeInterval){
+        ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(scheduleDoctorId);
+        if (scheduleDoctor.getIsStart() != 0) {
+            throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DOCTOR_HAS_STARTED);
+        }
+        switch (timeInterval) {
+            case Constants.MORNING:
+                scheduleDoctor.setDoctorMorningHas(Constants.ZERO);
+                scheduleDoctor.setDoctorMorningTotalNumber(0);
+                break;
+            case Constants.AFTERNOON:
+                scheduleDoctor.setDoctorAfternoonHas(Constants.ZERO);
+                scheduleDoctor.setDoctorAfternoonTotalNumber(0);
+                break;
+            default:
+                scheduleDoctor.setDoctorNightHas(Constants.ZERO);
+                scheduleDoctor.setDoctorNightTotalNumber(0);
+                break;
+        }
+        scheduleDoctor.setUpdateTime(new Date());
+        if (scheduleDoctor.getDoctorMorningHas().equals(Constants.ZERO) &&
+                scheduleDoctor.getDoctorAfternoonHas().equals(Constants.ZERO) &&
+                scheduleDoctor.getDoctorNightHas().equals(Constants.ZERO)) {
+            scheduleDoctorMapper.deleteByPrimaryKey(scheduleDoctor.getId());
+        } else {
+            scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
+        }
     }
 }

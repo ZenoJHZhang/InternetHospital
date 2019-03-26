@@ -43,7 +43,7 @@ public class DocMedicalServiceImpl implements DocMedicalService {
     @Override
     public PageInfo<Medical> listMedicalByNameInPage(String medicalName, Integer pageNumber, Integer pageSize) {
         Example example = new Example(Medical.class);
-        example.createCriteria().andLike("name", medicalName).andEqualTo("isDelete", 0);
+        example.createCriteria().andLike("name", "%"+medicalName+"%").andEqualTo("isDelete", 0);
         PageHelper.startPage(pageNumber, pageSize);
         List<Medical> medicalList = medicalMapper.selectByExample(example);
         return new PageInfo<>(medicalList);

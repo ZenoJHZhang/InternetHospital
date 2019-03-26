@@ -3,9 +3,11 @@ package com.zjh.internethospitalservice.service.app;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.dto.UserDto;
+import com.zjh.internethospitalapi.entity.Doctor;
 import com.zjh.internethospitalapi.entity.Role;
 import com.zjh.internethospitalapi.entity.User;
 import com.zjh.internethospitalapi.service.app.UserService;
+import com.zjh.internethospitalservice.mapper.DoctorMapper;
 import com.zjh.internethospitalservice.mapper.RoleMapper;
 import com.zjh.internethospitalservice.mapper.UserMapper;
 import com.zjh.internethospitalservice.util.PasswordUtil;
@@ -29,11 +31,13 @@ import java.util.List;
 public class UserServiceImpl implements UserService {
     private final UserMapper userMapper;
     private final RoleMapper roleMapper;
+    private final DoctorMapper doctorMapper;
 
     @Autowired
-    public UserServiceImpl(UserMapper userMapper, RoleMapper roleMapper) {
+    public UserServiceImpl(UserMapper userMapper, RoleMapper roleMapper, DoctorMapper doctorMapper) {
         this.userMapper = userMapper;
         this.roleMapper = roleMapper;
+        this.doctorMapper = doctorMapper;
     }
 
     @Override
@@ -123,5 +127,16 @@ public class UserServiceImpl implements UserService {
         if (i != 1){
             throw new InternetHospitalException(ExceptionConstants.DELETE_USER_FAIL);
         }
+    }
+
+    @Override
+    public Doctor getDoctorByUserId(Integer userId) {
+        Example example = new Example(Doctor.class);
+        example.createCriteria().andEqualTo("userId",userId);
+        Doctor doctor = doctorMapper.selectOneByExample(example);
+        if (doctor == null){
+            throw new InternetHospitalException(ExceptionConstants.DOCTOR_NOT_EXIST);
+        }
+        return doctor;
     }
 }

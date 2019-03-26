@@ -6,6 +6,8 @@ import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.shiro.authz.annotation.Logical;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,6 +36,7 @@ public class ManagementExpertScheduleController {
 
     @PostMapping("/insert")
     @ApiOperation("新增医生就诊排班")
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> insert(
             @ApiParam(value = "科室id", required = true, example = "1") @RequestParam Integer departmentId,
             @ApiParam(value = "医生id", required = true, example = "1") @RequestParam Integer doctorId,
@@ -47,6 +50,7 @@ public class ManagementExpertScheduleController {
 
     @PostMapping("/update")
     @ApiOperation("更新医生就诊排班")
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> update(
             @ApiParam(value = "医生排班id", required = true, example = "1") @RequestParam Integer scheduleDoctorId,
             @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval,
@@ -58,14 +62,17 @@ public class ManagementExpertScheduleController {
 
     @ApiOperation("删除医生排班")
     @PostMapping("/delete")
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> delete(
-            @ApiParam(value = "医生排班id", required = true, example = "1") @RequestParam Integer scheduleDoctorId) {
-        managementScheduleDoctorService.deleteScheduleDoctorById(scheduleDoctorId);
+            @ApiParam(value = "医生排班id", required = true, example = "1") @RequestParam Integer scheduleDoctorId,
+            @ApiParam(value = "排班时段", required = true) @RequestParam String timeInterval) {
+        managementScheduleDoctorService.deleteScheduleDoctorByScheduleDepartmentIdWithTimeInterval(scheduleDoctorId,timeInterval,1,null);
         return ApiResponse.successResponse(null);
     }
 
     @ApiOperation("获取科室下医生排班列表")
     @PostMapping("/list")
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> list(
             @ApiParam(value = "科室id", required = true, example = "1") @RequestParam Integer departmentId,
             @ApiParam(value = "排班时间", required = true) @RequestParam String scheduleTime,

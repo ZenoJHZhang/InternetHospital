@@ -1,6 +1,7 @@
 package com.zjh.internethospitalapi.service.app;
 
 import com.zjh.internethospitalapi.dto.UserDto;
+import com.zjh.internethospitalapi.entity.Doctor;
 import com.zjh.internethospitalapi.entity.User;
 
 /**
@@ -54,4 +55,6 @@ public interface UserService {
      * @param userId 用户id
      */
     void deleteUser(Integer userId);
+
+    Doctor getDoctorByUserId(Integer userId);
 }

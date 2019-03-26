@@ -59,8 +59,10 @@ public interface ManagementScheduleDepartmentService {
      * 若三个时段都没有排班，则删除该排班
      *
      * @param scheduleDepartmentId 科室排班id
+     *
+     * @return 对应科室id
      */
-    void deleteScheduleDepartmentByIdWithTimeInterval(Integer scheduleDepartmentId,String timeInterval);
+    Integer deleteScheduleDepartmentByIdWithTimeInterval(Integer scheduleDepartmentId,String timeInterval);
 
     /**
      * 开始实行科室排班，并使其不可删除
