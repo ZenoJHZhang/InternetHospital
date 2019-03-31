@@ -31,7 +31,7 @@ import javax.servlet.http.HttpServletRequest;
  */
 @Api(tags = "【医疗模块】就诊信息API")
 @RestController
-@RequestMapping("/managementUserReservation")
+@RequestMapping("/docUserReservation")
 public class DocUserReservationController {
 
     private final DocUserReservationService docUserReservationService;

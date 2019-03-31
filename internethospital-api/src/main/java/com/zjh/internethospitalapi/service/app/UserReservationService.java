@@ -31,10 +31,9 @@ public interface UserReservationService {
     /**
      * 获取就诊详情
      * @param userReservationUUId
-     * @param userId
      * @return
      */
-    UserReservation getUserReservationDetail(String userReservationUUId,Integer userId);
+    UserReservation getUserReservationDetail(String userReservationUUId);
 
     /**
      * 通过用户id获得就诊信息列表(未终止的)

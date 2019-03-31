@@ -25,11 +25,6 @@ public class RecipeDetail {
     private Integer medicalId;
 
     /**
-     * 处方名称
-     */
-    private String name;
-
-    /**
      * 药品数量
      */
     private String amount;

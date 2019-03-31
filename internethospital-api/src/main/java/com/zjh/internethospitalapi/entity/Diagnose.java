@@ -12,7 +12,7 @@ public class Diagnose {
     private Integer id;
 
     /**
-     * 问诊记录id
+     * 问诊记录uuid
      */
     private String userReservationUuId;
 

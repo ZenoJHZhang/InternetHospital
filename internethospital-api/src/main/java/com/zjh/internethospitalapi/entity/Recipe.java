@@ -23,14 +23,9 @@ public class Recipe {
     private Integer doctorId;
 
     /**
-     * 处方名称
-     */
-    private String name;
-
-    /**
      * 处方总价
      */
-    private Long price;
+    private String price;
 
     /**
      * 0未审核，1已审核，2未通过

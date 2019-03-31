@@ -69,9 +69,7 @@ public class UserReservationController {
     @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> getUserReservationDetail(
             @RequestParam @ApiParam(value = "就诊信息id", required = true, example = "1") String userReservationUUId) {
-        String token = request.getHeader("Authorization");
-        Integer userId = JWTUtil.getUserId(token);
-        UserReservation userReservationDetail = userReservationService.getUserReservationDetail(userReservationUUId,userId);
+        UserReservation userReservationDetail = userReservationService.getUserReservationDetail(userReservationUUId);
         return ApiResponse.successResponse(userReservationDetail);
     }
 

@@ -1,6 +1,7 @@
 package com.zjh.internethospitalservice.controller.doc;
 
 import com.zjh.internethospitalapi.entity.Medical;
+import com.zjh.internethospitalapi.service.doc.DocMedicalExtraService;
 import com.zjh.internethospitalapi.service.doc.DocMedicalService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import com.zjh.internethospitalservice.util.VerifiableList;
@@ -26,14 +27,16 @@ import java.util.List;
 @Api(tags = "【医疗模块】药品相关API")
 public class DocMedicalController {
     private final DocMedicalService docMedicalService;
+    private final DocMedicalExtraService docMedicalExtraService;
 
     @Autowired
-    public DocMedicalController(DocMedicalService docMedicalService) {
+    public DocMedicalController(DocMedicalService docMedicalService, DocMedicalExtraService docMedicalExtraService) {
         this.docMedicalService = docMedicalService;
+        this.docMedicalExtraService = docMedicalExtraService;
     }
 
     @ApiOperation(value = "分页获取药品信息")
-    @GetMapping("/listAllMedicalInPage")
+    @PostMapping("/listAllMedicalInPage")
     public ResponseEntity<ApiResponse> listAllMedicalInPage(
             @RequestParam @ApiParam(value = "页码", required = true, example = "1") Integer pageNumber,
             @RequestParam @ApiParam(value = "页容量", required = true, example = "8") Integer pageSize
@@ -59,7 +62,7 @@ public class DocMedicalController {
     ) {
         Integer sameMedicalNumber = 0;
         for (Medical medical : medicalList
-                ) {
+        ) {
             Integer i = docMedicalService.insertMedical(medical);
             sameMedicalNumber = sameMedicalNumber + i;
         }
@@ -68,7 +71,7 @@ public class DocMedicalController {
 
     @ApiOperation(value = "更新药品")
     @PostMapping("/updateMedical")
-    public ResponseEntity<ApiResponse> updateMedical(@ApiParam(value = "药品",required = true) @RequestParam Medical medical){
+    public ResponseEntity<ApiResponse> updateMedical(@ApiParam(value = "药品", required = true) @RequestParam Medical medical) {
         docMedicalService.updateMedical(medical);
         return ApiResponse.successResponse(null);
     }
@@ -76,11 +79,25 @@ public class DocMedicalController {
     @ApiOperation(value = "批量删除药品")
     @PostMapping("/deleteMedicalList")
     public ResponseEntity<ApiResponse> deleteMedicalList(
-            @ApiParam(value = "药品id列表",required = true) @RequestParam List<Integer> medicalIdList){
-        for (Integer id:medicalIdList
-             ) {
+            @ApiParam(value = "药品id列表", required = true) @RequestParam List<Integer> medicalIdList) {
+        for (Integer id : medicalIdList
+        ) {
             docMedicalService.deleteMedical(id);
         }
         return ApiResponse.successResponse(null);
+    }
+
+    @ApiOperation(value = "获取所有药品服用频次")
+    @PostMapping("/listMedicalTimes")
+    public ResponseEntity<ApiResponse> listMedicalTimes(
+    ) {
+        return ApiResponse.successResponse(docMedicalExtraService.listMedicalTimes());
+    }
+
+    @ApiOperation(value = "获取所有药品服用方式")
+    @PostMapping("/listMedicalMethod")
+    public ResponseEntity<ApiResponse> listMedicalMethod(
+    ) {
+        return ApiResponse.successResponse(docMedicalExtraService.listMedicalMethod());
     }
 }

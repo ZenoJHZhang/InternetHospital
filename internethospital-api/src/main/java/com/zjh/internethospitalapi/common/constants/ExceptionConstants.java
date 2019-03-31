@@ -66,4 +66,7 @@ public class ExceptionConstants {
     public static final String SAME_DEPARTMENT = "重复科室信息，请修改后再试";
     public static final String DEPARTMENT_HAS_DOCTOR = "科室内已有医生，删除失败！";
     public static final String DOCTOR_HAS_NOT_END_SCHEDULE = "医生有未结束的排班，修改失败";
+    public static final String DIAGNOSE_NOT_EXIST = "诊断不存在";
+    public static final String USER_RESERVATION_HAS_DIAGNOSE = "用户就诊记录已有诊断，请勿重复添加";
+    public static final String USER_RESERVATION_HAS_RECIPE = "用户就诊记录已有处方，请勿重复添加";
 }

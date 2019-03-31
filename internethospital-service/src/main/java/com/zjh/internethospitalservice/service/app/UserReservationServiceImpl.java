@@ -13,6 +13,7 @@ import com.zjh.internethospitalapi.entity.*;
 import com.zjh.internethospitalapi.service.app.*;
 import com.zjh.internethospitalapi.service.img.ImgService;
 import com.zjh.internethospitalservice.mapper.*;
+import com.zjh.internethospitalservice.util.ImgUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import tk.mybatis.mapper.entity.Example;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -100,15 +102,9 @@ public class UserReservationServiceImpl implements UserReservationService {
     }
 
     @Override
-    public UserReservation getUserReservationDetail(String userReservationUUId,Integer userId) {
-        Example example = new Example(UserReservation.class);
-        example.createCriteria().andEqualTo("uuId",userReservationUUId)
-                .andEqualTo("userId",userId);
-        UserReservation userReservation = userReservationMapper.selectOneByExample(example);
-        if (userReservation == null) {
-            throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
-        }
-        Patient patient = patientService.selectPatientById(userReservation.getPatientId(),userId);
+    public UserReservation getUserReservationDetail(String userReservationUUId) {
+        UserReservation userReservation = getUserReservationByUuId(userReservationUUId);
+        Patient patient = patientService.selectPatientById(userReservation.getPatientId(),userReservation.getUserId());
         userReservation.setPatient(patient);
         Integer scheduleDoctorId = userReservation.getScheduleDoctorId();
         Integer callNo ;
@@ -127,6 +123,16 @@ public class UserReservationServiceImpl implements UserReservationService {
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
         }
         userReservation.setCallNo(callNo);
+
+        //用户就诊图片构造
+        List<Img> imgList = imgService.listUserReservationImg(userReservation.getId());
+        List<String> imgPathList = new LinkedList<>();
+        for (Img img:imgList
+             ) {
+            imgPathList.add(img.getPath());
+        }
+        userReservation.setImgPathList(imgPathList);
+
         return userReservation;
     }
 

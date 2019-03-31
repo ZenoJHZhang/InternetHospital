@@ -56,4 +56,26 @@ public class Medical {
     private Date updateTime;
 
     private Integer isDelete;
+
+    //为了药方使用
+    @Transient
+    private String amount;
+
+    @Transient
+    private String dosage;
+
+    @Transient
+    private String dosageUnit;
+
+    @Transient
+    private String times;
+
+    @Transient
+    private String day;
+
+    @Transient
+    private String method;
+
+    @Transient
+    private String userReservationUuid;
 }
