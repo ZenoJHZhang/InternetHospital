@@ -55,15 +55,14 @@ public class CallNumberController {
         String timeInterval = userReservation.getTimeInterval();
         if (userId != null && !userId.equals(managementDoctorService.getDoctorById(userReservation.getDoctorId()).getUserId())) {
             //code 1 不成功
-            result.put("code",1);
+            result.put("code", 1);
             return result;
-        }
-        else if(userReservation.getStatus().equals(11)){
-            result.put("code",1);
+        } else if (userReservation.getStatus().equals(11)) {
+            result.put("code", 1);
             return result;
         }
         //医生叫号，更新叫号数并判断用户就诊状态
-        else{
+        else {
             Integer callNo;
             Integer clinicState;
             if (timeInterval.equals(Constants.MORNING)) {
@@ -90,9 +89,13 @@ public class CallNumberController {
             result.put("id", userReservation.getId());
             result.put("clinicState", clinicState);
             result.put("callNo", callNo);
-            result.put("code",0);
+            result.put("code", 0);
             scheduleDoctor.setUpdateTime(new Date());
             scheduleDoctorService.updateScheduleDoctor(scheduleDoctor);
+
+            //更新用户就诊 叫号时间以及就诊开始时间
+            userReservation.setCallNumberTime(new Date());
+            userReservation.setStartTime(new Date());
 
             //更新用户就诊状态
             //已过号状态
@@ -101,12 +104,12 @@ public class CallNumberController {
                 userReservationService.updateUserReservationSelective(userReservation);
             }
             //就诊中状态
-            if(clinicState.equals(0)){
+            if (clinicState.equals(0)) {
                 userReservation.setStatus(11);
                 userReservationService.updateUserReservationSelective(userReservation);
             }
-            //更新用户就诊 叫好时间 callNumberTime
-            userReservation.setCallNumberTime(new Date());
+            //更新用户就诊 叫号时间以及开始就诊时间 callNumberTime
+
             return result;
         }
 

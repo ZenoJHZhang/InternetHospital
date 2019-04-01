@@ -51,12 +51,7 @@ public class DocUserReservationServiceImpl implements DocUserReservationService 
 
     @Override
     public void beginOrFinishClinic(String uuId, Integer flag) {
-        Example example = new Example(UserReservation.class);
-        example.createCriteria().andEqualTo("uuId", uuId);
-        UserReservation userReservation = userReservationMapper.selectOneByExample(example);
-        if (userReservation == null) {
-            throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
-        }
+       UserReservation userReservation  = getUserReservationByUuid(uuId);
         if (flag.equals(0)) {
             userReservation.setStartTime(new Date());
             //就诊中
@@ -64,10 +59,11 @@ public class DocUserReservationServiceImpl implements DocUserReservationService 
             userReservation.setUpdateTime(new Date());
         } else if (flag.equals(1)) {
             userReservation.setFinishTime(new Date());
-            //就诊完成
-            userReservation.setStatus(16);
+            //就诊结束 进入视频完毕待诊断状态
+            userReservation.setStatus(12);
             userReservation.setUpdateTime(new Date());
         }
+        userReservationMapper.updateByPrimaryKeySelective(userReservation);
     }
 
     @Override
@@ -122,5 +118,28 @@ public class DocUserReservationServiceImpl implements DocUserReservationService 
             userReservation.setStatusDescription(stateName);
         }
         return new PageInfo<>(userReservationList);
+    }
+
+    @Override
+    public void confirmUserReservation(String userReservationUuid) {
+        UserReservation userReservation = getUserReservationByUuid(userReservationUuid);
+        userReservation.setStatus(13);
+        userReservation.setUpdateTime(new Date());
+        userReservationMapper.updateByPrimaryKeySelective(userReservation);
+    }
+
+    /**
+     * 通过uuid获取用户就诊
+     * @param userReservationUuid 用户就诊uuid
+     * @return 用户就诊
+     */
+    private UserReservation getUserReservationByUuid(String userReservationUuid ){
+        Example example = new Example(UserReservation.class);
+        example.createCriteria().andEqualTo("uuId", userReservationUuid);
+        UserReservation userReservation = userReservationMapper.selectOneByExample(example);
+        if (userReservation == null) {
+            throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
+        }
+        return userReservation;
     }
 }

@@ -33,10 +33,9 @@ public class Recipe {
     private Integer status;
 
     /**
-     * 处方审核医生id
+     * 处方审核用户id（医生管理员id）
      */
-    @Column(name = "audit_doctor_id")
-    private Integer auditDoctorId;
+    private Integer auditUserId;
 
     /**
      * 处方未通过原因原因

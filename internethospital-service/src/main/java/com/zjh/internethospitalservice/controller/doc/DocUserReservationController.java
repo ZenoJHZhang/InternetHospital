@@ -49,20 +49,42 @@ public class DocUserReservationController {
     @PostMapping("/getUserReservationOfDoctor")
     @RequiresRoles(value = {"doctor", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> getUserReservationOfDoctor(
-            @ApiParam(value = "就诊状态",required = true,example = "1") @RequestParam  Integer status,
+            @ApiParam(value = "就诊状态", required = true, example = "1") @RequestParam Integer status,
             @ApiParam(value = "就诊日期筛选开始时间") @RequestParam(required = false) String startScheduleTime,
             @ApiParam(value = "就诊日期筛选结束时间") @RequestParam(required = false) String endScheduleTime,
             @ApiParam(value = "患者姓名") @RequestParam(required = false) String patientName,
             @RequestParam @ApiParam(value = "页码", required = true, example = "1") Integer pageNumber,
             @RequestParam @ApiParam(value = "页容量", required = true, example = "5") Integer pageSize
-            ){
+    ) {
         String token = httpRequest.getHeader("Authorization");
         Integer userId = JWTUtil.getUserId(token);
         Doctor doctor = userService.getDoctorByUserId(userId);
         PageInfo<UserReservation> userReservationByDoctorId = docUserReservationService.
                 getUserReservationByDoctorId(doctor.getId(), status, startScheduleTime,
-                endScheduleTime, patientName, pageNumber, pageSize);
+                        endScheduleTime, patientName, pageNumber, pageSize);
         return ApiResponse.successResponse(userReservationByDoctorId);
 
+    }
+
+
+    @ApiOperation(value = "开始或结束医生就诊")
+    @PostMapping("/beginOrFinishClinic")
+    @RequiresRoles(value = {"doctor", "superAdmin"}, logical = Logical.OR)
+    public ResponseEntity<ApiResponse> beginOrFinishClinic(
+            @ApiParam(value = "用户就诊Uuid", required = true) @RequestParam String userReservationUuid,
+            @ApiParam(value = "开始结束标志 0 开始 1 结束", example = "1") @RequestParam Integer flag
+    ) {
+        docUserReservationService.beginOrFinishClinic(userReservationUuid, flag);
+        return ApiResponse.successResponse(null);
+    }
+
+    @ApiOperation(value = "提交医嘱")
+    @PostMapping("/confirmDoctorReservation")
+    @RequiresRoles(value = {"doctor", "superAdmin"}, logical = Logical.OR)
+    public ResponseEntity<ApiResponse> confirmDoctorReservation(
+            @ApiParam(value = "用户就诊Uuid", required = true) @RequestParam String userReservationUuid
+    ) {
+        docUserReservationService.confirmUserReservation(userReservationUuid);
+        return ApiResponse.successResponse(null);
     }
 }

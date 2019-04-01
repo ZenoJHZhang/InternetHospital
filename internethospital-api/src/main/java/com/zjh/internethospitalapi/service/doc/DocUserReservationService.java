@@ -33,4 +33,10 @@ public interface DocUserReservationService {
      */
     PageInfo<UserReservation> getUserReservationByDoctorId(Integer doctorId, Integer status, String startScheduleTime,
                                                            String endScheduleTime, String patientName, Integer pageNumber, Integer pageSize);
+
+    /**
+     * 医生提交医嘱进行审核，改变用户就诊状态为13
+     * @param userReservationUuid
+     */
+    void confirmUserReservation(String userReservationUuid);
 }

@@ -102,18 +102,23 @@ public class DocRecipeServiceImpl implements DocRecipeService {
         Recipe recipe = new Recipe();
         recipe.setUserReservationUuId(userReservationUuid);
         recipe = recipeMapper.selectOne(recipe);
-        RecipeDetail recipeDetail = new RecipeDetail();
-        recipeDetail.setRecipeId(recipe.getId());
-        List<RecipeDetail> recipeDetailList = recipeDetailMapper.select(recipeDetail);
-        for (RecipeDetail detail:recipeDetailList
-             ) {
-            Medical medical = new Medical();
-            medical.setId(detail.getMedicalId());
-            medical = medicalMapper.selectByPrimaryKey(medical);
-            BeanUtils.copyProperties(detail,medical);
-            medical.setId(detail.getMedicalId());
-            medicalList.add(medical);
+        if(recipe != null){
+            RecipeDetail recipeDetail = new RecipeDetail();
+            recipeDetail.setRecipeId(recipe.getId());
+            List<RecipeDetail> recipeDetailList = recipeDetailMapper.select(recipeDetail);
+            for (RecipeDetail detail:recipeDetailList
+            ) {
+                Medical medical = new Medical();
+                medical.setId(detail.getMedicalId());
+                medical = medicalMapper.selectByPrimaryKey(medical);
+                BeanUtils.copyProperties(detail,medical);
+                medical.setId(detail.getMedicalId());
+                medicalList.add(medical);
+            }
+            return medicalList;
         }
-        return medicalList;
+     else {
+         return null;
+        }
     }
 }
