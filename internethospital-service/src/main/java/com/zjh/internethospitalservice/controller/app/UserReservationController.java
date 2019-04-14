@@ -10,6 +10,7 @@ import com.zjh.internethospitalservice.util.JWTUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -110,5 +111,14 @@ public class UserReservationController {
             @RequestParam @ApiParam(value = "提交申请时生成的uuid") String userReservationUuId) {
         UserReservation userReservation = userReservationService.getUserReservationByUuId(userReservationUuId);
         return ApiResponse.successResponse(userReservation.getId());
+    }
+
+    @PostMapping("/getAllDetailByUuId")
+    @ApiOperation(value = "通过uuid获取用户就诊信息，处方信息，药方信息，相关医生信息，相关科室信息")
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin","user","doctor"}, logical = Logical.OR)
+    public ResponseEntity<ApiResponse> getAllDetailByUuId(
+            @RequestParam @ApiParam(value = "提交申请时生成的uuid") String userReservationUuId) {
+        UserReservation userReservation = userReservationService.getAllDetailByUuId(userReservationUuId);
+        return ApiResponse.successResponse(userReservation);
     }
 }

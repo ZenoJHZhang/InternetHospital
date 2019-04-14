@@ -68,6 +68,9 @@ public class Medical {
     private String dosageUnit;
 
     @Transient
+    private String dosageDetail;
+
+    @Transient
     private String times;
 
     @Transient

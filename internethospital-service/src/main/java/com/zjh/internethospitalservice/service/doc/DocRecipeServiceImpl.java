@@ -6,11 +6,11 @@ import com.zjh.internethospitalapi.entity.Medical;
 import com.zjh.internethospitalapi.entity.Recipe;
 import com.zjh.internethospitalapi.entity.RecipeDetail;
 import com.zjh.internethospitalapi.entity.UserReservation;
-import com.zjh.internethospitalapi.service.app.UserReservationService;
 import com.zjh.internethospitalapi.service.doc.DocRecipeService;
 import com.zjh.internethospitalservice.mapper.MedicalMapper;
 import com.zjh.internethospitalservice.mapper.RecipeDetailMapper;
 import com.zjh.internethospitalservice.mapper.RecipeMapper;
+import com.zjh.internethospitalservice.mapper.UserReservationMapper;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,14 +34,14 @@ public class DocRecipeServiceImpl implements DocRecipeService {
     private final RecipeMapper recipeMapper;
     private final RecipeDetailMapper recipeDetailMapper;
     private final MedicalMapper medicalMapper;
-    private final UserReservationService userReservationService;
+    private final UserReservationMapper userReservationMapper;
 
     @Autowired
-    public DocRecipeServiceImpl(RecipeMapper recipeMapper, RecipeDetailMapper recipeDetailMapper, MedicalMapper medicalMapper, UserReservationService userReservationService) {
+    public DocRecipeServiceImpl(RecipeMapper recipeMapper, RecipeDetailMapper recipeDetailMapper, MedicalMapper medicalMapper, UserReservationMapper userReservationMapper) {
         this.recipeMapper = recipeMapper;
         this.recipeDetailMapper = recipeDetailMapper;
         this.medicalMapper = medicalMapper;
-        this.userReservationService = userReservationService;
+        this.userReservationMapper = userReservationMapper;
     }
 
     @Override
@@ -69,15 +69,19 @@ public class DocRecipeServiceImpl implements DocRecipeService {
         recipe.setUpdateTime(new Date());
         recipeMapper.insertSelective(recipe);
 
+        UserReservation userReservation = new UserReservation();
+        userReservation.setUuId(recipe.getUserReservationUuId());
+        userReservation.setIsDelete(0);
+        userReservation = userReservationMapper.selectOne(userReservation);
         //根据处方更新用户就诊信息 recipeNumber  recipePrice totalPrice
-        UserReservation userReservation = userReservationService.getUserReservationByUuId(recipe.getUserReservationUuId());
         BigDecimal clinicPrice = new BigDecimal(userReservation.getClinicPrice());
         BigDecimal recipePrice = new BigDecimal(recipe.getPrice());
         BigDecimal totalPrice = clinicPrice.add(recipePrice);
         userReservation.setRecipePrice(recipePrice.toString());
         userReservation.setTotalPrice(totalPrice.toString());
         userReservation.setRecipeNumber(recipeNumber);
-        userReservationService.updateUserReservationSelective(userReservation);
+        userReservation.setUpdateTime(new Date());
+        userReservationMapper.updateByPrimaryKeySelective(userReservation);
 
         return recipe.getId();
     }
@@ -113,6 +117,7 @@ public class DocRecipeServiceImpl implements DocRecipeService {
                 medical = medicalMapper.selectByPrimaryKey(medical);
                 BeanUtils.copyProperties(detail,medical);
                 medical.setId(detail.getMedicalId());
+                medical.setDosageDetail(detail.getDosage()+detail.getDosageUnit());
                 medicalList.add(medical);
             }
             return medicalList;

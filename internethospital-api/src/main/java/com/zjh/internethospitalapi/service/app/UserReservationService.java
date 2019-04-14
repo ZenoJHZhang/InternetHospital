@@ -63,4 +63,11 @@ public interface UserReservationService {
      * @return
      */
     UserReservation getUserReservationByUuId(String uuid);
+
+    /**
+     * 通过uuid获取用户就诊信息，处方信息，药方信息，相关医生信息，相关科室信息
+     * @param uuid 用户就诊uuid
+     * @return UserReservation
+     */
+    UserReservation getAllDetailByUuId(String uuid);
 }

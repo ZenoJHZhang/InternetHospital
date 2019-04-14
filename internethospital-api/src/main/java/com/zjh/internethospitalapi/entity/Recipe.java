@@ -3,6 +3,7 @@ package com.zjh.internethospitalapi.entity;
 import lombok.Data;
 
 import java.util.Date;
+import java.util.List;
 import javax.persistence.*;
 
 @Data

@@ -87,4 +87,6 @@ public class DocUserReservationController {
         docUserReservationService.confirmUserReservation(userReservationUuid);
         return ApiResponse.successResponse(null);
     }
+
+
 }

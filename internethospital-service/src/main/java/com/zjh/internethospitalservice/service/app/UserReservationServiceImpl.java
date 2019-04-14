@@ -11,9 +11,9 @@ import com.zjh.internethospitalapi.dto.DispensingDoctorDto;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
 import com.zjh.internethospitalapi.entity.*;
 import com.zjh.internethospitalapi.service.app.*;
+import com.zjh.internethospitalapi.service.doc.DocRecipeService;
 import com.zjh.internethospitalapi.service.img.ImgService;
 import com.zjh.internethospitalservice.mapper.*;
-import com.zjh.internethospitalservice.util.ImgUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -44,11 +44,13 @@ public class UserReservationServiceImpl implements UserReservationService {
     private final ImgService imgService;
     private final ScheduleDoctorService scheduleDoctorService;
     private final UserReservationStatusMapper userReservationStatusMapper;
+    private final DiagnoseMapper diagnoseMapper;
+    private final DocRecipeService docRecipeService;
 
     @Autowired
     public UserReservationServiceImpl(PatientService patientService, UserReservationImgMapper userReservationImgMapper,
                                       UserReservationMapper userReservationMapper, ScheduleDoctorMapper scheduleDoctorMapper,
-                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper, ImgService imgService, ScheduleDoctorService scheduleDoctorService, UserReservationStatusMapper userReservationStatusMapper) {
+                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper, ImgService imgService, ScheduleDoctorService scheduleDoctorService, UserReservationStatusMapper userReservationStatusMapper, DiagnoseMapper diagnoseMapper, DocRecipeService docRecipeService) {
         this.patientService = patientService;
         this.userReservationImgMapper = userReservationImgMapper;
         this.userReservationMapper = userReservationMapper;
@@ -58,6 +60,8 @@ public class UserReservationServiceImpl implements UserReservationService {
         this.imgService = imgService;
         this.scheduleDoctorService = scheduleDoctorService;
         this.userReservationStatusMapper = userReservationStatusMapper;
+        this.diagnoseMapper = diagnoseMapper;
+        this.docRecipeService = docRecipeService;
     }
 
 
@@ -102,12 +106,28 @@ public class UserReservationServiceImpl implements UserReservationService {
     }
 
     @Override
+    public UserReservation getAllDetailByUuId(String uuid) {
+        //就诊基本信息
+        UserReservation userReservation = getUserReservationDetail(uuid);
+        Diagnose diagnose = new Diagnose();
+        diagnose.setUserReservationUuId(uuid);
+        diagnose.setIsDelete(0);
+        diagnose = diagnoseMapper.selectOne(diagnose);
+        userReservation.setDiagnose(diagnose);
+        if (userReservation.getAuditStatus().equals("2") && userReservation.getIsAudit().equals("1")) {
+            List<Medical> recipeMedicalList = docRecipeService.getRecipeDetailListByUserReservationUuid(uuid);
+            userReservation.setMedicalList(recipeMedicalList);
+        }
+        return userReservation;
+    }
+
+    @Override
     public UserReservation getUserReservationDetail(String userReservationUUId) {
         UserReservation userReservation = getUserReservationByUuId(userReservationUUId);
-        Patient patient = patientService.selectPatientById(userReservation.getPatientId(),userReservation.getUserId());
+        Patient patient = patientService.selectPatientById(userReservation.getPatientId(), userReservation.getUserId());
         userReservation.setPatient(patient);
         Integer scheduleDoctorId = userReservation.getScheduleDoctorId();
-        Integer callNo ;
+        Integer callNo;
         switch (userReservation.getTimeInterval()) {
             case Constants.MORNING:
                 callNo = scheduleDoctorMapper.selectByPrimaryKey(scheduleDoctorId).getMorningCallNo();
@@ -127,8 +147,8 @@ public class UserReservationServiceImpl implements UserReservationService {
         //用户就诊图片构造
         List<Img> imgList = imgService.listUserReservationImg(userReservation.getId());
         List<String> imgPathList = new LinkedList<>();
-        for (Img img:imgList
-             ) {
+        for (Img img : imgList
+        ) {
             imgPathList.add(img.getPath());
         }
         userReservation.setImgPathList(imgPathList);
@@ -150,7 +170,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         PageHelper.startPage(pageNo, pageSize);
         List<UserReservation> userReservationList = userReservationMapper.selectByExample(example);
         for (UserReservation userReservation : userReservationList
-                ) {
+        ) {
             String stateName = userReservationStatusMapper.selectByPrimaryKey(userReservation.getStatus()).getStateName();
             userReservation.setPayStateDescription(stateName);
         }
@@ -161,8 +181,8 @@ public class UserReservationServiceImpl implements UserReservationService {
     public void updateUserReservationSelective(UserReservation userReservation) {
         userReservation.setUpdateTime(new Date());
         Example example = new Example(UserReservation.class);
-        example.createCriteria().andEqualTo("uuId",userReservation.getUuId());
-        int i = userReservationMapper.updateByExampleSelective(userReservation,example);
+        example.createCriteria().andEqualTo("uuId", userReservation.getUuId());
+        int i = userReservationMapper.updateByExampleSelective(userReservation, example);
         if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.UPDATE_USER_RESERVATION_FAIL);
         }
@@ -171,12 +191,11 @@ public class UserReservationServiceImpl implements UserReservationService {
     @Override
     public UserReservation getUserReservationByUuId(String uuid) {
         Example example = new Example(UserReservation.class);
-        example.createCriteria().andEqualTo("uuId",uuid);
+        example.createCriteria().andEqualTo("uuId", uuid);
         UserReservation userReservation = userReservationMapper.selectOneByExample(example);
-        if(userReservation == null){
+        if (userReservation == null) {
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
-        }
-        else {
+        } else {
             return userReservation;
         }
     }
@@ -187,7 +206,7 @@ public class UserReservationServiceImpl implements UserReservationService {
     private void generateUserReservationImg(List<Integer> imgIdList, int userReservationId) {
         int result = 0;
         for (Integer imgId : imgIdList
-                ) {
+        ) {
             UserReservationImg userReservationImg = new UserReservationImg();
             userReservationImg.setImgId(imgId);
             userReservationImg.setUserReservationId(userReservationId);
@@ -220,9 +239,9 @@ public class UserReservationServiceImpl implements UserReservationService {
             example.and().andEqualTo("doctorMorningHas", 1);
             scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
             for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
-                    ) {
+            ) {
                 DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
-                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorMorningNumber()+1);
+                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorMorningNumber() + 1);
                 dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorMorningTotalNumber());
                 dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
                 dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
@@ -234,9 +253,9 @@ public class UserReservationServiceImpl implements UserReservationService {
             example.and().andEqualTo("doctorAfternoonHas", 1);
             scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
             for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
-                    ) {
+            ) {
                 DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
-                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorAfternoonNumber()+1);
+                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorAfternoonNumber() + 1);
                 dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorAfternoonTotalNumber());
                 dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
                 dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
@@ -248,9 +267,9 @@ public class UserReservationServiceImpl implements UserReservationService {
             example.and().andEqualTo("doctorNightHas", 1);
             scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
             for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
-                    ) {
+            ) {
                 DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
-                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorNightNumber()+1);
+                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorNightNumber() + 1);
                 dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorNightTotalNumber());
                 dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
                 dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
@@ -264,7 +283,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         DispensingDoctorDto minDispensingDoctorDto = dispensingDoctorDtoList.get(0);
 
         for (DispensingDoctorDto dispensingDoctorDto : dispensingDoctorDtoList
-                ) {
+        ) {
             //当医生已挂号源小于总号源，即可再挂一个号
             if (dispensingDoctorDto.getDoctorAppointmentNumber() < dispensingDoctorDto.getDoctorTotalAppointmentNumber()) {
                 //选取最少号源医生
@@ -337,7 +356,7 @@ public class UserReservationServiceImpl implements UserReservationService {
     }
 
     private Integer commonGenerateUserReservation(UserReservationDto userReservationDto, UserReservation userReservation) {
-        userReservation.setPatientName(patientService.selectPatientById(userReservation.getPatientId(),userReservationDto.getUserId()).getRealName());
+        userReservation.setPatientName(patientService.selectPatientById(userReservation.getPatientId(), userReservationDto.getUserId()).getRealName());
         userReservation.setConditionDesc(userReservationDto.getAccentDetail());
         userReservation.setClinicPrice(userReservationDto.getPrice());
         //就诊时间

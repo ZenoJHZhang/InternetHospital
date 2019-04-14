@@ -36,7 +36,23 @@ public interface DocUserReservationService {
 
     /**
      * 医生提交医嘱进行审核，改变用户就诊状态为13
-     * @param userReservationUuid
+     * @param userReservationUuid 用户就诊uuid
      */
     void confirmUserReservation(String userReservationUuid);
+
+    /**
+     * 通过uuid获取用户就诊
+     * @param userReservationUuid 用户就诊uuid
+     * @return 用户就诊
+     */
+    UserReservation getUserReservationByUuid(String userReservationUuid);
+
+    /**
+     * 判断用户就诊状态,并判断医生是否过号叫人
+     * 根据医生叫号，判断并更新用户就诊状态
+     * @param userReservation 用户就诊
+     * @param doctorCallRegNo 医生准备叫的号
+     * @return -1 还未叫到 0 刚好叫到 1 已过号 2 医生过号叫人
+     */
+    Integer judgeUserReservationClinicStatusBeforeCall(UserReservation userReservation, Integer doctorCallRegNo);
 }

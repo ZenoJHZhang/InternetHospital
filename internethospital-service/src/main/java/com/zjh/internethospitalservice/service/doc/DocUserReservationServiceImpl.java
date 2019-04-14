@@ -2,12 +2,11 @@ package com.zjh.internethospitalservice.service.doc;
 
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
-import com.zjh.internethospitalapi.entity.Img;
-import com.zjh.internethospitalapi.entity.Patient;
-import com.zjh.internethospitalapi.entity.UserReservation;
-import com.zjh.internethospitalapi.entity.UserReservationImg;
+import com.zjh.internethospitalapi.entity.*;
+import com.zjh.internethospitalapi.service.app.ScheduleDoctorService;
 import com.zjh.internethospitalapi.service.doc.DocUserReservationService;
 import com.zjh.internethospitalapi.service.img.ImgService;
 import com.zjh.internethospitalservice.mapper.PatientMapper;
@@ -39,14 +38,16 @@ public class DocUserReservationServiceImpl implements DocUserReservationService 
     private final UserReservationImgMapper userReservationImgMapper;
     private final ImgService imgService;
     private final UserReservationStatusMapper userReservationStatusMapper;
+    private final ScheduleDoctorService scheduleDoctorService;
 
     @Autowired
-    public DocUserReservationServiceImpl(UserReservationMapper userReservationMapper, PatientMapper patientMapper, UserReservationImgMapper userReservationImgMapper, ImgService imgService, UserReservationStatusMapper userReservationStatusMapper) {
+    public DocUserReservationServiceImpl(UserReservationMapper userReservationMapper, PatientMapper patientMapper, UserReservationImgMapper userReservationImgMapper, ImgService imgService, UserReservationStatusMapper userReservationStatusMapper, ScheduleDoctorService scheduleDoctorService) {
         this.userReservationMapper = userReservationMapper;
         this.patientMapper = patientMapper;
         this.userReservationImgMapper = userReservationImgMapper;
         this.imgService = imgService;
         this.userReservationStatusMapper = userReservationStatusMapper;
+        this.scheduleDoctorService = scheduleDoctorService;
     }
 
     @Override
@@ -71,7 +72,24 @@ public class DocUserReservationServiceImpl implements DocUserReservationService 
                                                  String endScheduleTime, String patientName,
                                                  Integer pageNumber, Integer pageSize) {
         Example example = new Example(UserReservation.class);
-        example.createCriteria().andEqualTo("doctorId", doctorId).andEqualTo("status", status);
+        example.createCriteria().andEqualTo("doctorId", doctorId).
+        andEqualTo("isDelete", 0);
+
+        //先找出该医生所有的就诊记录，根据挂号状态更新对于就诊状态
+        List<UserReservation> userReservationList = userReservationMapper.selectByExample(example);
+        for (UserReservation u:userReservationList
+             ) {
+            Integer clinicStatus = judgeUserReservationClinicStatusBeforeCall(u, null);
+            //挂号状态为1，就诊记录状态更新为5
+            if (clinicStatus.equals(1)){
+                u.setStatus(5);
+                u.setUpdateTime(new Date());
+                userReservationMapper.updateByPrimaryKeySelective(u);
+            }
+        }
+
+        //再根据入参就诊状态筛选
+        example.and().andEqualTo("status", status);
         //起始时间不为空，则说明需要筛选时间段
         if (startScheduleTime != null && endScheduleTime != null &&
                 !startScheduleTime.equals("") && !endScheduleTime.equals("")) {
@@ -85,9 +103,10 @@ public class DocUserReservationServiceImpl implements DocUserReservationService 
             example.and().andLike("patientName", "%" + patientName + "%");
         }
         PageHelper.startPage(pageNumber, pageSize);
-        List<UserReservation> userReservationList = userReservationMapper.selectByExample(example);
-        for (UserReservation userReservation : userReservationList
+        List<UserReservation> realUserReservationList = userReservationMapper.selectByExample(example);
+        for (UserReservation userReservation : realUserReservationList
         ) {
+
             List<String> imgPathList = new LinkedList<>();
 
             //设置患者信息
@@ -117,29 +136,71 @@ public class DocUserReservationServiceImpl implements DocUserReservationService 
             String stateName = userReservationStatusMapper.selectByPrimaryKey(status).getStateName();
             userReservation.setStatusDescription(stateName);
         }
-        return new PageInfo<>(userReservationList);
+        return new PageInfo<>(realUserReservationList);
     }
 
     @Override
     public void confirmUserReservation(String userReservationUuid) {
         UserReservation userReservation = getUserReservationByUuid(userReservationUuid);
+        //未审方状态
         userReservation.setStatus(13);
         userReservation.setUpdateTime(new Date());
         userReservationMapper.updateByPrimaryKeySelective(userReservation);
     }
 
-    /**
-     * 通过uuid获取用户就诊
-     * @param userReservationUuid 用户就诊uuid
-     * @return 用户就诊
-     */
-    private UserReservation getUserReservationByUuid(String userReservationUuid ){
+
+    @Override
+    public UserReservation getUserReservationByUuid(String userReservationUuid ){
         Example example = new Example(UserReservation.class);
         example.createCriteria().andEqualTo("uuId", userReservationUuid);
+        example.and().andEqualTo("isDelete",0);
         UserReservation userReservation = userReservationMapper.selectOneByExample(example);
         if (userReservation == null) {
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
         }
         return userReservation;
+    }
+
+    @Override
+    public Integer judgeUserReservationClinicStatusBeforeCall(UserReservation userReservation, Integer doctorCallRegNo) {
+        ScheduleDoctor scheduleDoctor = scheduleDoctorService.getScheduleDoctor(userReservation.getScheduleDoctorId());
+        //医生叫到几号，一开始是0
+        Integer callNo;
+        //用户就诊序号
+        Integer regNo = userReservation.getRegNo();
+        String timeInterval = userReservation.getTimeInterval();
+        if (timeInterval.equals(Constants.MORNING)) {
+            callNo = scheduleDoctor.getMorningCallNo();
+        } else if (timeInterval.equals(Constants.AFTERNOON)) {
+            callNo = scheduleDoctor.getAfternoonCallNo();
+        } else {
+            callNo = scheduleDoctor.getNightCallNo();
+        }
+        //callNo+1 即为医生准备叫的号
+        //判断医生准备叫的号与医生已叫的号 => 医生是否过号叫人
+        if (doctorCallRegNo != null){
+            if (doctorCallRegNo > callNo + 1){
+                return  2;
+            }
+        }
+
+        //医生准备叫的号>自己的号 说明自己被过号了;
+        if (userReservation.getStatus().equals(4)){
+            if ((callNo + 1) > regNo){
+                userReservation.setStatus(5);
+                return 1;
+            }
+            else if((callNo + 1) == regNo){
+                return 0;
+            }else {
+                return -1;
+            }
+        }
+        else  if(userReservation.getStatus().equals(5)){
+            return 1;
+        }
+        else {
+            return 0;
+        }
     }
 }

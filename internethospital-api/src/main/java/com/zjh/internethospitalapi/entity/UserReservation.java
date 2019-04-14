@@ -290,4 +290,13 @@ public class UserReservation {
      */
     @Transient
     private String statusDescription;
+
+    /**
+     * 对应药方细节及药物
+     */
+    @Transient
+    private List<Medical> medicalList;
+
+    @Transient
+    private Diagnose diagnose;
 }
