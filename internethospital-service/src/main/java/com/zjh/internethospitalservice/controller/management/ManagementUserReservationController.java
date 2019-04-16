@@ -1,5 +1,6 @@
 package com.zjh.internethospitalservice.controller.management;
 
+import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.entity.UserReservation;
 import com.zjh.internethospitalapi.service.management.ManagementUserReservationService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
@@ -42,23 +43,27 @@ public class ManagementUserReservationController {
     @PostMapping("/auditUserReservation")
     @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> auditUserReservation(
-            @ApiParam(value = "用户就诊Uuid", required = true) @RequestParam String userReservationUuid,
+            @ApiParam(value = "用户就诊Uuid", required = true) @RequestParam String userReservationUuId,
             @ApiParam(value = "审核状态 1：不通过 2:已通过",required = true) @RequestParam String auditStatus,
             @ApiParam(value = "审核不通过的原因") @RequestParam(required = false) String examineFailReason
     ) {
         String token = httpRequest.getHeader("Authorization");
         Integer userId = JWTUtil.getUserId(token);
-        managementUserReservationService.auditUserReservation(userReservationUuid,auditStatus,examineFailReason,userId);
+        managementUserReservationService.auditUserReservation(userReservationUuId,auditStatus,examineFailReason,userId);
         return ApiResponse.successResponse(null);
     }
 
     @ApiOperation(value = "根据就诊状态获取就诊列表")
-    @PostMapping("/getUserReservationByStatus")
+    @PostMapping("/getUserReservationByAuditStatus")
     @RequiresRoles(value = {"doctorAdmin", "superAdmin"}, logical = Logical.OR)
-    public ResponseEntity<ApiResponse> getUserReservationByStatus(
-            @ApiParam(value = "用户就诊状态", required = true) @RequestParam Integer userReservationStatus
+    public ResponseEntity<ApiResponse> getUserReservationByAuditStatus(
+            @ApiParam(value = "用户就诊审核状态 -1 全部 0 未审核的 1 审核通过的 2 审核不通过的", required = true)
+            @RequestParam Integer auditStatus,
+            @ApiParam(value = "页码",required = true) @RequestParam Integer pageNo,
+            @ApiParam(value = "页容量",required = true) @RequestParam Integer pageSize
     ) {
-        List<UserReservation> userReservationList = managementUserReservationService.getUserReservationListByStatus(userReservationStatus);
-        return ApiResponse.successResponse(userReservationList);
+        PageInfo<UserReservation> pageInfo =
+                managementUserReservationService.getUserReservationListByAuditStatus(auditStatus,pageNo,pageSize);
+        return ApiResponse.successResponse(pageInfo);
     }
 }

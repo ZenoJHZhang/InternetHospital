@@ -67,7 +67,8 @@ public interface UserReservationService {
     /**
      * 通过uuid获取用户就诊信息，处方信息，药方信息，相关医生信息，相关科室信息
      * @param uuid 用户就诊uuid
+     * @param adminFlag 管理员审核用Flag
      * @return UserReservation
      */
-    UserReservation getAllDetailByUuId(String uuid);
+    UserReservation getAllDetailByUuId(String uuid,boolean adminFlag);
 }

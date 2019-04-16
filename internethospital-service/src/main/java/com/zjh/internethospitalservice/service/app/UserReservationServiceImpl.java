@@ -106,7 +106,7 @@ public class UserReservationServiceImpl implements UserReservationService {
     }
 
     @Override
-    public UserReservation getAllDetailByUuId(String uuid) {
+    public UserReservation getAllDetailByUuId(String uuid,boolean adminFlag) {
         //就诊基本信息
         UserReservation userReservation = getUserReservationDetail(uuid);
         Diagnose diagnose = new Diagnose();
@@ -114,7 +114,14 @@ public class UserReservationServiceImpl implements UserReservationService {
         diagnose.setIsDelete(0);
         diagnose = diagnoseMapper.selectOne(diagnose);
         userReservation.setDiagnose(diagnose);
-        if (userReservation.getAuditStatus().equals("2") && userReservation.getIsAudit().equals("1")) {
+        //管理员和医生可以看到未审核通过的药方
+        if (adminFlag){
+            List<Medical> recipeMedicalList = docRecipeService.getRecipeDetailListByUserReservationUuid(uuid);
+            userReservation.setMedicalList(recipeMedicalList);
+        }
+        //用户只能看到审核通过的药方
+        if (!adminFlag && Constants.TWO.equals(userReservation.getAuditStatus())
+                && Constants.ONE.equals(userReservation.getIsAudit())) {
             List<Medical> recipeMedicalList = docRecipeService.getRecipeDetailListByUserReservationUuid(uuid);
             userReservation.setMedicalList(recipeMedicalList);
         }

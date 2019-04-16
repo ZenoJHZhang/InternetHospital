@@ -108,7 +108,7 @@ public class UserReservationController {
     @ApiOperation(value = "根据就诊uuid获取真正的用户就诊信息id")
     @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> getUserReservationIdByUuid(
-            @RequestParam @ApiParam(value = "提交申请时生成的uuid") String userReservationUuId) {
+            @RequestParam @ApiParam(value = "提交申请时生成的uuid",required = true) String userReservationUuId) {
         UserReservation userReservation = userReservationService.getUserReservationByUuId(userReservationUuId);
         return ApiResponse.successResponse(userReservation.getId());
     }
@@ -117,8 +117,13 @@ public class UserReservationController {
     @ApiOperation(value = "通过uuid获取用户就诊信息，处方信息，药方信息，相关医生信息，相关科室信息")
     @RequiresRoles(value = {"doctorAdmin", "superAdmin","user","doctor"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> getAllDetailByUuId(
-            @RequestParam @ApiParam(value = "提交申请时生成的uuid") String userReservationUuId) {
-        UserReservation userReservation = userReservationService.getAllDetailByUuId(userReservationUuId);
+            @RequestParam @ApiParam(value = "提交申请时生成的uuid",required = true) String userReservationUuId) {
+        String token = request.getHeader("Authorization");
+        Integer roleId = JWTUtil.getRoleId(token);
+        boolean adminFlag;
+        assert roleId != null;
+        adminFlag = !roleId.equals(1);
+        UserReservation userReservation = userReservationService.getAllDetailByUuId(userReservationUuId,adminFlag);
         return ApiResponse.successResponse(userReservation);
     }
 }
