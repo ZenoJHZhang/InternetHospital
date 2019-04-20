@@ -206,6 +206,12 @@ public class UserReservationServiceImpl implements UserReservationService {
         ) {
             String stateName = userReservationStatusMapper.selectByPrimaryKey(userReservation.getStatus()).getStateName();
             userReservation.setPayStateDescription(stateName);
+            //获取用户就诊列表时，处于审方通过状态的，变为待评价状态
+            if (userReservation.getStatus() == 14){
+                userReservation.setStatus(17);
+                userReservation.setUpdateTime(new Date());
+                userReservationMapper.updateByPrimaryKeySelective(userReservation);
+            }
         }
         return new PageInfo<>(userReservationList);
     }
