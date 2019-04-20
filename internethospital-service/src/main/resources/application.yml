@@ -51,8 +51,8 @@ logging:
 server:
   port: 8080
   ssl:
-    key-store: 1718543_www.woniuyiliao.cn.pfx
-    key-store-password: 28BmGQBh
+    key-store: 2007351_management.woniuyiliao.cn.pfx
+    key-store-password: Rw7mU4q6
   max-http-header-size: 102400
 mybatis:
   configuration:
