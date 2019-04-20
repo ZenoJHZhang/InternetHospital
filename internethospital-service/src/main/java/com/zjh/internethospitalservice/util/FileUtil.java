@@ -6,6 +6,7 @@ import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.Img;
 import com.zjh.internethospitalapi.service.img.ImgService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
@@ -26,6 +27,7 @@ import java.util.UUID;
  * @date: 2018/12/14 09:13
  */
 @Component
+@Slf4j
 public class FileUtil {
 
     private static ImgService imgService;
@@ -35,7 +37,7 @@ public class FileUtil {
         FileUtil.imgService = imgService;
     }
 
-    public static ResponseEntity<ApiResponse> uploadFile(MultipartFile file, String imgType, String description) {
+    public static ResponseEntity<ApiResponse> uploadFile(MultipartFile file, String imgType, String description)  {
         String fileOriginalFilename = file.getOriginalFilename();
         String suffix = fileOriginalFilename.substring(fileOriginalFilename.lastIndexOf(".") + 1);
         String uuid = UUID.randomUUID().toString();
@@ -47,8 +49,8 @@ public class FileUtil {
         try {
             file.transferTo(dest);
         } catch (IOException e) {
-            e.printStackTrace();
-            throw new RuntimeException("文件上传失败");
+            log.error(e.getMessage());
+            throw new RuntimeException(e.getMessage());
         }
         imgService.insertImg(img);
         return ApiResponse.successResponse(img);

@@ -123,7 +123,10 @@ public class UserReservation {
      */
     @Column(name = "is_click")
     private String isClick;
-
+    /**
+     * 评价星级
+     */
+    private String evaluateStar;
     /**
      * 是否评价，0未评价，1已评价
      */
@@ -234,10 +237,6 @@ public class UserReservation {
      */
     @Column(name = "clinic_type")
     private String clinicType;
-    /**
-     * 就诊是否已结束
-     */
-    private Integer isEnd;
     /**
      * 创建时间
      */

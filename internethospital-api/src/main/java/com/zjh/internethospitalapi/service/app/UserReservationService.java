@@ -71,4 +71,12 @@ public interface UserReservationService {
      * @return UserReservation
      */
     UserReservation getAllDetailByUuId(String uuid,boolean adminFlag);
+
+    /**
+     * 给与问诊医生星级评价
+     * @param doctorId 医生id
+     * @param starRate 星级
+     * @param userReservationUuId  就诊uuid
+     */
+    void giveStar(Integer doctorId,Integer starRate,String userReservationUuId);
 }

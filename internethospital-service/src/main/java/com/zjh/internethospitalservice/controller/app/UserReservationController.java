@@ -126,4 +126,15 @@ public class UserReservationController {
         UserReservation userReservation = userReservationService.getAllDetailByUuId(userReservationUuId,adminFlag);
         return ApiResponse.successResponse(userReservation);
     }
+
+    @PostMapping("/giveStar")
+    @ApiOperation(value = "给与问诊医生评价")
+    @RequiresRoles(value = "user")
+    public ResponseEntity<ApiResponse> giveStar(
+            @RequestParam @ApiParam(value = "问诊医生id",required = true) Integer doctorId,
+            @ApiParam(value = "星级",required = true) @RequestParam Integer starRate,
+            @ApiParam(value = "uuid",required = true) @RequestParam String uuId) {
+        userReservationService.giveStar(doctorId,starRate,uuId);
+        return ApiResponse.successResponse(null);
+    }
 }

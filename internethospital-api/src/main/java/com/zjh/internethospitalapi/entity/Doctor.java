@@ -76,7 +76,7 @@ public class Doctor {
      * 医生星级
      */
     @Column(name = "star_level")
-    private Integer starLevel;
+    private String starLevel;
 
     /**
      * 创建时间

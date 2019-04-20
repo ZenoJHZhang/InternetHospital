@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,11 +48,12 @@ public class UserReservationServiceImpl implements UserReservationService {
     private final UserReservationStatusMapper userReservationStatusMapper;
     private final DiagnoseMapper diagnoseMapper;
     private final DocRecipeService docRecipeService;
+    private DoctorMapper doctorMapper;
 
     @Autowired
     public UserReservationServiceImpl(PatientService patientService, UserReservationImgMapper userReservationImgMapper,
                                       UserReservationMapper userReservationMapper, ScheduleDoctorMapper scheduleDoctorMapper,
-                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper, ImgService imgService, ScheduleDoctorService scheduleDoctorService, UserReservationStatusMapper userReservationStatusMapper, DiagnoseMapper diagnoseMapper, DocRecipeService docRecipeService) {
+                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper, ImgService imgService, ScheduleDoctorService scheduleDoctorService, UserReservationStatusMapper userReservationStatusMapper, DiagnoseMapper diagnoseMapper, DocRecipeService docRecipeService, DoctorMapper doctorMapper) {
         this.patientService = patientService;
         this.userReservationImgMapper = userReservationImgMapper;
         this.userReservationMapper = userReservationMapper;
@@ -62,6 +65,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         this.userReservationStatusMapper = userReservationStatusMapper;
         this.diagnoseMapper = diagnoseMapper;
         this.docRecipeService = docRecipeService;
+        this.doctorMapper = doctorMapper;
     }
 
 
@@ -103,6 +107,28 @@ public class UserReservationServiceImpl implements UserReservationService {
         userReservation.setType(3);
         appointmentExpert(userReservation);
         return commonGenerateUserReservation(userReservationDto, userReservation);
+    }
+
+    @Override
+    public void giveStar(Integer doctorId, Integer starRate,String userReservationUuId) {
+        Example example = new Example(UserReservation.class);
+        example.createCriteria().andEqualTo("doctorId",doctorId)
+                .andEqualTo("isDelete",0)
+                .andEqualTo("status",18);
+        List<UserReservation> userReservationList = userReservationMapper.selectByExample(example);
+        Doctor doctor = doctorMapper.selectByPrimaryKey(doctorId);
+        BigDecimal beforeRate = new BigDecimal( doctor.getStarLevel());
+        beforeRate = beforeRate.add(new BigDecimal(starRate));
+        BigDecimal nowRate = beforeRate.divide(new BigDecimal(userReservationList.size()+1),2, RoundingMode.HALF_UP);
+        doctor.setStarLevel(nowRate.toString());
+        doctor.setUpdateTime(new Date());
+        doctorMapper.updateByPrimaryKeySelective(doctor);
+        UserReservation userReservation = getUserReservationByUuId(userReservationUuId);
+        userReservation.setStatus(18);
+        userReservation.setIsEvaluate("1");
+        userReservation.setEvaluateStar(starRate.toString());
+        userReservation.setUpdateTime(new Date());
+        userReservationMapper.updateByPrimaryKeySelective(userReservation);
     }
 
     @Override
@@ -166,7 +192,7 @@ public class UserReservationServiceImpl implements UserReservationService {
     @Override
     public List<UserReservation> getUserReservationByUserIdIsNotEnd(Integer userId) {
         Example example = new Example(UserReservation.class);
-        example.createCriteria().andEqualTo("userId", userId).andEqualTo("isEnd", 0);
+        example.createCriteria().andEqualTo("userId", userId);
         return userReservationMapper.selectByExample(example);
     }
 
@@ -198,7 +224,7 @@ public class UserReservationServiceImpl implements UserReservationService {
     @Override
     public UserReservation getUserReservationByUuId(String uuid) {
         Example example = new Example(UserReservation.class);
-        example.createCriteria().andEqualTo("uuId", uuid);
+        example.createCriteria().andEqualTo("uuId", uuid).andEqualTo("isDelete",0);
         UserReservation userReservation = userReservationMapper.selectOneByExample(example);
         if (userReservation == null) {
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
