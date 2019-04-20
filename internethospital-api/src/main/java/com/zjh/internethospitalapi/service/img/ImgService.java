@@ -49,10 +49,10 @@ public interface ImgService {
 
     /**
      * 获取用户就诊病情图片信息
-     * @param userReservationId
+     * @param userReservationUuId
      * @return
      */
-    List<Img> listUserReservationImg(Integer userReservationId);
+    List<Img> listUserReservationImg(String userReservationUuId);
 
 
 }

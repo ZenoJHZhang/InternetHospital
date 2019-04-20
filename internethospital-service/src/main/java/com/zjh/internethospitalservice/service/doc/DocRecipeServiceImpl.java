@@ -92,8 +92,10 @@ public class DocRecipeServiceImpl implements DocRecipeService {
              ) {
             RecipeDetail recipeDetail = new RecipeDetail();
             BeanUtils.copyProperties(medical,recipeDetail);
+            recipeDetail.setId(null);
             recipeDetail.setRecipeId(recipeId);
             recipeDetail.setMedicalId(medical.getId());
+            recipeDetail.setIsDelete(0);
             recipeDetail.setCreateTime(new Date());
             recipeDetail.setUpdateTime(new Date());
             recipeDetailMapper.insertSelective(recipeDetail);

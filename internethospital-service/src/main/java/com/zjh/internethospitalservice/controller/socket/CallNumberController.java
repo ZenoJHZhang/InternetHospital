@@ -75,6 +75,11 @@ public class CallNumberController {
                 result.put("message","请按顺序进行叫号");
                 return result;
             }
+            if (clinicState.equals(3)){
+                result.put("code", 1);
+                result.put("message","上个就诊未完成，无法再次叫号");
+                return result;
+            }
             Integer callNo;
             if (timeInterval.equals(Constants.MORNING)) {
                 callNo = scheduleDoctor.getMorningCallNo();
