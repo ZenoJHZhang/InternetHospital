@@ -178,7 +178,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         userReservation.setCallNo(callNo);
 
         //用户就诊图片构造
-        List<Img> imgList = imgService.listUserReservationImg(userReservation.getId());
+        List<Img> imgList = imgService.listUserReservationImg(userReservation.getUuId());
         List<String> imgPathList = new LinkedList<>();
         for (Img img : imgList
         ) {

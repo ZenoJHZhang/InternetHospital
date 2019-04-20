@@ -88,5 +88,14 @@ public class DocUserReservationController {
         return ApiResponse.successResponse(null);
     }
 
-
+    @ApiOperation(value = "过号")
+    @PostMapping("/passUserReservation")
+    @RequiresRoles(value = {"doctor", "superAdmin"}, logical = Logical.OR)
+    public ResponseEntity<ApiResponse> passUserReservation(
+            @ApiParam(value = "用户就诊Uuid", required = true) @RequestParam String userReservationUuid,
+            @ApiParam(value = "过号原因",required = true) @RequestParam String passReason
+    ) {
+        docUserReservationService.passUserReservation(userReservationUuid,passReason);
+        return ApiResponse.successResponse(null);
+    }
 }

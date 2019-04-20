@@ -61,8 +61,8 @@ public class ImgController {
     @GetMapping(value = "/listUserReservationImg")
     @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> listUserReservationImg(
-            @ApiParam(value = "用户就诊信息id",required = true,example = "1") @RequestParam Integer userReservationId){
-        return ApiResponse.successResponse(imgService.listUserReservationImg(userReservationId));
+            @ApiParam(value = "用户就诊信息uuId",required = true) @RequestParam String userReservationUuId){
+        return ApiResponse.successResponse(imgService.listUserReservationImg(userReservationUuId));
 }
 
     @PostMapping("/insertUserReservationImg")

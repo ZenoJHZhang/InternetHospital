@@ -1,14 +1,15 @@
 package com.zjh.internethospitalservice.service.img;
 
-import com.sun.org.apache.regexp.internal.RE;
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.entity.Img;
+import com.zjh.internethospitalapi.entity.UserReservation;
 import com.zjh.internethospitalapi.entity.UserReservationImg;
 import com.zjh.internethospitalapi.service.img.ImgService;
 import com.zjh.internethospitalservice.mapper.ImgMapper;
 import com.zjh.internethospitalservice.mapper.UserReservationImgMapper;
+import com.zjh.internethospitalservice.mapper.UserReservationMapper;
 import com.zjh.internethospitalservice.util.ImgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,11 +31,13 @@ public class ImgServiceImpl implements ImgService {
 
     private final ImgMapper imgMapper;
     private final UserReservationImgMapper userReservationImgMapper;
+    private final UserReservationMapper userReservationMapper;
 
     @Autowired
-    public ImgServiceImpl(ImgMapper imgMapper, UserReservationImgMapper userReservationImgMapper) {
+    public ImgServiceImpl(ImgMapper imgMapper, UserReservationImgMapper userReservationImgMapper, UserReservationMapper userReservationMapper) {
         this.imgMapper = imgMapper;
         this.userReservationImgMapper = userReservationImgMapper;
+        this.userReservationMapper = userReservationMapper;
     }
 
     @Override
@@ -104,10 +107,13 @@ public class ImgServiceImpl implements ImgService {
     }
 
     @Override
-    public List<Img> listUserReservationImg(Integer userReservationId) {
+    public List<Img> listUserReservationImg(String userReservationUuId) {
+        UserReservation userReservation = new UserReservation();
+        userReservation.setUuId(userReservationUuId);
+        userReservation = userReservationMapper.selectOne(userReservation);
         List<Img> imgList = new ArrayList<>();
         Example example = new Example(UserReservationImg.class);
-        example.createCriteria().andEqualTo("userReservationId",userReservationId);
+        example.createCriteria().andEqualTo("userReservationId",userReservation.getId());
         List<UserReservationImg> userReservationImgList = userReservationImgMapper.selectByExample(example);
         for (UserReservationImg userReservationImg:userReservationImgList
                 ) {

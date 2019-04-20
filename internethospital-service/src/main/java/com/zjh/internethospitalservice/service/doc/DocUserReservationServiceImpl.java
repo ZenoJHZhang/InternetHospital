@@ -162,6 +162,17 @@ public class DocUserReservationServiceImpl implements DocUserReservationService 
     }
 
     @Override
+    public void passUserReservation(String userReservationUuId, String passReason) {
+        UserReservation userReservation = new UserReservation();
+        userReservation.setUuId(userReservationUuId);
+        userReservation = userReservationMapper.selectOne(userReservation);
+        userReservation.setSkipReason(passReason);
+        userReservation.setStatus(5);
+        userReservation.setUpdateTime(new Date());
+        userReservationMapper.updateByPrimaryKeySelective(userReservation);
+    }
+
+    @Override
     public Integer judgeUserReservationClinicStatusBeforeCall(UserReservation userReservation, Integer doctorCallRegNo) {
         ScheduleDoctor scheduleDoctor = scheduleDoctorService.getScheduleDoctor(userReservation.getScheduleDoctorId());
         //医生叫到几号，一开始是0
@@ -176,6 +187,17 @@ public class DocUserReservationServiceImpl implements DocUserReservationService 
         } else {
             callNo = scheduleDoctor.getNightCallNo();
         }
+
+        //判断前一个视频就诊是否结束，未结束不得叫下一个号
+        UserReservation passOne = new UserReservation();
+        passOne.setRegNo(callNo);
+        passOne.setScheduleDoctorId(scheduleDoctor.getId());
+        passOne.setTimeInterval(timeInterval);
+        passOne = userReservationMapper.select(passOne).get(0);
+        if (passOne.getStatus()< 13){
+            return 3;
+        }
+
         //callNo+1 即为医生准备叫的号
         //判断医生准备叫的号与医生已叫的号 => 医生是否过号叫人
         if (doctorCallRegNo != null){
