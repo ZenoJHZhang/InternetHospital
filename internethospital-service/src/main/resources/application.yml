@@ -49,7 +49,7 @@ mapper:
 logging:
   file: C:/log/internetHospital.log
 server:
-  port: 8080
+  port: 8081
   ssl:
     key-store: 2007351_management.woniuyiliao.cn.pfx
     key-store-password: Rw7mU4q6
