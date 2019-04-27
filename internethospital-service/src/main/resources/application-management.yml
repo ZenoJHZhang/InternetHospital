@@ -1,0 +1,59 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://47.100.241.49:3306/internet_hospital?useUnicode=true&characterEncoding=utf8&useSSL=false
+    username: root
+    password: 123456
+    druid:
+      aop-patterns: com.zjh.internethospitalservice.controller.*
+      max-active: 20
+      initial-size: 1
+      max-wait: 60000
+      min-evictable-idle-time-millis: 300000
+      test-on-return: false
+      test-on-borrow: false
+      test-while-idle: true
+      pool-prepared-statements: true
+      max-open-prepared-statements: 20
+      async-init: true
+  servlet:
+    multipart:
+      max-file-size: 2MB
+  redis:
+    host: 47.100.241.49
+    port: 6379
+    password:
+  output:
+    ansi:
+      enabled: always
+pagehelper:
+  page-size-zero: true
+  reasonable: true
+swagger:
+  docket:
+    app:
+        title: 蜗牛医疗API
+        contact:
+          name: Zeno
+          email: zeno.jh.zhang@gmail.com
+  global-operation-parameters:
+      - name: Authorization
+        description: token
+        modelRef: String
+        parameterType: header
+        requeire: false
+mapper:
+  style: camelhumpAndLowercase
+  not-empty: true
+  check-example-entity-class: true
+logging:
+  file: C:/log/internetHospital.log
+server:
+  port: 8081
+  ssl:
+    key-store: 2007351_management.woniuyiliao.cn.pfx
+    key-store-password: Rw7mU4q6
+  max-http-header-size: 102400
+mybatis:
+  configuration:
+    map-underscore-to-camel-case: true
