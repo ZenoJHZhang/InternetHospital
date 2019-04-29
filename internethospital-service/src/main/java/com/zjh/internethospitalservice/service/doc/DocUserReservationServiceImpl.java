@@ -187,7 +187,10 @@ public class DocUserReservationServiceImpl implements DocUserReservationService 
         } else {
             callNo = scheduleDoctor.getNightCallNo();
         }
-
+        //医生还未叫过号，说明这个号是第一个号
+        if(callNo.equals(0)){
+            return 0;
+        }
         //判断前一个视频就诊是否结束，未结束不得叫下一个号
         UserReservation passOne = new UserReservation();
         passOne.setRegNo(callNo);

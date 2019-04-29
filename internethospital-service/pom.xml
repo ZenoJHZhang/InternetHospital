@@ -155,9 +155,15 @@
                     </dependency>
                 </dependencies>
             </plugin>
-
         </plugins>
     </build>
-
+    <profiles>
+        <profile>
+            <id>management</id>
+            <properties>
+                <profileActive>management</profileActive>
+            </properties>
+        </profile>
+    </profiles>
 
 </project>
