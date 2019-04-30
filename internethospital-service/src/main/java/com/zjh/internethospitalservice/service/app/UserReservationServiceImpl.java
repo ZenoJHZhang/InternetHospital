@@ -10,7 +10,10 @@ import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
 import com.zjh.internethospitalapi.dto.DispensingDoctorDto;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
 import com.zjh.internethospitalapi.entity.*;
-import com.zjh.internethospitalapi.service.app.*;
+import com.zjh.internethospitalapi.service.app.PatientService;
+import com.zjh.internethospitalapi.service.app.ScheduleDoctorService;
+import com.zjh.internethospitalapi.service.app.SeasonTimeService;
+import com.zjh.internethospitalapi.service.app.UserReservationService;
 import com.zjh.internethospitalapi.service.doc.DocRecipeService;
 import com.zjh.internethospitalapi.service.img.ImgService;
 import com.zjh.internethospitalservice.mapper.*;
@@ -48,7 +51,8 @@ public class UserReservationServiceImpl implements UserReservationService {
     private final UserReservationStatusMapper userReservationStatusMapper;
     private final DiagnoseMapper diagnoseMapper;
     private final DocRecipeService docRecipeService;
-    private DoctorMapper doctorMapper;
+    private final DoctorMapper doctorMapper;
+
 
     @Autowired
     public UserReservationServiceImpl(PatientService patientService, UserReservationImgMapper userReservationImgMapper,
@@ -71,7 +75,7 @@ public class UserReservationServiceImpl implements UserReservationService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer insertNormalUserReservation(UserReservationDto userReservationDto) {
+    public Integer insertNormalUserReservation(UserReservationDto userReservationDto){
         UserReservation userReservation = new UserReservation();
         BeanUtils.copyProperties(userReservationDto, userReservation);
 
@@ -100,7 +104,7 @@ public class UserReservationServiceImpl implements UserReservationService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer insertExpertUserReservation(UserReservationDto userReservationDto) {
+    public Integer insertExpertUserReservation(UserReservationDto userReservationDto){
         UserReservation userReservation = new UserReservation();
         BeanUtils.copyProperties(userReservationDto, userReservation);
 
@@ -272,9 +276,16 @@ public class UserReservationServiceImpl implements UserReservationService {
         example.createCriteria().andEqualTo("scheduleDepartmentId", userReservationDto.getScheduleDepartmentId());
         List<ScheduleDoctor> scheduleDoctorList;
         String timeInterval = userReservationDto.getTimeInterval();
-
+        ScheduleDepartment scheduleDepartment = new ScheduleDepartment();
+        scheduleDepartment.setId(userReservationDto.getScheduleDepartmentId());
+        scheduleDepartment = scheduleDepartmentMapper.selectOne(scheduleDepartment);
         //根据时间段选取医生，构建待分配号源医生列表
         if (timeInterval.equals(Constants.MORNING)) {
+            //判断是否还有号源
+            int timeExistNumber = scheduleDepartment.getMorningTotalNumber() - scheduleDepartment.getMorningNumber();
+            if (timeExistNumber <= 0){
+                throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+            }
             example.and().andEqualTo("doctorMorningHas", 1);
             scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
             for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
@@ -289,6 +300,10 @@ public class UserReservationServiceImpl implements UserReservationService {
                 dispensingDoctorDtoList.add(dispensingDoctorDto);
             }
         } else if (timeInterval.equals(Constants.AFTERNOON)) {
+            int timeExistNumber = scheduleDepartment.getAfternoonTotalNumber() - scheduleDepartment.getAfternoonNumber();
+            if (timeExistNumber <= 0){
+                throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+            }
             example.and().andEqualTo("doctorAfternoonHas", 1);
             scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
             for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
@@ -303,6 +318,10 @@ public class UserReservationServiceImpl implements UserReservationService {
                 dispensingDoctorDtoList.add(dispensingDoctorDto);
             }
         } else if (timeInterval.equals(Constants.NIGHT)) {
+            int timeExistNumber = scheduleDepartment.getNightTotalNumber() - scheduleDepartment.getNightNumber();
+            if (timeExistNumber <= 0){
+                throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+            }
             example.and().andEqualTo("doctorNightHas", 1);
             scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
             for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
@@ -318,6 +337,11 @@ public class UserReservationServiceImpl implements UserReservationService {
             }
         }
 
+        //开始此科室排班
+        scheduleDepartment.setIsStart(1);
+        scheduleDepartment.setUpdateTime(new Date());
+        scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
+
         //所有可分配号源医生中，已挂号源最少的医生,需要初始化数值，防止null exception
         DispensingDoctorDto minDispensingDoctorDto = dispensingDoctorDtoList.get(0);
 
@@ -331,7 +355,6 @@ public class UserReservationServiceImpl implements UserReservationService {
                 }
             }
         }
-
         return minDispensingDoctorDto;
     }
 
@@ -377,16 +400,29 @@ public class UserReservationServiceImpl implements UserReservationService {
         ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(userReservation.getScheduleDoctorId());
         //区分时间段
         if (timeInterval.equals(Constants.MORNING)) {
+            int timeExistNumber = scheduleDoctor.getDoctorMorningTotalNumber() - scheduleDoctor.getDoctorMorningNumber();
+            if (timeExistNumber <= 0){
+                throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+            }
             scheduleDoctor.setDoctorMorningNumber(scheduleDoctor.getDoctorMorningNumber() + 1);
             userReservation.setRegNo(scheduleDoctor.getDoctorMorningNumber());
         } else if (timeInterval.equals(Constants.AFTERNOON)) {
+            int timeExistNumber = scheduleDoctor.getDoctorAfternoonTotalNumber() - scheduleDoctor.getDoctorAfternoonNumber();
+            if (timeExistNumber <= 0){
+                throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+            }
             scheduleDoctor.setDoctorAfternoonNumber(scheduleDoctor.getDoctorAfternoonNumber() + 1);
             userReservation.setRegNo(scheduleDoctor.getDoctorAfternoonNumber());
         } else if (timeInterval.equals(Constants.NIGHT)) {
+            int timeExistNumber = scheduleDoctor.getDoctorNightTotalNumber() - scheduleDoctor.getDoctorNightNumber();
+            if (timeExistNumber <= 0){
+                throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+            }
             scheduleDoctor.setDoctorNightNumber(scheduleDoctor.getDoctorNightNumber() + 1);
             userReservation.setRegNo(scheduleDoctor.getDoctorNightNumber());
         }
         scheduleDoctor.setUpdateTime(new Date());
+        scheduleDoctor.setIsStart(1);
         int result = scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
         if (result != 1) {
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_INSERT_FAIL);
@@ -399,7 +435,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         userReservation.setConditionDesc(userReservationDto.getAccentDetail());
         userReservation.setClinicPrice(userReservationDto.getPrice());
         //就诊时间
-        JSONObject object = seasonTimeService.getSeasonTimeByTimeInterval(
+        JSONObject object = seasonTimeService.getSeasonTimeByTimeInterval(userReservationDto.getScheduleTime(),
                 userReservation.getTimeInterval());
         userReservation.setClinicTime(object.get("start") + "-" + object.get("end"));
         //就诊日期

@@ -3,6 +3,8 @@ package com.zjh.internethospitalapi.service.app;
 import com.alibaba.fastjson.JSONObject;
 import com.zjh.internethospitalapi.entity.SeasonTime;
 
+import java.text.ParseException;
+
 /**
  * 类的说明
  *
@@ -14,9 +16,10 @@ public interface SeasonTimeService {
 
     /**
      * 根据当前日期，获得对应令时，早晚起始时刻
-     * @param timeInterval
+     * @param date 挂号日期
+     * @param timeInterval 时段
      * @return
      */
-    JSONObject getSeasonTimeByTimeInterval(String timeInterval);
+    JSONObject getSeasonTimeByTimeInterval(String date,String timeInterval);
 
 }

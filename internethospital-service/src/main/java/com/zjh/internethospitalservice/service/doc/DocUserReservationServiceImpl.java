@@ -102,6 +102,7 @@ public class DocUserReservationServiceImpl implements DocUserReservationService 
         if (patientName != null && !patientName.equals("")) {
             example.and().andLike("patientName", "%" + patientName + "%");
         }
+        example.orderBy("clinicTime").desc().orderBy("regNo").asc();
         PageHelper.startPage(pageNumber, pageSize);
         List<UserReservation> realUserReservationList = userReservationMapper.selectByExample(example);
         for (UserReservation userReservation : realUserReservationList

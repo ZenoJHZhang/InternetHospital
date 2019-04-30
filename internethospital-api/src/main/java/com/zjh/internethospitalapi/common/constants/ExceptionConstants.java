@@ -69,4 +69,5 @@ public class ExceptionConstants {
     public static final String DIAGNOSE_NOT_EXIST = "诊断不存在";
     public static final String USER_RESERVATION_HAS_DIAGNOSE = "用户就诊记录已有诊断，请勿重复添加";
     public static final String USER_RESERVATION_HAS_RECIPE = "用户就诊记录已有处方，请勿重复添加";
+    public static final String HAS_NO_CLINIC_NUMBER = "很抱歉，该时段号源已空";
 }

@@ -10,6 +10,7 @@ import com.zjh.internethospitalapi.service.app.UserReservationService;
 import com.zjh.internethospitalapi.service.doc.DocUserReservationService;
 import com.zjh.internethospitalapi.service.management.ManagementDoctorService;
 import com.zjh.internethospitalservice.util.JWTUtil;
+import com.zjh.internethospitalservice.util.ShortMessageUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -55,6 +56,12 @@ public class CallNumberController {
         JSONObject result = new JSONObject();
         ScheduleDoctor scheduleDoctor = scheduleDoctorService.getScheduleDoctor(userReservation.getScheduleDoctorId());
         String timeInterval = userReservation.getTimeInterval();
+        String clinicTime = userReservation.getClinicTime();
+        String patientName = userReservation.getPatientName();
+        String clinicDate = userReservation.getClinicDate();
+        String departmentName = userReservation.getDepartmentName();
+        String doctorName = userReservation.getDoctorName();
+        Integer regNo = userReservation.getRegNo();
         if (userId != null && !userId.equals(managementDoctorService.getDoctorById(userReservation.getDoctorId()).getUserId())) {
             //code 1 不成功
             result.put("code", 1);
@@ -118,8 +125,9 @@ public class CallNumberController {
                 userReservation.setStatus(11);
                 userReservationService.updateUserReservationSelective(userReservation);
             }
-            //更新用户就诊 叫号时间以及开始就诊时间 callNumberTime
 
+            //发送短信,写死为自己手机
+//            ShortMessageUtil.callNoMessage(patientName,clinicDate,clinicTime,departmentName,doctorName,regNo.toString(),"15868154079");
             return result;
         }
 

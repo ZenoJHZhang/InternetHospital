@@ -20,13 +20,15 @@ import java.io.IOException;
  */
 @Slf4j
 public class ShortMessageUtil {
+    private final static int callNoTemplateId = 323326;
+
     /**
      * 单发短信
      * @param params 模板参数
      * @param phone 接收者手机号
      * @param templateId 模板id
      */
-    public static void sendShortMessage(String[] params,String phone,int templateId){
+    private static void sendShortMessage(String[] params,String phone,int templateId){
         try {
             SmsSingleSender smsSingleSender = new SmsSingleSender(ShortMessageConstants.APP_ID,
                     ShortMessageConstants.APP_KEY);
@@ -40,4 +42,25 @@ public class ShortMessageUtil {
             throw new InternetHospitalException(ExceptionConstants.SEND_SHORT_MESSAGE_FAIL);
         }
     }
+
+    /**
+     * 患者到号提醒
+     */
+    public static void callNoMessage
+    (String patientName,String day,String timeInterval,String departmentName,String doctorName,String regNo,String phone){
+        String[] params=  new String[6];
+        params[0] = patientName;
+        params[1] = day;
+        params[2] = timeInterval;
+        params[3] = departmentName;
+        params[4] = doctorName;
+        params[5] = regNo;
+        sendShortMessage(params,phone,callNoTemplateId);
+    }
+
+    public static void main(String[] args) {
+        callNoMessage("张江浩","2019-04-30","8:00-12:00",
+                "专家科室1","小明","1","15868154079");
+    }
+
 }

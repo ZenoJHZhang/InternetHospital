@@ -12,7 +12,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -33,8 +37,8 @@ public class SeasonTimeServiceImpl implements SeasonTimeService {
     }
 
     @Override
-    public JSONObject getSeasonTimeByTimeInterval(String timeInterval){
-        LocalDate dateNow = LocalDate.now();
+    public JSONObject getSeasonTimeByTimeInterval(String date, String timeInterval) {
+        LocalDate dateNow = LocalDate.parse(date);
         LocalDate startDate;
         LocalDate endDate;
         JSONObject object = new JSONObject();
@@ -44,50 +48,57 @@ public class SeasonTimeServiceImpl implements SeasonTimeService {
         //判断出来的夏令时或冬令时时间
         SeasonTime realSeasonTime = null;
         for (SeasonTime seasonTime : seasonTimeList
-                ) {
+        ) {
             Integer type = seasonTime.getType();
             if (type == 1) {
                 //判断是上半年还是下半年；上半年则起始日期为去年，反之为今年
-                if(LocalDate.now().getMonthValue() <=6){
-                    startDate = LocalDate.parse((LocalDate.now().getYear()-1) + "-" + seasonTime.getStartDate());
-                    endDate =  LocalDate.parse((LocalDate.now().getYear()) + "-" + seasonTime.getEndDate());
-                }
-                else{
+                if (dateNow.getMonthValue() <= 6) {
+                    startDate = LocalDate.parse((LocalDate.now().getYear() - 1) + "-" + seasonTime.getStartDate());
+                    endDate = LocalDate.parse((LocalDate.now().getYear()) + "-" + seasonTime.getEndDate());
+                } else {
                     startDate = LocalDate.parse((LocalDate.now().getYear()) + "-" + seasonTime.getStartDate());
-                    endDate =  LocalDate.parse((LocalDate.now().getYear()+1) + "-" + seasonTime.getEndDate());
+                    endDate = LocalDate.parse((LocalDate.now().getYear() + 1) + "-" + seasonTime.getEndDate());
                 }
-                 if(dateNow.isAfter(startDate) && dateNow.isBefore(endDate)){
-                     realSeasonTime = seasonTime;
-                 }
-            }
-            else{
+                if (dateNow.isAfter(startDate) && dateNow.isBefore(endDate)) {
+                    realSeasonTime = seasonTime;
+                }
+                //4月30日 10月1日为冬令时
+                else if (dateNow.getMonthValue() == 4 && dateNow.getDayOfMonth() == 30) {
+                    realSeasonTime = seasonTime;
+                } else if (dateNow.getMonthValue() == 10 && dateNow.getDayOfMonth() == 1) {
+                    realSeasonTime = seasonTime;
+                }
+            } else {
                 startDate = LocalDate.parse((LocalDate.now().getYear()) + "-" + seasonTime.getStartDate());
-                endDate =  LocalDate.parse((LocalDate.now().getYear()) + "-" + seasonTime.getEndDate());
-                if(dateNow.isAfter(startDate) && dateNow.isBefore(endDate)){
+                endDate = LocalDate.parse((LocalDate.now().getYear()) + "-" + seasonTime.getEndDate());
+                if (dateNow.isAfter(startDate) && dateNow.isBefore(endDate)) {
+                    realSeasonTime = seasonTime;
+                }
+                //5月1日 9月30日 为夏令时
+                else if (dateNow.getDayOfMonth() == 1 && dateNow.getMonthValue() == 5) {
+                    realSeasonTime = seasonTime;
+                } else if (dateNow.getDayOfMonth() == 30 && dateNow.getMonthValue() == 9) {
                     realSeasonTime = seasonTime;
                 }
             }
         }
-        if (realSeasonTime != null){
-            if (timeInterval.equals(Constants.MORNING)){
+        if (realSeasonTime != null) {
+            if (timeInterval.equals(Constants.MORNING)) {
                 start = realSeasonTime.getMorningStart();
                 end = realSeasonTime.getMorningEnd();
-            }
-            else if(timeInterval.equals(Constants.AFTERNOON)){
+            } else if (timeInterval.equals(Constants.AFTERNOON)) {
                 start = realSeasonTime.getAfternoonStart();
                 end = realSeasonTime.getAfternoonEnd();
-            }
-            else {
+            } else {
                 start = realSeasonTime.getNightStart();
                 end = realSeasonTime.getNightEnd();
             }
-        }
-        else {
+        } else {
             log.error("令时获取失败");
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_INSERT_FAIL);
         }
-        object.put("start",start);
-        object.put("end",end);
+        object.put("start", start);
+        object.put("end", end);
         return object;
     }
 }

@@ -17,6 +17,15 @@ public class DepartmentMapperSqlProvider {
             SELECT("department.*," +
                     "schedule_department.id as schedule_department_id,schedule_time,department_id," +
                     "img.img_uuid,img.suffix,img.type");
+            if (timeInterval.equals(Constants.MORNING)) {
+                SELECT("(morning_total_number - morning_number) as time_exist_number");
+            }
+            if (timeInterval.equals(Constants.AFTERNOON)) {
+                SELECT("(afternoon_total_number - afternoon_number) as time_exist_number");
+            }
+            if (timeInterval.equals(Constants.NIGHT)) {
+                SELECT("(night_total_number - night_number) as time_exist_number");
+            }
             FROM("schedule_department,department,img");
             if (timeInterval.equals(Constants.MORNING)) {
                 WHERE("morning_has = 1");

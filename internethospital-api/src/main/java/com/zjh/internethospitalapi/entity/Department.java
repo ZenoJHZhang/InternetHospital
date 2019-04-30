@@ -81,4 +81,10 @@ public class Department {
      */
     @Transient
     private String imgPath;
+
+    /**
+     * 剩余号源数
+     */
+    @Transient
+    private Integer timeExistNumber;
 }
