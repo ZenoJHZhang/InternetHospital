@@ -92,7 +92,7 @@ public class FileUtil {
      */
     public static Integer enCodingBase64(String imgStr, String imgType, String description) throws IOException {
         JSONObject jsonObject = JSON.parseObject(imgStr);
-        imgStr = jsonObject.getJSONObject("imgStr").getString("imgStr");
+        imgStr = jsonObject.getString("imgStr");
         imgStr = imgStr.replace("data:image/png;base64,","");
         BASE64Decoder decoder = new BASE64Decoder();
         String suffix = "png";

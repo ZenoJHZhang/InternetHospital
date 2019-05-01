@@ -145,7 +145,7 @@ public class ManagementDepartmentServiceImpl implements ManagementDepartmentServ
         department.setId(departmentId);
         department.setIsDelete(1);
         department.setUpdateTime(new Date());
-        int i = departmentMapper.updateByPrimaryKey(department);
+        int i = departmentMapper.updateByPrimaryKeySelective(department);
         if (i != 1) {
             throw new InternetHospitalException(ExceptionConstants.DELETE_DEPARTMENT_FAIL);
         }

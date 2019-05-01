@@ -59,7 +59,7 @@ public class DoctorDto {
     /**
      * 医生星级
      */
-    private Integer starLevel;
+    private String starLevel;
 
     /**
      * 图片地址
