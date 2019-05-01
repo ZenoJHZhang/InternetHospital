@@ -132,7 +132,7 @@ public class ManagementDepartmentController {
             message = "科室联系电话不得为空";
             return message;
         }
-        if (Pattern.matches(phonePattern, phone)) {
+        if (!Pattern.matches(phonePattern, phone)) {
             message = "科室手机号格式不符";
             return message;
         }

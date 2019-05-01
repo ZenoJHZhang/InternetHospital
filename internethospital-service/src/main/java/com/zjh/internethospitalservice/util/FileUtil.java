@@ -1,5 +1,7 @@
 package com.zjh.internethospitalservice.util;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
@@ -17,6 +19,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.net.URLDecoder;
 import java.util.UUID;
 
 /**
@@ -37,7 +40,7 @@ public class FileUtil {
         FileUtil.imgService = imgService;
     }
 
-    public static ResponseEntity<ApiResponse> uploadFile(MultipartFile file, String imgType, String description)  {
+    public static ResponseEntity<ApiResponse> uploadFile(MultipartFile file, String imgType, String description) {
         String fileOriginalFilename = file.getOriginalFilename();
         String suffix = fileOriginalFilename.substring(fileOriginalFilename.lastIndexOf(".") + 1);
         String uuid = UUID.randomUUID().toString();
@@ -45,7 +48,7 @@ public class FileUtil {
         String filePath = Constants.IMG_UPLOAD_BASE_URL + imgType +
                 "/";
         File dest = new File(filePath, uuidName);
-        Img img = makeImgDetail(uuid,imgType,suffix,description);
+        Img img = makeImgDetail(uuid, imgType, suffix, description);
         try {
             file.transferTo(dest);
         } catch (IOException e) {
@@ -81,36 +84,37 @@ public class FileUtil {
 
     /**
      * base64转图片并保存
-     * @param imgStr base64
-     * @param imgType 图片类型
+     *
+     * @param imgStr      base64
+     * @param imgType     图片类型
      * @param description 图片描述
      * @return 图片在数据库内的id
      */
     public static Integer enCodingBase64(String imgStr, String imgType, String description) throws IOException {
+        JSONObject jsonObject = JSON.parseObject(imgStr);
+        imgStr = jsonObject.getJSONObject("imgStr").getString("imgStr");
         imgStr = imgStr.replace("data:image/png;base64,","");
         BASE64Decoder decoder = new BASE64Decoder();
         String suffix = "png";
         String uuid = UUID.randomUUID().toString();
         String uuidName = uuid + "." + suffix;
         String filePath = Constants.IMG_UPLOAD_BASE_URL + imgType +
-                "/"+uuidName;
+                "/" + uuidName;
         byte[] b = decoder.decodeBuffer(imgStr);
-        for(int i=0;i<b.length;++i)
-        {
-            if(b[i]<0)
-            {//调整异常数据
-                b[i]+=256;
+        for (int i = 0; i < b.length; ++i) {
+            if (b[i] < 0) {//调整异常数据
+                b[i] += 256;
             }
         }
         OutputStream out = new FileOutputStream(filePath);
         out.write(b);
         out.flush();
         out.close();
-        Img img = makeImgDetail(uuid,imgType,suffix,description);
+        Img img = makeImgDetail(uuid, imgType, suffix, description);
         return imgService.insertImg(img);
     }
 
-    private static Img makeImgDetail(String uuid,String imgType,String suffix,String description){
+    private static Img makeImgDetail(String uuid, String imgType, String suffix, String description) {
         Img img = new Img();
         img.setImgUuid(uuid);
         img.setType(imgType);

@@ -82,16 +82,16 @@ public class ImgController {
 
     @PostMapping("/insertDepartmentImg")
     @ApiOperation(value = "添加科室示例图")
-    public ResponseEntity<ApiResponse> insertDepartmentImg(@RequestParam String imgStr
+    public ResponseEntity<ApiResponse> insertDepartmentImg(@RequestBody String imgStr
             ,@RequestParam Integer departmentId) throws IOException {
-        Integer imgId = FileUtil.enCodingBase64(imgStr, Constants.IMG_TYPE_DEPARMENT, "科室示例图");
+        Integer imgId = FileUtil.enCodingBase64(imgStr, Constants.IMG_TYPE_DEPARTMENT, "科室示例图");
         managementDepartmentService.updateDepartmentImg(imgId,departmentId);
         return ApiResponse.successResponse(null);
     }
 
     @PostMapping("/insertDoctorImg")
     @ApiOperation(value = "添加医生头像")
-    public ResponseEntity<ApiResponse> insertDoctorImg(@RequestParam String imgStr
+    public ResponseEntity<ApiResponse> insertDoctorImg(@RequestBody String imgStr
             ,@RequestParam Integer doctorId) throws IOException {
         Integer imgId = FileUtil.enCodingBase64(imgStr, Constants.IMG_TYPE_DOCTOR, "医生头像");
         managementDoctorService.updateDoctorImg(doctorId,imgId);

@@ -75,7 +75,7 @@ public final class Constants {
     public static final String IMG_TYPE_INDEX = "index";
     public static final String IMG_TYPE_NET_TREATMENT_ROOM = "netTreatmentRoom";
     public static final String IMH_TYPE_USER_RESERVATION = "userReservation";
-    public static final String IMG_TYPE_DEPARMENT = "department";
+    public static final String IMG_TYPE_DEPARTMENT = "department";
     public static final String IMG_TYPE_DOCTOR = "doctor";
 
 }
