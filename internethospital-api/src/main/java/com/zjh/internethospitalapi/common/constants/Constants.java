@@ -11,6 +11,7 @@ public final class Constants {
     private Constants() {
 
     }
+
     /**
      * 常规名词类
      */
@@ -77,5 +78,4 @@ public final class Constants {
     public static final String IMH_TYPE_USER_RESERVATION = "userReservation";
     public static final String IMG_TYPE_DEPARTMENT = "department";
     public static final String IMG_TYPE_DOCTOR = "doctor";
-
 }
