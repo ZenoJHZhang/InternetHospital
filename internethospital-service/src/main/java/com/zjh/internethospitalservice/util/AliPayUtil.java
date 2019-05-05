@@ -67,7 +67,7 @@ public class AliPayUtil {
         model.setTotalAmount(amount);
         model.setSellerId("2088102177938345");
         model.setOutTradeNo(UUID.randomUUID().toString());
-        model.setTimeoutExpress("1m");
+        model.setTimeoutExpress("20m");
         request.setBizModel(model);
         try {
             AlipayTradePrecreateResponse response = alipayClient.execute(request);

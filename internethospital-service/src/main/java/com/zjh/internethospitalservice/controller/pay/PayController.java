@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 类的说明
@@ -76,7 +77,7 @@ public class PayController {
             AlipayTradePrecreateResponse response = aliPayUtil.preCreatePay(amount, userReservationUuId);
             if (response.getCode().equals(Constants.PAY_SUCCESS)) {
                 QrCodeDto qrCodeDto = new QrCodeDto(response.getQrCode(), response.getOutTradeNo(), userReservationUuId, PayStatusConstants.WAIT_PAY);
-                stringRedisTemplate.opsForValue().set("二维码" + response.getOutTradeNo(), response.getQrCode());
+                stringRedisTemplate.opsForValue().set("二维码" + response.getOutTradeNo(), response.getQrCode(),2,TimeUnit.HOURS);
                 return ApiResponse.successResponse(qrCodeDto);
             } else {
                 return ApiResponse.commonResponse(400, response.getMsg(), null);
@@ -126,7 +127,7 @@ public class PayController {
         //待支付状态，创建订单
         if (tradeStatus.equals(PayStatusConstants.WAIT_BUYER_PAY)) {
             payService.createWaitPay(outTradeNo, userReservationUuId, userId, totalAmount);
-            stringRedisTemplate.opsForValue().set("创建时间"+outTradeNo,gmtCreate);
+            stringRedisTemplate.opsForValue().set("创建时间"+outTradeNo,gmtCreate,20, TimeUnit.MINUTES);
         } else if (tradeStatus.equals(PayStatusConstants.TRADE_SUCCESS)) {
             payService.paySuccess(outTradeNo, userReservationUuId);
         }
