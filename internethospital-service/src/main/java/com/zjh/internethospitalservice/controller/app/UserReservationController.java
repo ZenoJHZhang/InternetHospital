@@ -87,23 +87,6 @@ public class UserReservationController {
         return ApiResponse.successResponse(userReservationPageInfo);
     }
 
-
-    @PostMapping("/payUserReservationClinic")
-    @ApiOperation(value = "更新就诊挂号费支付状态")
-    @RequiresRoles(value = "user")
-    public ResponseEntity<ApiResponse> payUserReservationClinic(
-            @RequestParam @ApiParam(value = "用户id", required = true, example = "1") String userReservationUUId) {
-
-        UserReservation userReservation = new UserReservation();
-        //已付款等待视频
-        userReservation.setStatus(4);
-        //挂号费支付状态修改
-        userReservation.setClinicPayStatus("1");
-        userReservation.setUuId(userReservationUUId);
-        userReservationService.updateUserReservationSelective(userReservation);
-        return ApiResponse.successResponse(null);
-    }
-
     @GetMapping("/getUserReservationIdByUuid")
     @ApiOperation(value = "根据就诊uuid获取真正的用户就诊信息id")
     @RequiresRoles(value = "user")

@@ -78,4 +78,8 @@ public final class Constants {
     public static final String IMH_TYPE_USER_RESERVATION = "userReservation";
     public static final String IMG_TYPE_DEPARTMENT = "department";
     public static final String IMG_TYPE_DOCTOR = "doctor";
+
+
+    //支付宝返回码
+    public static final String PAY_SUCCESS = "10000";
 }

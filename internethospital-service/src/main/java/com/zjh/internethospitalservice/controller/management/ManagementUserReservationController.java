@@ -59,8 +59,8 @@ public class ManagementUserReservationController {
     public ResponseEntity<ApiResponse> getUserReservationByAuditStatus(
             @ApiParam(value = "用户就诊审核状态 -1 全部 0 未审核的 1 审核通过的 2 审核不通过的", required = true)
             @RequestParam Integer auditStatus,
-            @ApiParam(value = "页码",required = true) @RequestParam Integer pageNo,
-            @ApiParam(value = "页容量",required = true) @RequestParam Integer pageSize
+            @ApiParam(value = "页码",required = true,example = "1") @RequestParam Integer pageNo,
+            @ApiParam(value = "页容量",required = true,example = "1") @RequestParam Integer pageSize
     ) {
         PageInfo<UserReservation> pageInfo =
                 managementUserReservationService.getUserReservationListByAuditStatus(auditStatus,pageNo,pageSize);

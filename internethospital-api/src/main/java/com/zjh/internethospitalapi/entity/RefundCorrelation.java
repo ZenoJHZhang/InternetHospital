@@ -13,10 +13,9 @@ public class RefundCorrelation {
     private Integer id;
 
     /**
-     * 问诊记录ID
+     * 问诊记录uuId
      */
-    @Column(name = "reservation_id")
-    private Integer reservationId;
+    private String userReservationUuId;
 
     /**
      * 退款类型,1.微信。2.支付宝
@@ -27,8 +26,7 @@ public class RefundCorrelation {
     /**
      * 退款状态：1退款中  2退款成功  3退款失败
      */
-    @Column(name = "pay_status")
-    private String payStatus;
+    private String refundStatus;
 
     /**
      * 价格
@@ -40,13 +38,12 @@ public class RefundCorrelation {
      * 订单号
      */
     @Column(name = "order_id")
-    private String orderId;
+    private Integer orderId;
 
     /**
-     * 支付宝或微信的流水号
+     * 商户交易流水号
      */
-    @Column(name = "trade_no")
-    private String tradeNo;
+    private String outTradeNo;
 
     @Column(name = "create_time")
     private Date createTime;
