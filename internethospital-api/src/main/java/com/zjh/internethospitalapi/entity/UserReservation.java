@@ -219,13 +219,6 @@ public class UserReservation {
      */
     @Column(name = "cancel_reason")
     private String cancelReason;
-
-    /**
-     * 订单id
-     */
-    @Column(name = "order_id")
-    private String orderId;
-
     /**
      * 是否第一次进入候诊间 0不是 1是
      */
@@ -298,4 +291,7 @@ public class UserReservation {
 
     @Transient
     private Diagnose diagnose;
+
+    @Transient
+    private String outTradeNo;
 }
