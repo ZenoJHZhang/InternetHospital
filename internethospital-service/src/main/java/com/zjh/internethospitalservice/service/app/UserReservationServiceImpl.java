@@ -26,10 +26,8 @@ import tk.mybatis.mapper.entity.Example;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 类的说明
@@ -75,7 +73,7 @@ public class UserReservationServiceImpl implements UserReservationService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer insertNormalUserReservation(UserReservationDto userReservationDto){
+    public void insertNormalUserReservation(UserReservationDto userReservationDto){
         UserReservation userReservation = new UserReservation();
         BeanUtils.copyProperties(userReservationDto, userReservation);
 
@@ -93,24 +91,29 @@ public class UserReservationServiceImpl implements UserReservationService {
         DispensingDoctorDto dispensingDoctorDto = dispensingDoctor(userReservationDto);
 
         //更新排班表
-        updateScheduleAppointmentNumber(dispensingDoctorDto, userReservationDto.getScheduleDepartmentId());
+//        updateScheduleAppointmentNumber(dispensingDoctorDto, userReservationDto.getScheduleDepartmentId());
 
         userReservation.setDoctorId(dispensingDoctorDto.getDoctorId());
         userReservation.setScheduleDoctorId(dispensingDoctorDto.getScheduleDoctorId());
         userReservation.setDoctorName(dispensingDoctorDto.getDoctorName());
-        userReservation.setRegNo(dispensingDoctorDto.getDoctorAppointmentNumber());
-        return commonGenerateUserReservation(userReservationDto, userReservation);
+//        userReservation.setRegNo(dispensingDoctorDto.getDoctorAppointmentNumber());
+        commonGenerateUserReservation(userReservationDto, userReservation);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Integer insertExpertUserReservation(UserReservationDto userReservationDto){
+    public void insertExpertUserReservation(UserReservationDto userReservationDto){
         UserReservation userReservation = new UserReservation();
         BeanUtils.copyProperties(userReservationDto, userReservation);
 
         userReservation.setType(3);
-        appointmentExpert(userReservation);
-        return commonGenerateUserReservation(userReservationDto, userReservation);
+//        appointmentExpert(userReservation);
+        //开始医生排班
+        ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(userReservation.getScheduleDoctorId());
+        scheduleDoctor.setIsStart(1);
+        scheduleDoctor.setUpdateTime(new Date());
+        scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
+        commonGenerateUserReservation(userReservationDto, userReservation);
     }
 
     @Override
@@ -343,19 +346,10 @@ public class UserReservationServiceImpl implements UserReservationService {
         scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
 
         //所有可分配号源医生中，已挂号源最少的医生,需要初始化数值，防止null exception
-        DispensingDoctorDto minDispensingDoctorDto = dispensingDoctorDtoList.get(0);
-
-        for (DispensingDoctorDto dispensingDoctorDto : dispensingDoctorDtoList
-        ) {
-            //当医生已挂号源小于总号源，即可再挂一个号
-            if (dispensingDoctorDto.getDoctorAppointmentNumber() < dispensingDoctorDto.getDoctorTotalAppointmentNumber()) {
-                //选取最少号源医生
-                if (minDispensingDoctorDto.getDoctorAppointmentNumber() > dispensingDoctorDto.getDoctorAppointmentNumber()) {
-                    BeanUtils.copyProperties(dispensingDoctorDto, minDispensingDoctorDto);
-                }
-            }
-        }
-        return minDispensingDoctorDto;
+        dispensingDoctorDtoList = dispensingDoctorDtoList.stream()
+                .filter(t1 -> t1.getDoctorAppointmentNumber() <= t1.getDoctorTotalAppointmentNumber())
+                .sorted((t1, t2) -> t2.getDoctorAppointmentNumber() - t1.getDoctorTotalAppointmentNumber()).collect(Collectors.toList());
+        return dispensingDoctorDtoList.get(0);
     }
 
     /**

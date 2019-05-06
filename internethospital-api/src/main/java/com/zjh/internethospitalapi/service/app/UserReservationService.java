@@ -4,7 +4,6 @@ import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.dto.UserReservationDto;
 import com.zjh.internethospitalapi.entity.UserReservation;
 
-import java.text.ParseException;
 import java.util.List;
 
 /**
@@ -16,18 +15,16 @@ import java.util.List;
  */
 public interface UserReservationService {
     /**
-     * 用户挂号，预约普通科室
+     * 用户挂号普通科室,仅填写信息，不挂号，正式挂号应在付款后
      * @param userReservationDto
-     * @return userReservationId
      */
-    Integer insertNormalUserReservation(UserReservationDto userReservationDto);
+    void insertNormalUserReservation(UserReservationDto userReservationDto);
 
     /**
-     * 预约专家医生
+     * 预约专家医生，仅填写信息，不挂号
      * @param userReservationDto
-     * @return userReservationId
      */
-    Integer insertExpertUserReservation(UserReservationDto userReservationDto);
+    void insertExpertUserReservation(UserReservationDto userReservationDto);
 
     /**
      * 获取就诊详情
