@@ -19,6 +19,7 @@ import com.zjh.internethospitalapi.service.img.ImgService;
 import com.zjh.internethospitalservice.mapper.*;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import tk.mybatis.mapper.entity.Example;
@@ -27,6 +28,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 /**
@@ -50,12 +52,14 @@ public class UserReservationServiceImpl implements UserReservationService {
     private final DiagnoseMapper diagnoseMapper;
     private final DocRecipeService docRecipeService;
     private final DoctorMapper doctorMapper;
-
+    private final StringRedisTemplate stringRedisTemplate;
+    private final OrderDetailMapper orderDetailMapper;
 
     @Autowired
     public UserReservationServiceImpl(PatientService patientService, UserReservationImgMapper userReservationImgMapper,
                                       UserReservationMapper userReservationMapper, ScheduleDoctorMapper scheduleDoctorMapper,
-                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper, ImgService imgService, ScheduleDoctorService scheduleDoctorService, UserReservationStatusMapper userReservationStatusMapper, DiagnoseMapper diagnoseMapper, DocRecipeService docRecipeService, DoctorMapper doctorMapper) {
+                                      SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper, ImgService imgService, ScheduleDoctorService scheduleDoctorService, UserReservationStatusMapper userReservationStatusMapper, DiagnoseMapper diagnoseMapper,
+                                      DocRecipeService docRecipeService, DoctorMapper doctorMapper, StringRedisTemplate stringRedisTemplate, OrderDetailMapper orderDetailMapper) {
         this.patientService = patientService;
         this.userReservationImgMapper = userReservationImgMapper;
         this.userReservationMapper = userReservationMapper;
@@ -68,12 +72,14 @@ public class UserReservationServiceImpl implements UserReservationService {
         this.diagnoseMapper = diagnoseMapper;
         this.docRecipeService = docRecipeService;
         this.doctorMapper = doctorMapper;
+        this.stringRedisTemplate = stringRedisTemplate;
+        this.orderDetailMapper = orderDetailMapper;
     }
 
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void insertNormalUserReservation(UserReservationDto userReservationDto){
+    public void insertNormalUserReservation(UserReservationDto userReservationDto) {
         UserReservation userReservation = new UserReservation();
         BeanUtils.copyProperties(userReservationDto, userReservation);
 
@@ -89,44 +95,42 @@ public class UserReservationServiceImpl implements UserReservationService {
         }
 
         DispensingDoctorDto dispensingDoctorDto = dispensingDoctor(userReservationDto);
-
-        //更新排班表
-//        updateScheduleAppointmentNumber(dispensingDoctorDto, userReservationDto.getScheduleDepartmentId());
-
         userReservation.setDoctorId(dispensingDoctorDto.getDoctorId());
         userReservation.setScheduleDoctorId(dispensingDoctorDto.getScheduleDoctorId());
         userReservation.setDoctorName(dispensingDoctorDto.getDoctorName());
-//        userReservation.setRegNo(dispensingDoctorDto.getDoctorAppointmentNumber());
         commonGenerateUserReservation(userReservationDto, userReservation);
+
+        //就诊超时判断
+        makeTimeOutFlag(userReservation);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void insertExpertUserReservation(UserReservationDto userReservationDto){
+    public void insertExpertUserReservation(UserReservationDto userReservationDto) {
         UserReservation userReservation = new UserReservation();
         BeanUtils.copyProperties(userReservationDto, userReservation);
-
         userReservation.setType(3);
-//        appointmentExpert(userReservation);
-        //开始医生排班
         ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(userReservation.getScheduleDoctorId());
         scheduleDoctor.setIsStart(1);
         scheduleDoctor.setUpdateTime(new Date());
         scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
         commonGenerateUserReservation(userReservationDto, userReservation);
+
+        //就诊超时判断
+        makeTimeOutFlag(userReservation);
     }
 
     @Override
-    public void giveStar(Integer doctorId, Integer starRate,String userReservationUuId) {
+    public void giveStar(Integer doctorId, Integer starRate, String userReservationUuId) {
         Example example = new Example(UserReservation.class);
-        example.createCriteria().andEqualTo("doctorId",doctorId)
-                .andEqualTo("isDelete",0)
-                .andEqualTo("status",18);
+        example.createCriteria().andEqualTo("doctorId", doctorId)
+                .andEqualTo("isDelete", 0)
+                .andEqualTo("status", 18);
         List<UserReservation> userReservationList = userReservationMapper.selectByExample(example);
         Doctor doctor = doctorMapper.selectByPrimaryKey(doctorId);
-        BigDecimal beforeRate = new BigDecimal( doctor.getStarLevel());
+        BigDecimal beforeRate = new BigDecimal(doctor.getStarLevel());
         beforeRate = beforeRate.add(new BigDecimal(starRate));
-        BigDecimal nowRate = beforeRate.divide(new BigDecimal(userReservationList.size()+1),2, RoundingMode.HALF_UP);
+        BigDecimal nowRate = beforeRate.divide(new BigDecimal(userReservationList.size() + 1), 2, RoundingMode.HALF_UP);
         doctor.setStarLevel(nowRate.toString());
         doctor.setUpdateTime(new Date());
         doctorMapper.updateByPrimaryKeySelective(doctor);
@@ -139,7 +143,7 @@ public class UserReservationServiceImpl implements UserReservationService {
     }
 
     @Override
-    public UserReservation getAllDetailByUuId(String uuid,boolean adminFlag) {
+    public UserReservation getAllDetailByUuId(String uuid, boolean adminFlag) {
         //就诊基本信息
         UserReservation userReservation = getUserReservationDetail(uuid);
         Diagnose diagnose = new Diagnose();
@@ -148,7 +152,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         diagnose = diagnoseMapper.selectOne(diagnose);
         userReservation.setDiagnose(diagnose);
         //管理员和医生可以看到未审核通过的药方
-        if (adminFlag){
+        if (adminFlag) {
             List<Medical> recipeMedicalList = docRecipeService.getRecipeDetailListByUserReservationUuid(uuid);
             userReservation.setMedicalList(recipeMedicalList);
         }
@@ -193,6 +197,16 @@ public class UserReservationServiceImpl implements UserReservationService {
         }
         userReservation.setImgPathList(imgPathList);
 
+        OrderDetail orderDetail = new OrderDetail();
+        orderDetail.setUserReservationUuId(userReservationUUId);
+        orderDetail.setIsDelete(0);
+        orderDetail = orderDetailMapper.selectOne(orderDetail);
+        if (orderDetail != null){
+            userReservation.setOutTradeNo(orderDetail.getOutTradeNo());
+        }
+        else {
+            userReservation.setOutTradeNo("-1");
+        }
         return userReservation;
     }
 
@@ -214,7 +228,7 @@ public class UserReservationServiceImpl implements UserReservationService {
             String stateName = userReservationStatusMapper.selectByPrimaryKey(userReservation.getStatus()).getStateName();
             userReservation.setPayStateDescription(stateName);
             //获取用户就诊列表时，处于审方通过状态的，变为待评价状态
-            if (userReservation.getStatus() == 14){
+            if (userReservation.getStatus() == 14) {
                 userReservation.setStatus(17);
                 userReservation.setUpdateTime(new Date());
                 userReservationMapper.updateByPrimaryKeySelective(userReservation);
@@ -237,7 +251,7 @@ public class UserReservationServiceImpl implements UserReservationService {
     @Override
     public UserReservation getUserReservationByUuId(String uuid) {
         Example example = new Example(UserReservation.class);
-        example.createCriteria().andEqualTo("uuId", uuid).andEqualTo("isDelete",0);
+        example.createCriteria().andEqualTo("uuId", uuid).andEqualTo("isDelete", 0);
         UserReservation userReservation = userReservationMapper.selectOneByExample(example);
         if (userReservation == null) {
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
@@ -286,7 +300,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         if (timeInterval.equals(Constants.MORNING)) {
             //判断是否还有号源
             int timeExistNumber = scheduleDepartment.getMorningTotalNumber() - scheduleDepartment.getMorningNumber();
-            if (timeExistNumber <= 0){
+            if (timeExistNumber <= 0) {
                 throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
             }
             example.and().andEqualTo("doctorMorningHas", 1);
@@ -304,7 +318,7 @@ public class UserReservationServiceImpl implements UserReservationService {
             }
         } else if (timeInterval.equals(Constants.AFTERNOON)) {
             int timeExistNumber = scheduleDepartment.getAfternoonTotalNumber() - scheduleDepartment.getAfternoonNumber();
-            if (timeExistNumber <= 0){
+            if (timeExistNumber <= 0) {
                 throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
             }
             example.and().andEqualTo("doctorAfternoonHas", 1);
@@ -322,7 +336,7 @@ public class UserReservationServiceImpl implements UserReservationService {
             }
         } else if (timeInterval.equals(Constants.NIGHT)) {
             int timeExistNumber = scheduleDepartment.getNightTotalNumber() - scheduleDepartment.getNightNumber();
-            if (timeExistNumber <= 0){
+            if (timeExistNumber <= 0) {
                 throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
             }
             example.and().andEqualTo("doctorNightHas", 1);
@@ -352,26 +366,28 @@ public class UserReservationServiceImpl implements UserReservationService {
         return dispensingDoctorDtoList.get(0);
     }
 
-    /**
-     * 普通科室
-     * 更新 scheduleDoctor 以及 scheduleDepartment 表，对应时刻号源数
-     *
-     * @param dispensingDoctorDto
-     * @return
-     */
-    private void updateScheduleAppointmentNumber(DispensingDoctorDto dispensingDoctorDto, Integer scheduleDepartmentId) {
-        Integer scheduleDoctorId = dispensingDoctorDto.getScheduleDoctorId();
+
+    @Override
+    public void appointmentNormal(UserReservation userReservation, Integer scheduleDepartmentId) {
+        Integer scheduleDoctorId = userReservation.getScheduleDoctorId();
         ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(scheduleDoctorId);
         ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.selectByPrimaryKey(scheduleDepartmentId);
-        if (dispensingDoctorDto.getTimeInterval().equals(Constants.MORNING)) {
-            scheduleDoctor.setDoctorMorningNumber(scheduleDoctor.getDoctorMorningNumber() + 1);
-            scheduleDepartment.setMorningNumber(scheduleDepartment.getMorningNumber() + 1);
-        } else if (dispensingDoctorDto.getTimeInterval().equals(Constants.AFTERNOON)) {
-            scheduleDoctor.setDoctorAfternoonNumber(scheduleDoctor.getDoctorAfternoonNumber() + 1);
-            scheduleDepartment.setAfternoonNumber(scheduleDepartment.getAfternoonNumber() + 1);
-        } else if (dispensingDoctorDto.getTimeInterval().equals(Constants.NIGHT)) {
-            scheduleDoctor.setDoctorNightNumber(scheduleDoctor.getDoctorNightNumber() + 1);
-            scheduleDepartment.setNightNumber(scheduleDepartment.getNightNumber() + 1);
+        switch (userReservation.getTimeInterval()) {
+            case Constants.MORNING:
+                scheduleDoctor.setDoctorMorningNumber(scheduleDoctor.getDoctorMorningNumber() + 1);
+                scheduleDepartment.setMorningNumber(scheduleDepartment.getMorningNumber() + 1);
+                userReservation.setRegNo(scheduleDoctor.getDoctorMorningNumber());
+                break;
+            case Constants.AFTERNOON:
+                scheduleDoctor.setDoctorAfternoonNumber(scheduleDoctor.getDoctorAfternoonNumber() + 1);
+                scheduleDepartment.setAfternoonNumber(scheduleDepartment.getAfternoonNumber() + 1);
+                userReservation.setRegNo(scheduleDoctor.getDoctorAfternoonNumber());
+                break;
+            case Constants.NIGHT:
+                scheduleDoctor.setDoctorNightNumber(scheduleDoctor.getDoctorNightNumber() + 1);
+                scheduleDepartment.setNightNumber(scheduleDepartment.getNightNumber() + 1);
+                userReservation.setRegNo(scheduleDoctor.getDoctorNightNumber());
+                break;
         }
         scheduleDoctor.setUpdateTime(new Date());
         scheduleDepartment.setUpdateTime(new Date());
@@ -382,49 +398,48 @@ public class UserReservationServiceImpl implements UserReservationService {
         }
     }
 
-    /**
-     * 专家预约
-     * 排班更新，号源更新
-     *
-     * @param userReservation
-     * @return
-     */
-    private UserReservation appointmentExpert(UserReservation userReservation) {
+    @Override
+    public void appointmentExpert(UserReservation userReservation) {
         String timeInterval = userReservation.getTimeInterval();
         ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(userReservation.getScheduleDoctorId());
         //区分时间段
-        if (timeInterval.equals(Constants.MORNING)) {
-            int timeExistNumber = scheduleDoctor.getDoctorMorningTotalNumber() - scheduleDoctor.getDoctorMorningNumber();
-            if (timeExistNumber <= 0){
-                throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+        switch (timeInterval) {
+            case Constants.MORNING: {
+                int timeExistNumber = scheduleDoctor.getDoctorMorningTotalNumber() - scheduleDoctor.getDoctorMorningNumber();
+                if (timeExistNumber <= 0) {
+                    throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+                }
+                scheduleDoctor.setDoctorMorningNumber(scheduleDoctor.getDoctorMorningNumber() + 1);
+                userReservation.setRegNo(scheduleDoctor.getDoctorMorningNumber());
+                break;
             }
-            scheduleDoctor.setDoctorMorningNumber(scheduleDoctor.getDoctorMorningNumber() + 1);
-            userReservation.setRegNo(scheduleDoctor.getDoctorMorningNumber());
-        } else if (timeInterval.equals(Constants.AFTERNOON)) {
-            int timeExistNumber = scheduleDoctor.getDoctorAfternoonTotalNumber() - scheduleDoctor.getDoctorAfternoonNumber();
-            if (timeExistNumber <= 0){
-                throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+            case Constants.AFTERNOON: {
+                int timeExistNumber = scheduleDoctor.getDoctorAfternoonTotalNumber() - scheduleDoctor.getDoctorAfternoonNumber();
+                if (timeExistNumber <= 0) {
+                    throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+                }
+                scheduleDoctor.setDoctorAfternoonNumber(scheduleDoctor.getDoctorAfternoonNumber() + 1);
+                userReservation.setRegNo(scheduleDoctor.getDoctorAfternoonNumber());
+                break;
             }
-            scheduleDoctor.setDoctorAfternoonNumber(scheduleDoctor.getDoctorAfternoonNumber() + 1);
-            userReservation.setRegNo(scheduleDoctor.getDoctorAfternoonNumber());
-        } else if (timeInterval.equals(Constants.NIGHT)) {
-            int timeExistNumber = scheduleDoctor.getDoctorNightTotalNumber() - scheduleDoctor.getDoctorNightNumber();
-            if (timeExistNumber <= 0){
-                throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+            case Constants.NIGHT: {
+                int timeExistNumber = scheduleDoctor.getDoctorNightTotalNumber() - scheduleDoctor.getDoctorNightNumber();
+                if (timeExistNumber <= 0) {
+                    throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+                }
+                scheduleDoctor.setDoctorNightNumber(scheduleDoctor.getDoctorNightNumber() + 1);
+                userReservation.setRegNo(scheduleDoctor.getDoctorNightNumber());
+                break;
             }
-            scheduleDoctor.setDoctorNightNumber(scheduleDoctor.getDoctorNightNumber() + 1);
-            userReservation.setRegNo(scheduleDoctor.getDoctorNightNumber());
         }
         scheduleDoctor.setUpdateTime(new Date());
-        scheduleDoctor.setIsStart(1);
         int result = scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
         if (result != 1) {
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_INSERT_FAIL);
         }
-        return userReservation;
     }
 
-    private Integer commonGenerateUserReservation(UserReservationDto userReservationDto, UserReservation userReservation) {
+    private void commonGenerateUserReservation(UserReservationDto userReservationDto, UserReservation userReservation) {
         userReservation.setPatientName(patientService.selectPatientById(userReservation.getPatientId(), userReservationDto.getUserId()).getRealName());
         userReservation.setConditionDesc(userReservationDto.getAccentDetail());
         userReservation.setClinicPrice(userReservationDto.getPrice());
@@ -450,6 +465,21 @@ public class UserReservationServiceImpl implements UserReservationService {
         int userReservationId = userReservation.getId();
         //更新 userReservation <=> img 对应关系
         generateUserReservationImg(userReservationDto.getImgIdList(), userReservationId);
-        return userReservationId;
+    }
+
+    /**
+     * 就诊超时
+     */
+    private void makeTimeOutFlag(UserReservation userReservation){
+        //就诊超时判断
+        //当天，存入redis内key为 当天挂号+uuId，时效30分钟，判断key存在性
+        if (userReservation.getType().equals(1)) {
+            stringRedisTemplate.opsForValue()
+                    .set("当天挂号" + userReservation.getUuId(), userReservation.getClinicDate(), 30, TimeUnit.MINUTES);
+        }
+        //预约，存入redis内key为 预约+uuId，value 为预约日期，判断支付日期是否为预约日期前一天
+        else {
+            stringRedisTemplate.opsForValue().set("预约" + userReservation.getUuId(),userReservation.getClinicDate());
+        }
     }
 }

@@ -43,8 +43,12 @@ public class OrderDetailServiceImpl implements OrderDetailService {
     }
 
     @Override
-    public void updateOrderDetailByOutTradeNo(String outTradeNo,OrderDetail orderDetail) {
-        Integer orderId = getOrderDetailByOutTradeNo(outTradeNo).getId();
+    public void updateOrderDetailByOutTradeNo(String outTradeNo, OrderDetail orderDetail) {
+        OrderDetail order = getOrderDetailByOutTradeNo(outTradeNo);
+        if (order == null) {
+            throw new InternetHospitalException(ExceptionConstants.ORDER_NOT_EXIST);
+        }
+        Integer orderId = order.getId();
         orderDetail.setId(orderId);
         orderDetail.setUpdateTime(new Date());
         orderDetailMapper.updateByPrimaryKeySelective(orderDetail);
@@ -56,10 +60,9 @@ public class OrderDetailServiceImpl implements OrderDetailService {
         orderDetail.setOutTradeNo(outTradeNo);
         orderDetail.setIsDelete(0);
         orderDetail = orderDetailMapper.selectOne(orderDetail);
-        if (orderDetail == null){
-            throw new InternetHospitalException(ExceptionConstants.ORDER_NOT_EXIST);
-        }
-        else {
+        if (orderDetail == null) {
+            return null;
+        } else {
             return orderDetail;
         }
     }

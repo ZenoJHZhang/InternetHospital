@@ -77,4 +77,17 @@ public interface UserReservationService {
      * @param userReservationUuId  就诊uuid
      */
     void giveStar(Integer doctorId,Integer starRate,String userReservationUuId);
+
+    /**
+     * 预约专家科室
+     * @param userReservation
+     */
+    void appointmentExpert(UserReservation userReservation);
+
+    /**
+     * 预约普通科室
+     * @param userReservation
+     * @param scheduleDepartmentId
+     */
+    void appointmentNormal(UserReservation userReservation, Integer scheduleDepartmentId);
 }

@@ -51,7 +51,7 @@ public class AliPayUtil {
     }
 
     /**
-     * 创建订单
+     * 创建订单,当天关闭订单
      *
      * @param amount 金额总数
      * @return AlipayTradePrecreateResponse
@@ -67,7 +67,7 @@ public class AliPayUtil {
         model.setTotalAmount(amount);
         model.setSellerId("2088102177938345");
         model.setOutTradeNo(UUID.randomUUID().toString());
-        model.setTimeoutExpress("20m");
+        model.setTimeoutExpress("1d");
         request.setBizModel(model);
         try {
             AlipayTradePrecreateResponse response = alipayClient.execute(request);
@@ -94,6 +94,23 @@ public class AliPayUtil {
         request.setBizModel(model);
         try {
             AlipayTradeQueryResponse response = alipayClient.execute(request);
+            return response;
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public AlipayTradeCloseResponse closePay(String outTradeNo,String userReservationUuId){
+        if (alipayClient == null) {
+            alipayClient = new DefaultAlipayClient(serverUrl, appId, privateKey, format, charset, publicKey, signType);
+        }
+        AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
+        AlipayTradeCloseModel model = new AlipayTradeCloseModel();
+        model.setOutTradeNo(outTradeNo);
+        request.setBizModel(model);
+        try {
+            AlipayTradeCloseResponse response = alipayClient.execute(request);
             return response;
         } catch (AlipayApiException e) {
             e.printStackTrace();

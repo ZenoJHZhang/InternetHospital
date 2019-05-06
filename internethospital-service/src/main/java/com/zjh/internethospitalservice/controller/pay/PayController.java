@@ -1,6 +1,7 @@
 package com.zjh.internethospitalservice.controller.pay;
 
 import com.alipay.api.response.AlipayTradePrecreateResponse;
+import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.PayStatusConstants;
 import com.zjh.internethospitalapi.dto.QrCodeDto;
@@ -10,13 +11,13 @@ import com.zjh.internethospitalapi.service.pay.OrderDetailService;
 import com.zjh.internethospitalapi.service.pay.PayService;
 import com.zjh.internethospitalservice.controller.base.ApiResponse;
 import com.zjh.internethospitalservice.util.AliPayUtil;
+import com.zjh.internethospitalservice.util.JWTUtil;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -67,17 +68,39 @@ public class PayController {
     public ResponseEntity<ApiResponse> createPayQrCode(
             @RequestParam @ApiParam(required = true, value = "支付金额") String amount,
             @RequestParam @ApiParam(required = true, value = "用户就诊uId") String userReservationUuId) {
+        boolean userReservationTimeOut = payService.isUserReservationTimeOut(userReservationUuId);
         OrderDetail existOrder = orderDetailService.getOrderDetailByUserReservationUuId(userReservationUuId);
         //订单已创建
         if (existOrder != null) {
-            String qrCode = stringRedisTemplate.opsForValue().get("二维码" + existOrder.getOutTradeNo());
+            //判断就诊是否超时
+            if (userReservationTimeOut) {
+                timeOutPay(existOrder, userReservationUuId);
+                return ApiResponse.successResponse(-1);
+            }
+            //判断支付是否超时
+            if (payService.isPayTimeOut(userReservationUuId)) {
+                timeOutPay(existOrder, userReservationUuId);
+                return ApiResponse.successResponse(-1);
+            }
+            String qrCode = stringRedisTemplate.opsForValue().get("二维码" + userReservationUuId);
             QrCodeDto qrCodeDto = new QrCodeDto(qrCode, existOrder.getOutTradeNo(), userReservationUuId, existOrder.getStatus());
             return ApiResponse.successResponse(qrCodeDto);
         } else {
+            if (userReservationTimeOut) {
+                payService.makeUserReservationTimeOut(userReservationUuId);
+                return ApiResponse.successResponse(-1);
+            }
+            String token = request.getHeader("Authorization");
+            Integer userId = JWTUtil.getUserId(token);
             AlipayTradePrecreateResponse response = aliPayUtil.preCreatePay(amount, userReservationUuId);
             if (response.getCode().equals(Constants.PAY_SUCCESS)) {
-                QrCodeDto qrCodeDto = new QrCodeDto(response.getQrCode(), response.getOutTradeNo(), userReservationUuId, PayStatusConstants.WAIT_PAY);
-                stringRedisTemplate.opsForValue().set("二维码" + response.getOutTradeNo(), response.getQrCode(),2,TimeUnit.HOURS);
+                String qrCode = response.getQrCode();
+                String outTradeNo = response.getOutTradeNo();
+                //创建未扫码订单
+                payService.createNotSweepCodeOrder(outTradeNo, userReservationUuId, userId, amount);
+                //生成二维码，30分钟内必须支付完成
+                QrCodeDto qrCodeDto = new QrCodeDto(qrCode, outTradeNo, userReservationUuId, PayStatusConstants.WAIT_PAY);
+                stringRedisTemplate.opsForValue().set("二维码" + userReservationUuId, response.getQrCode(), 30, TimeUnit.MINUTES);
                 return ApiResponse.successResponse(qrCodeDto);
             } else {
                 return ApiResponse.commonResponse(400, response.getMsg(), null);
@@ -88,13 +111,42 @@ public class PayController {
     @ApiOperation(value = "追踪订单")
     @PostMapping("/tradeOrder")
     public ResponseEntity<ApiResponse> tradeOrder(@ApiParam(required = true) @RequestParam String outTradeNo) {
-        return ApiResponse.successResponse(aliPayUtil.getTrade(outTradeNo));
+        AlipayTradeQueryResponse trade = aliPayUtil.getTrade(outTradeNo);
+        if (trade.getCode().equals(Constants.PAY_SUCCESS)) {
+            if (trade.getTradeStatus().equals(PayStatusConstants.TRADE_SUCCESS)) {
+                String userReservationUuId = orderDetailService.getOrderDetailByOutTradeNo(outTradeNo).getUserReservationUuId();
+                payService.paySuccess(outTradeNo, userReservationUuId);
+            }
+            else if(trade.getTradeStatus().equals(PayStatusConstants.WAIT_BUYER_PAY)){
+                payService.waitPay(outTradeNo);
+            }
+        }
+        return ApiResponse.successResponse(trade);
     }
 
     @ApiOperation(value = "获取支付状态")
     @PostMapping("/getPayStatus")
-    public ResponseEntity<ApiResponse> getPayStatus(@ApiParam(required = true) @RequestParam String outTradeNo) {
-        return ApiResponse.successResponse(orderDetailService.getOrderDetailByOutTradeNo(outTradeNo).getStatus());
+    public ResponseEntity<ApiResponse> getPayStatus(
+                                                    @ApiParam(required = true) @RequestParam String userReservationUuId) {
+        boolean userReservationTimeOut = payService.isUserReservationTimeOut(userReservationUuId);
+        OrderDetail order = orderDetailService.getOrderDetailByUserReservationUuId(userReservationUuId);
+        if (order == null) {
+            if (userReservationTimeOut) {
+                payService.makeUserReservationTimeOut(userReservationUuId);
+                return ApiResponse.successResponse(PayStatusConstants.PAY_TIMEOUT);
+            }
+            return ApiResponse.successResponse(-1);
+        } else {
+            if (userReservationTimeOut) {
+                timeOutPay(order, userReservationUuId);
+                return ApiResponse.successResponse(PayStatusConstants.PAY_TIMEOUT);
+            } else if (payService.isPayTimeOut(userReservationUuId)) {
+                timeOutPay(order, userReservationUuId);
+                return ApiResponse.successResponse(PayStatusConstants.PAY_TIMEOUT);
+            } else {
+                return ApiResponse.successResponse(order.getStatus());
+            }
+        }
     }
 
     @ApiOperation(value = "支付宝回调通知")
@@ -114,22 +166,35 @@ public class PayController {
         }
         //支付状态
         String tradeStatus = params.get("trade_status");
-        //支付金额
-        String totalAmount = params.get("total_amount");
         //就诊UuId
         String userReservationUuId = params.get("userReservationUuId");
-        //订单创建时间
-        String gmtCreate = params.get("gmt_create");
         //商户流水号
         String outTradeNo = params.get("out_trade_no");
-        Integer userId = userReservationService.getUserReservationByUuId(userReservationUuId).getUserId();
 
-        //待支付状态，创建订单
-        if (tradeStatus.equals(PayStatusConstants.WAIT_BUYER_PAY)) {
-            payService.createWaitPay(outTradeNo, userReservationUuId, userId, totalAmount);
-            stringRedisTemplate.opsForValue().set("创建时间"+outTradeNo,gmtCreate,20, TimeUnit.MINUTES);
-        } else if (tradeStatus.equals(PayStatusConstants.TRADE_SUCCESS)) {
-            payService.paySuccess(outTradeNo, userReservationUuId);
+        //根据订单状态进行操作
+        switch (tradeStatus) {
+            case PayStatusConstants.WAIT_BUYER_PAY:
+                payService.waitPay(outTradeNo);
+                break;
+            case PayStatusConstants.TRADE_SUCCESS:
+                payService.paySuccess(outTradeNo, userReservationUuId);
+                break;
+        }
+    }
+
+    private void timeOutPay(OrderDetail order, String userReservationUuId) {
+        if (!order.getStatus().equals(PayStatusConstants.PAY_TIMEOUT)) {
+            //未扫码，支付宝还未生成对应订单，无需关闭订单，仅更新数据库
+            if (order.getStatus().equals(PayStatusConstants.NOT_SWEEP_CODE)) {
+                payService.makeUserReservationTimeOut(userReservationUuId);
+            }
+            //已扫码，需要关闭订单
+            else {
+                if (aliPayUtil.getTrade(order.getOutTradeNo()).getTradeStatus().equals(PayStatusConstants.WAIT_BUYER_PAY)) {
+                    aliPayUtil.closePay(order.getOutTradeNo(), userReservationUuId);
+                }
+                payService.makeUserReservationTimeOut(userReservationUuId);
+            }
         }
     }
 }

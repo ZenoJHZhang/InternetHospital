@@ -31,5 +31,7 @@ public class PayStatusConstants {
     public static Integer PAY_FINISH = 6;
     //支付超时
     public static Integer PAY_TIMEOUT = 7;
+    //未扫码
+    public static Integer NOT_SWEEP_CODE = 8;
 
 }

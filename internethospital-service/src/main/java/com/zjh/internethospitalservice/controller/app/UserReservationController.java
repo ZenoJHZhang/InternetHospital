@@ -14,11 +14,14 @@ import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import java.time.LocalDate;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 /**
  * 类的说明
@@ -34,17 +37,14 @@ public class UserReservationController {
 
     private final HttpServletRequest request;
     private final UserReservationService userReservationService;
-    private final RedisTemplate<String, String> redisTemplate;
 
     @Autowired
     public UserReservationController(HttpServletRequest request,
-                                     UserReservationService userReservationService,
-                                     RedisTemplate<String, String> redisTemplate) {
+                                     UserReservationService userReservationService
+    ) {
         this.request = request;
         this.userReservationService = userReservationService;
-        this.redisTemplate = redisTemplate;
     }
-
 
 
     @PostMapping("/insertUserReservation")
@@ -58,7 +58,7 @@ public class UserReservationController {
         String uuId = UUID.randomUUID().toString();
         userReservationDto.setUuId(uuId);
         if (userReservationDto.getType().equals(Constants.DEPARTMENT)) {
-             userReservationService.insertNormalUserReservation(userReservationDto);
+            userReservationService.insertNormalUserReservation(userReservationDto);
         } else if (userReservationDto.getType().equals(Constants.EXPERT)) {
             userReservationService.insertExpertUserReservation(userReservationDto);
         }
@@ -91,22 +91,22 @@ public class UserReservationController {
     @ApiOperation(value = "根据就诊uuid获取真正的用户就诊信息id")
     @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> getUserReservationIdByUuid(
-            @RequestParam @ApiParam(value = "提交申请时生成的uuid",required = true) String userReservationUuId) {
+            @RequestParam @ApiParam(value = "提交申请时生成的uuid", required = true) String userReservationUuId) {
         UserReservation userReservation = userReservationService.getUserReservationByUuId(userReservationUuId);
         return ApiResponse.successResponse(userReservation.getId());
     }
 
     @PostMapping("/getAllDetailByUuId")
     @ApiOperation(value = "通过uuid获取用户就诊信息，处方信息，药方信息，相关医生信息，相关科室信息")
-    @RequiresRoles(value = {"doctorAdmin", "superAdmin","user","doctor"}, logical = Logical.OR)
+    @RequiresRoles(value = {"doctorAdmin", "superAdmin", "user", "doctor"}, logical = Logical.OR)
     public ResponseEntity<ApiResponse> getAllDetailByUuId(
-            @RequestParam @ApiParam(value = "提交申请时生成的uuid",required = true) String userReservationUuId) {
+            @RequestParam @ApiParam(value = "提交申请时生成的uuid", required = true) String userReservationUuId) {
         String token = request.getHeader("Authorization");
         Integer roleId = JWTUtil.getRoleId(token);
         boolean adminFlag;
         assert roleId != null;
         adminFlag = !roleId.equals(1);
-        UserReservation userReservation = userReservationService.getAllDetailByUuId(userReservationUuId,adminFlag);
+        UserReservation userReservation = userReservationService.getAllDetailByUuId(userReservationUuId, adminFlag);
         return ApiResponse.successResponse(userReservation);
     }
 
@@ -114,10 +114,10 @@ public class UserReservationController {
     @ApiOperation(value = "给与问诊医生评价")
     @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> giveStar(
-            @RequestParam @ApiParam(value = "问诊医生id",required = true) Integer doctorId,
-            @ApiParam(value = "星级",required = true) @RequestParam Integer starRate,
-            @ApiParam(value = "uuid",required = true) @RequestParam String uuId) {
-        userReservationService.giveStar(doctorId,starRate,uuId);
+            @RequestParam @ApiParam(value = "问诊医生id", required = true) Integer doctorId,
+            @ApiParam(value = "星级", required = true) @RequestParam Integer starRate,
+            @ApiParam(value = "uuid", required = true) @RequestParam String uuId) {
+        userReservationService.giveStar(doctorId, starRate, uuId);
         return ApiResponse.successResponse(null);
     }
 }
