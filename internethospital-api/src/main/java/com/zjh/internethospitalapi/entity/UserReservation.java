@@ -107,7 +107,10 @@ public class UserReservation {
      */
     @Column(name = "finish_time")
     private Date finishTime;
-
+    /**
+     * 是否已被叫号 0 未被叫号 1 已被叫号
+     */
+    private Integer isCalled;
     /**
      * 问诊状态 1已预约未支付 2用户取消 3超时支付取消 4已付款等待视频 5已付款已过号 6申请退款中 7已退款 8拒绝退款 9退款中 10完成就诊待评价 11已评价 12就诊中 13同意退款 14历史未就诊 15未审方 16审方通过（患者未查看待取药） 17未通过 18患者已查看（待取药）
      */

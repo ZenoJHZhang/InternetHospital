@@ -64,21 +64,6 @@ public class ScheduleDoctor {
     @Column(name = "doctor_night_total_number")
     private Integer doctorNightTotalNumber;
 
-    /**
-     * 早上医生叫到几号
-     */
-    private Integer morningCallNo;
-
-    /**
-     * 下午医生叫到几号
-     */
-    private Integer afternoonCallNo;
-
-    /**
-     * 晚上医生叫到几号
-     */
-    private Integer nightCallNo;
-
     private Integer type;
 
     @Column(name = "create_time")

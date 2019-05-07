@@ -171,17 +171,17 @@ public class UserReservationServiceImpl implements UserReservationService {
         Patient patient = patientService.selectPatientById(userReservation.getPatientId(), userReservation.getUserId());
         userReservation.setPatient(patient);
         Integer scheduleDoctorId = userReservation.getScheduleDoctorId();
-        Integer callNo;
-        switch (userReservation.getTimeInterval()) {
-            case Constants.MORNING:
-                callNo = scheduleDoctorMapper.selectByPrimaryKey(scheduleDoctorId).getMorningCallNo();
-                break;
-            case Constants.AFTERNOON:
-                callNo = scheduleDoctorMapper.selectByPrimaryKey(scheduleDoctorId).getAfternoonCallNo();
-                break;
-            default:
-                callNo = scheduleDoctorMapper.selectByPrimaryKey(scheduleDoctorId).getNightCallNo();
-                break;
+        Integer callNo = null;
+        UserReservation beforeUserReservation = getBeforeUserReservation(scheduleDoctorId, userReservation.getTimeInterval());
+        if (beforeUserReservation == null && userReservation.getStatus().equals(11)) {
+            //-1表示就诊中
+            callNo = -1;
+        } else if (beforeUserReservation == null && !userReservation.getStatus().equals(11)) {
+            //未开始叫号
+            callNo = 0;
+        } else if (beforeUserReservation != null && !userReservation.getStatus().equals(11)) {
+            //正在就诊前一个的号
+            callNo = beforeUserReservation.getRegNo();
         }
         if (patient == null || callNo == null) {
             throw new InternetHospitalException(ExceptionConstants.USER_RESERVATION_NOT_EXIST);
@@ -201,10 +201,9 @@ public class UserReservationServiceImpl implements UserReservationService {
         orderDetail.setUserReservationUuId(userReservationUUId);
         orderDetail.setIsDelete(0);
         orderDetail = orderDetailMapper.selectOne(orderDetail);
-        if (orderDetail != null){
+        if (orderDetail != null) {
             userReservation.setOutTradeNo(orderDetail.getOutTradeNo());
-        }
-        else {
+        } else {
             userReservation.setOutTradeNo("-1");
         }
         return userReservation;
@@ -362,7 +361,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         //所有可分配号源医生中，已挂号源最少的医生,需要初始化数值，防止null exception
         dispensingDoctorDtoList = dispensingDoctorDtoList.stream()
                 .filter(t1 -> t1.getDoctorAppointmentNumber() <= t1.getDoctorTotalAppointmentNumber())
-                .sorted((t1, t2) -> t2.getDoctorAppointmentNumber() - t1.getDoctorTotalAppointmentNumber()).collect(Collectors.toList());
+                .sorted(Comparator.comparingInt(DispensingDoctorDto::getDoctorAppointmentNumber)).collect(Collectors.toList());
         return dispensingDoctorDtoList.get(0);
     }
 
@@ -439,6 +438,22 @@ public class UserReservationServiceImpl implements UserReservationService {
         }
     }
 
+    @Override
+    public UserReservation getBeforeUserReservation(Integer scheduleDoctorId, String timeInterval) {
+        Example example = new Example(UserReservation.class);
+        example.createCriteria().andEqualTo("scheduleDoctorId", scheduleDoctorId)
+                .andEqualTo("timeInterval", timeInterval)
+                .andEqualTo("isDelete", 1)
+                .andEqualTo("isCalled", 1);
+        example.orderBy("regNo").desc();
+        List<UserReservation> userReservationList = userReservationMapper.selectByExample(example);
+        if (userReservationList.size() == 0) {
+            return null;
+        } else {
+            return userReservationList.get(0);
+        }
+    }
+
     private void commonGenerateUserReservation(UserReservationDto userReservationDto, UserReservation userReservation) {
         userReservation.setPatientName(patientService.selectPatientById(userReservation.getPatientId(), userReservationDto.getUserId()).getRealName());
         userReservation.setConditionDesc(userReservationDto.getAccentDetail());
@@ -470,7 +485,7 @@ public class UserReservationServiceImpl implements UserReservationService {
     /**
      * 就诊超时
      */
-    private void makeTimeOutFlag(UserReservation userReservation){
+    private void makeTimeOutFlag(UserReservation userReservation) {
         //就诊超时判断
         //当天，存入redis内key为 当天挂号+uuId，时效30分钟，判断key存在性
         if (userReservation.getType().equals(1)) {
@@ -479,7 +494,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         }
         //预约，存入redis内key为 预约+uuId，value 为预约日期，判断支付日期是否为预约日期前一天
         else {
-            stringRedisTemplate.opsForValue().set("预约" + userReservation.getUuId(),userReservation.getClinicDate());
+            stringRedisTemplate.opsForValue().set("预约" + userReservation.getUuId(), userReservation.getClinicDate());
         }
     }
 }

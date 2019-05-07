@@ -48,18 +48,26 @@ public interface DocUserReservationService {
     UserReservation getUserReservationByUuid(String userReservationUuid);
 
     /**
-     * 判断用户就诊状态,并判断医生是否过号叫人
-     * 根据医生叫号，判断并更新用户就诊状态
-     * @param userReservation 用户就诊
-     * @param doctorCallRegNo 医生准备叫的号
-     * @return -1 还未叫到 0 刚好叫到 1 已过号 2 医生过号叫人 3:上个就诊还未结束
-     */
-    Integer judgeUserReservationClinicStatusBeforeCall(UserReservation userReservation, Integer doctorCallRegNo);
-
-    /**
      * 过号
      * @param userReservationUuId uuId
      * @param passReason 过号原因
      */
     void passUserReservation(String userReservationUuId,String passReason);
+
+    /**
+     * 判断此用户之前被叫号用户是否结束
+     * true 已结束，可叫号此用户
+     * false 等待上一个用户结束
+     * @param userReservation 就诊详情
+     * @return boolean
+     */
+    boolean judgeBeforeUserReservationStatus(UserReservation userReservation);
+
+    /**
+     * 获取当前时段、此医生下一个叫号的患者就诊
+     * @param scheduleDoctorId 排班医生id
+     * @param timeInterval 时段
+     * @return UserReservation
+     */
+    UserReservation getNextUserReservation(Integer scheduleDoctorId,String timeInterval);
 }

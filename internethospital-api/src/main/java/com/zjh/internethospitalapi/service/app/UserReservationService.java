@@ -90,4 +90,12 @@ public interface UserReservationService {
      * @param scheduleDepartmentId
      */
     void appointmentNormal(UserReservation userReservation, Integer scheduleDepartmentId);
+
+    /**
+     * 获取此时段、此医生之前看病的病人
+     * @param scheduleDoctorId 医生排班id
+     * @param timeInterval 时段
+     * @return UserReservation
+     */
+    UserReservation getBeforeUserReservation(Integer scheduleDoctorId,String timeInterval);
 }
