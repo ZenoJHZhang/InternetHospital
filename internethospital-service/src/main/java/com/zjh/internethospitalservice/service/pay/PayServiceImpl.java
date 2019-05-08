@@ -127,4 +127,9 @@ public class PayServiceImpl implements PayService {
         String s = stringRedisTemplate.opsForValue().get("二维码" + userReservationUuId);
         return s == null;
     }
+
+    @Override
+    public void refundPay(String outTradeNo, String refundAmount) {
+
+    }
 }

@@ -6,9 +6,6 @@ import com.alipay.api.DefaultAlipayClient;
 import com.alipay.api.domain.*;
 import com.alipay.api.request.*;
 import com.alipay.api.response.*;
-import com.zjh.internethospitalapi.common.constants.Constants;
-import com.zjh.internethospitalapi.common.constants.PayStatusConstants;
-import com.zjh.internethospitalapi.entity.RefundCorrelation;
 import com.zjh.internethospitalapi.service.pay.RefundService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -101,7 +98,11 @@ public class AliPayUtil {
         }
     }
 
-    public AlipayTradeCloseResponse closePay(String outTradeNo,String userReservationUuId){
+    /**
+     * 关闭订单
+     * @param outTradeNo 商户流水号
+     */
+    public void closePay(String outTradeNo){
         if (alipayClient == null) {
             alipayClient = new DefaultAlipayClient(serverUrl, appId, privateKey, format, charset, publicKey, signType);
         }
@@ -111,56 +112,32 @@ public class AliPayUtil {
         request.setBizModel(model);
         try {
             AlipayTradeCloseResponse response = alipayClient.execute(request);
-            return response;
         } catch (AlipayApiException e) {
             e.printStackTrace();
-            return null;
         }
     }
 
     /**
-     * 将支付宝api返回的订单状态转化为支付状态
-     *
-     * @param outTradeNo
-     * @return 支付状态
+     * 退款
+     * @param outTradeNo 商户订单号
+     * @param refundAmount 退款金额
+     * @return AlipayTradeRefundResponse
      */
-    public Integer generatePayStatus(String outTradeNo) {
-        AlipayTradeQueryResponse response = getTrade(outTradeNo);
-        if (response.getCode().equals(Constants.PAY_SUCCESS)){
-            String tradeStatus = getTrade(outTradeNo).getTradeStatus();
-            switch (tradeStatus) {
-                case PayStatusConstants.TRADE_SUCCESS:
-                    return PayStatusConstants.PAY_SUCCESS;
-                case PayStatusConstants.TRADE_CLOSED:
-                    RefundCorrelation refundCorrelation = refundService.getRefundCorrelationByOutTradeNo(outTradeNo);
-                    //退款信息不为空，说明处于退款中
-                    if (refundCorrelation != null) {
-                        //退款中
-                        if (refundCorrelation.getRefundStatus().equals("1")) {
-                            return PayStatusConstants.WANT_REFUND;
-                        }
-                        //已退款
-                        else if (refundCorrelation.getRefundStatus().equals("2")) {
-                            return PayStatusConstants.HAS_REFUND;
-                        }
-                        //退款失败或拒绝退款
-                        else {
-                            return PayStatusConstants.REFUSE_REFUND;
-                        }
-                    }
-                    //否则为支付超时
-                    else {
-                        return PayStatusConstants.PAY_TIMEOUT;
-                    }
-                case PayStatusConstants.TRADE_FINISHED:
-                    return PayStatusConstants.PAY_FINISH;
-                case PayStatusConstants.WAIT_BUYER_PAY:
-                    return PayStatusConstants.WAIT_PAY;
-                default:
-                    return null;
-            }
-        }else {
-            return -1;
+    public AlipayTradeRefundResponse refundPay(String outTradeNo,String refundAmount){
+        if (alipayClient == null) {
+            alipayClient = new DefaultAlipayClient(serverUrl, appId, privateKey, format, charset, publicKey, signType);
+        }
+        AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
+        AlipayTradeRefundModel model  = new AlipayTradeRefundModel();
+        model.setOutTradeNo(outTradeNo);
+        model.setRefundAmount(refundAmount);
+        request.setBizModel(model);
+        try {
+            AlipayTradeRefundResponse response = alipayClient.execute(request);
+            return response;
+        } catch (AlipayApiException e) {
+            e.printStackTrace();
+            return null;
         }
     }
 }

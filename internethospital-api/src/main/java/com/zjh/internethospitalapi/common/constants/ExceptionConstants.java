@@ -73,4 +73,5 @@ public class ExceptionConstants {
     public static final String HAS_NO_CLINIC_NUMBER = "很抱歉，该时段号源已空";
     public static final String ORDER_NOT_EXIST = "订单不存在";
     public static final String UPDATE_ORDER_FAIL = "更新订单失败";
+    public static final String NOT_REFUND_STATUS = "就诊信息尚未支付，无法退款";
 }

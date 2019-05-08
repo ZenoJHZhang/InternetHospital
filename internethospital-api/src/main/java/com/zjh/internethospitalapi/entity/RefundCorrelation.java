@@ -29,10 +29,9 @@ public class RefundCorrelation {
     private String refundStatus;
 
     /**
-     * 价格
+     * 退款金额
      */
-    @Column(name = "total_payment")
-    private String totalPayment;
+    private String totalRefundAmount;
 
     /**
      * 订单号

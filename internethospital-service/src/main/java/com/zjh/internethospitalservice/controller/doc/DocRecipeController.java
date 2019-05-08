@@ -50,7 +50,7 @@ public class DocRecipeController {
         boolean flag = docRecipeService.initRecipeAndDetail(medicalList);
 
         if (!flag) {
-            return ApiResponse.errorResponse("数据不全", null);
+            return ApiResponse.response(400,"数据不全", null);
         } else {
             //init recipe
             String token = httpRequest.getHeader("Authorization");

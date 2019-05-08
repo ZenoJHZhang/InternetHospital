@@ -28,6 +28,9 @@ public final class Constants {
     public static final String PASSWORD_PATTERN = "^(?:(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])).{8,16}$";
     public static final String ID_CARD_PATTERN = "^[1-9]\\d{5}(18|19|20)\\d{2}((0[1-9])|(1[0-2]))(([0-2][1-9])|10|20|30|31)\\d{3}[0-9Xx]";
     public static final String REAL_NAME_PATTERN = "^[\\u4E00-\\u9FA5\\uf900-\\ufa2d·s]{2,6}";
+    //正数
+    public static final String NUMBER_PATTERN ="^([1-9][0-9]*(\\.\\d{1,2})?)|(0\\.\\d{1,2})$";
+
 
     /**
      * 请求首页轮播图uri，不进行拦截
@@ -80,6 +83,6 @@ public final class Constants {
     public static final String IMG_TYPE_DOCTOR = "doctor";
 
 
-    //支付宝返回码
-    public static final String PAY_SUCCESS = "10000";
+    //支付宝成功调用返回码
+    public static final String ALI_PAY_SUCCESS = "10000";
 }

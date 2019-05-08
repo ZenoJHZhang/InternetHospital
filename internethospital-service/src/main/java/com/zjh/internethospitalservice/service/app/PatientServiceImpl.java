@@ -129,4 +129,6 @@ public class PatientServiceImpl implements PatientService {
             throw new InternetHospitalException(ExceptionConstants.PATIENT_NOT_EXIST);
         }
     }
+
+
 }

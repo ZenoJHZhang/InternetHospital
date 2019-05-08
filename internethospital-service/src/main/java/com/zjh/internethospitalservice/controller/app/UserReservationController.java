@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDate;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 /**
  * 类的说明
@@ -110,6 +111,7 @@ public class UserReservationController {
         return ApiResponse.successResponse(userReservation);
     }
 
+
     @PostMapping("/giveStar")
     @ApiOperation(value = "给与问诊医生评价")
     @RequiresRoles(value = "user")
@@ -118,6 +120,21 @@ public class UserReservationController {
             @ApiParam(value = "星级", required = true) @RequestParam Integer starRate,
             @ApiParam(value = "uuid", required = true) @RequestParam String uuId) {
         userReservationService.giveStar(doctorId, starRate, uuId);
+        return ApiResponse.successResponse(null);
+    }
+
+    @PostMapping("/applyRefund")
+    @ApiOperation(value = "退款申请")
+    @RequiresRoles(value = "user")
+    public ResponseEntity<ApiResponse> applyRefund(
+            @RequestParam @ApiParam(value = "就诊UuId",required = true) String userReservationUuId,
+            @RequestParam @ApiParam(value = "退款理由",required = true) String reason,
+            @RequestParam @ApiParam(value = "申请退款金额",required = true) String refundAmount) {
+        boolean matches = Pattern.matches(Constants.NUMBER_PATTERN, refundAmount);
+        if (!matches){
+            return ApiResponse.response(400,"退款金额需大于0",null);
+        }
+        userReservationService.applyRefund(userReservationUuId,reason,refundAmount);
         return ApiResponse.successResponse(null);
     }
 }

@@ -98,4 +98,12 @@ public interface UserReservationService {
      * @return UserReservation
      */
     UserReservation getBeforeUserReservation(Integer scheduleDoctorId,String timeInterval);
+
+    /**
+     * 申请退款
+     * @param userReservationUuId uuId
+     * @param reason 退款理由
+     * @param refundAmount 申请退款金额
+     */
+    void applyRefund(String userReservationUuId,String reason,String refundAmount);
 }

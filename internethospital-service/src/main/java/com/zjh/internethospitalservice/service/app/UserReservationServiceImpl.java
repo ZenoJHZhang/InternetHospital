@@ -54,12 +54,13 @@ public class UserReservationServiceImpl implements UserReservationService {
     private final DoctorMapper doctorMapper;
     private final StringRedisTemplate stringRedisTemplate;
     private final OrderDetailMapper orderDetailMapper;
+    private final RefundMapper refundMapper;
 
     @Autowired
     public UserReservationServiceImpl(PatientService patientService, UserReservationImgMapper userReservationImgMapper,
                                       UserReservationMapper userReservationMapper, ScheduleDoctorMapper scheduleDoctorMapper,
                                       SeasonTimeService seasonTimeService, ScheduleDepartmentMapper scheduleDepartmentMapper, ImgService imgService, ScheduleDoctorService scheduleDoctorService, UserReservationStatusMapper userReservationStatusMapper, DiagnoseMapper diagnoseMapper,
-                                      DocRecipeService docRecipeService, DoctorMapper doctorMapper, StringRedisTemplate stringRedisTemplate, OrderDetailMapper orderDetailMapper) {
+                                      DocRecipeService docRecipeService, DoctorMapper doctorMapper, StringRedisTemplate stringRedisTemplate, OrderDetailMapper orderDetailMapper, RefundMapper refundMapper) {
         this.patientService = patientService;
         this.userReservationImgMapper = userReservationImgMapper;
         this.userReservationMapper = userReservationMapper;
@@ -74,6 +75,7 @@ public class UserReservationServiceImpl implements UserReservationService {
         this.doctorMapper = doctorMapper;
         this.stringRedisTemplate = stringRedisTemplate;
         this.orderDetailMapper = orderDetailMapper;
+        this.refundMapper = refundMapper;
     }
 
 
@@ -232,6 +234,7 @@ public class UserReservationServiceImpl implements UserReservationService {
                 userReservation.setUpdateTime(new Date());
                 userReservationMapper.updateByPrimaryKeySelective(userReservation);
             }
+
         }
         return new PageInfo<>(userReservationList);
     }
@@ -451,6 +454,43 @@ public class UserReservationServiceImpl implements UserReservationService {
             return null;
         } else {
             return userReservationList.get(0);
+        }
+    }
+
+    @Override
+    public void applyRefund(String userReservationUuId,String reason,String refundAmount) {
+        UserReservation userReservation = getUserReservationByUuId(userReservationUuId);
+        if (userReservation.getStatus().equals(4) || userReservation.getStatus().equals(5)){
+            Integer doctorId = userReservation.getDoctorId();
+            String doctorName = userReservation.getDoctorName();
+            String departmentName = userReservation.getDepartmentName();
+            String patientName = userReservation.getPatientName();
+            String clinicDate = userReservation.getClinicDate();
+            String clinicTime = userReservation.getClinicTime();
+            String timeInterval = userReservation.getTimeInterval();
+
+            Refund refund = new Refund();
+            refund.setPrice(refundAmount);
+            refund.setReason(reason);
+            refund.setDoctorId(doctorId);
+            refund.setDeptName(departmentName);
+            refund.setDoctorName(doctorName);
+            refund.setPatientName(patientName);
+            refund.setClinicDate(clinicDate);
+            refund.setClinicTime(clinicTime);
+            refund.setTimeInterval(timeInterval);
+            refund.setUserReservationUuId(userReservationUuId);
+            refund.setIsDelete(0);
+            refund.setUpdateTime(new Date());
+            refund.setCreateTime(new Date());
+            refundMapper.insertSelective(refund);
+
+            userReservation.setStatus(6);
+            userReservation.setUpdateTime(new Date());
+            updateUserReservationSelective(userReservation);
+        }
+        else {
+            throw new InternetHospitalException(ExceptionConstants.NOT_REFUND_STATUS);
         }
     }
 

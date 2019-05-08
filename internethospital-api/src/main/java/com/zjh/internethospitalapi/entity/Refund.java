@@ -12,16 +12,15 @@ public class Refund {
     private Integer id;
 
     /**
-     * 问诊记录ID
+     * 问诊记录uuId
      */
-    @Column(name = "reservation_id")
-    private Integer reservationId;
+    private String userReservationUuId;
 
     /**
      * 医生id
      */
     @Column(name = "doctor_id")
-    private String doctorId;
+    private Integer doctorId;
 
     /**
      * 用户退款原因
@@ -29,12 +28,7 @@ public class Refund {
     private String reason;
 
     /**
-     * 原因说明
-     */
-    private String state;
-
-    /**
-     * 拒绝
+     * 拒绝退款原因
      */
     private String refuse;
 
@@ -54,8 +48,6 @@ public class Refund {
      */
     @Column(name = "patient_name")
     private String patientName;
-
-    private String phone;
 
     /**
      * 科室名称
@@ -82,15 +74,9 @@ public class Refund {
     private String clinicTime;
 
     /**
-     * 预约时间 1 上午 2 下午 3 晚上
+     * 预约时间
      */
-    @Column(name = "time_type")
-    private String timeType;
-
-    /**
-     * 退款备注
-     */
-    private String remark;
+    private String timeInterval;
 
     @Column(name = "update_time")
     private Date updateTime;
@@ -98,10 +84,11 @@ public class Refund {
     @Column(name = "create_time")
     private Date createTime;
 
-    /**
-     * 退款类型
-     */
-    private String type;
-
     private Integer isDelete;
+
+    @Transient
+    private String refundStatusName;
+
+    @Transient
+    private String clinicPrice;
 }

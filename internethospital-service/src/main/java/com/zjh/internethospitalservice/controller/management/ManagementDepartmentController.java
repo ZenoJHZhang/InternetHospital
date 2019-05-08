@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.regex.Pattern;
 
 /**
@@ -122,6 +123,10 @@ public class ManagementDepartmentController {
         }
         if (price == null) {
             message = "科室挂号价格不得为空";
+            return message;
+        }
+        if (new BigDecimal(price).compareTo(BigDecimal.ZERO) <= 0){
+            message = "科室挂号价格需要大于0";
             return message;
         }
         if (imgId == null) {

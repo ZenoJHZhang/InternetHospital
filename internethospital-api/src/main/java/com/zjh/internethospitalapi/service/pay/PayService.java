@@ -52,4 +52,11 @@ public interface PayService {
      * @return true 支付超时 false 未超时
      */
     boolean isPayTimeOut(String userReservationUuId);
+
+    /**
+     * 退款
+     * @param outTradeNo 商户流水号
+     * @param refundAmount 退款金额
+     */
+    void refundPay(String outTradeNo,String refundAmount);
 }
