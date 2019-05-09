@@ -101,4 +101,10 @@ public interface ManagementScheduleDoctorService {
      * 使医生排班开始执行，并无法删除
      */
     void setScheduleDoctorStart();
+
+
+    /**
+     * 结束今日排班
+     */
+    void setScheduleDepartmentEnd();
 }

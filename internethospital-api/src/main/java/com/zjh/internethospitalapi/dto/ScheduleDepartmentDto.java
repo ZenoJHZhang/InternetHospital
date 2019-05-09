@@ -18,4 +18,9 @@ public class ScheduleDepartmentDto {
     Integer totalNumber;
 
     Integer scheduleDepartmentId;
+
+    /**
+     * true 已开始
+     */
+    boolean start;
 }

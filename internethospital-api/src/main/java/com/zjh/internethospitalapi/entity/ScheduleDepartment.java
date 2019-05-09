@@ -28,34 +28,16 @@ public class ScheduleDepartment {
     private String morningHas;
 
     /**
-     * 早上是否停诊 0不停诊 1停诊
-     */
-    @Column(name = "morning_stop")
-    private String morningStop;
-
-    /**
      * 中午是否有门诊1有0无
      */
     @Column(name = "afternoon_has")
     private String afternoonHas;
 
     /**
-     * 下午是否停诊 0不停诊 1停诊
-     */
-    @Column(name = "afternoon_stop")
-    private String afternoonStop;
-
-    /**
      * 晚上是否有门诊1有0无
      */
     @Column(name = "night_has")
     private String nightHas;
-
-    /**
-     * 晚上是否停诊 0不停诊 1停诊
-     */
-    @Column(name = "night_stop")
-    private String nightStop;
 
     /**
      * 科室上午号源
@@ -114,13 +96,19 @@ public class ScheduleDepartment {
     private Integer isDelete;
 
     /**
-     * 0 排班未开始 ；1 排班正在进行，无法删除 ;2 排班已结束
-     * <p>
-     * 两种情况会使排班开始 1：今天的排班会在0点自动开始 2：有第一个患者挂号的情况下，排班也会开始（用于避免预约排班被修改）
-     * 排班过期即结束
+     * 0 上午排班未开始 ；1 上午排班正在进行，无法操作 2：已結束
      */
-    private Integer isStart;
+    private Integer isMorningStart;
 
+    /**
+     * 0 下午排班未开始；1 下午排班正在进行，无法操作 2：已結束
+     */
+    private Integer isAfternoonStart;
+
+    /**
+     * 0 晚上排班未开始 ；1 晚上排班正在进行，无法操作 2:已結束
+     */
+    private Integer isNightStart;
     /**
      * 排班时段具体描述
      * 上午 下午 晚上

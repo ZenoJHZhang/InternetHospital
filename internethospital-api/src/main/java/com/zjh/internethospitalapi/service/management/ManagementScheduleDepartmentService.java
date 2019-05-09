@@ -65,17 +65,12 @@ public interface ManagementScheduleDepartmentService {
     Integer deleteScheduleDepartmentByIdWithTimeInterval(Integer scheduleDepartmentId,String timeInterval);
 
     /**
-     * 开始实行科室排班，并使其不可删除
+     * 开始实行科室排班，并且不可操作（自动用，三个时段都开始）
      */
     void setScheduleDepartmentStart();
 
     /**
-     * 分页获取
-     *
-     * @param departmentId 科室id
-     * @param pageNumber   页码
-     * @param pageSize     页容量
-     * @return 分页信息
+     * 结束今日科室排班
      */
-    PageInfo<ScheduleDepartment> listScheduleDepartmentNotEnd(Integer departmentId, Integer pageNumber, Integer pageSize);
+    void setScheduleDepartmentEnd();
 }

@@ -208,7 +208,10 @@ public class ManagementDoctorServiceImpl implements ManagementDoctorService {
     private void isHasNotEndScheduleDoctor(Integer doctorId) {
         Example example = new Example(ScheduleDoctor.class);
         example.createCriteria().andEqualTo("doctorId", doctorId).
-                andNotEqualTo("isStart", 2).andEqualTo("isDelete", 0);
+                andNotEqualTo("isMorningStart", 2).
+                andNotEqualTo("isAfternoonStart", 2)
+                .andNotEqualTo("isNightStart", 2)
+                .andEqualTo("isDelete", 0);
         if (scheduleDoctorMapper.selectByExample(example).size() != 0) {
             throw new InternetHospitalException(ExceptionConstants.DOCTOR_HAS_NOT_END_SCHEDULE);
         }

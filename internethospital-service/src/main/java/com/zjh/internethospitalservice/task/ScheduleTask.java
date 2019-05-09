@@ -36,4 +36,15 @@ public class ScheduleTask {
         managementScheduleDepartmentService.setScheduleDepartmentStart();
         managementScheduleDoctorService.setScheduleDoctorStart();
     }
+
+    /**
+     * 每天23点自动使排班进入结束状态
+     */
+    @Scheduled(cron = "0 0 23 * * ?  ")
+    @Transactional(rollbackFor = Exception.class)
+    void makeScheduleEnd() {
+        managementScheduleDepartmentService.setScheduleDepartmentStart();
+        managementScheduleDoctorService.setScheduleDoctorStart();
+    }
+
 }

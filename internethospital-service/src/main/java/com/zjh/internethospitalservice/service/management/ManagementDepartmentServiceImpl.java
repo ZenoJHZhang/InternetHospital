@@ -4,15 +4,9 @@ import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
-import com.zjh.internethospitalapi.entity.Department;
-import com.zjh.internethospitalapi.entity.DoctorDepartment;
-import com.zjh.internethospitalapi.entity.Img;
-import com.zjh.internethospitalapi.entity.ScheduleDoctor;
+import com.zjh.internethospitalapi.entity.*;
 import com.zjh.internethospitalapi.service.management.ManagementDepartmentService;
-import com.zjh.internethospitalservice.mapper.DepartmentMapper;
-import com.zjh.internethospitalservice.mapper.DoctorDepartmentMapper;
-import com.zjh.internethospitalservice.mapper.ImgMapper;
-import com.zjh.internethospitalservice.mapper.ScheduleDoctorMapper;
+import com.zjh.internethospitalservice.mapper.*;
 import com.zjh.internethospitalservice.util.ImgUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -35,13 +29,15 @@ public class ManagementDepartmentServiceImpl implements ManagementDepartmentServ
     private final ImgMapper imgMapper;
     private final ScheduleDoctorMapper scheduleDoctorMapper;
     private final DoctorDepartmentMapper doctorDepartmentMapper;
+    private final ScheduleDepartmentMapper scheduleDepartmentMapper;
 
     @Autowired
-    public ManagementDepartmentServiceImpl(DepartmentMapper departmentMapper, ImgMapper imgMapper, ScheduleDoctorMapper scheduleDoctorMapper, DoctorDepartmentMapper doctorDepartmentMapper) {
+    public ManagementDepartmentServiceImpl(DepartmentMapper departmentMapper, ImgMapper imgMapper, ScheduleDoctorMapper scheduleDoctorMapper, DoctorDepartmentMapper doctorDepartmentMapper, ScheduleDepartmentMapper scheduleDepartmentMapper) {
         this.departmentMapper = departmentMapper;
         this.imgMapper = imgMapper;
         this.scheduleDoctorMapper = scheduleDoctorMapper;
         this.doctorDepartmentMapper = doctorDepartmentMapper;
+        this.scheduleDepartmentMapper = scheduleDepartmentMapper;
     }
 
     @Override
@@ -189,16 +185,17 @@ public class ManagementDepartmentServiceImpl implements ManagementDepartmentServ
 
     /**
      * 判断该科室下是否有未结束的科室排班
-     * 根据医生排班表的科室id来判断
-     * 因为最终会分到该科室的医生头上
      *
      * @param departmentId 科室id
      */
     private void isHasNotEndScheduleDepartment(Integer departmentId) {
-        Example example = new Example(ScheduleDoctor.class);
+        Example example = new Example(ScheduleDepartment.class);
         example.createCriteria().andEqualTo("departmentId", departmentId).
-                andNotEqualTo("isStart", 2).andEqualTo("isDelete", 0);
-        if (scheduleDoctorMapper.selectByExample(example).size() != 0) {
+                andNotEqualTo("isMorningStart", 2).
+                andNotEqualTo("isAfternoonStart",2)
+                .andNotEqualTo("isNightStart",2).
+                andEqualTo("isDelete", 0);
+        if (scheduleDepartmentMapper.selectByExample(example).size() != 0) {
             throw new InternetHospitalException(ExceptionConstants.DEPARTMENT_HAS_NOT_END_SCHEDULE);
         }
     }

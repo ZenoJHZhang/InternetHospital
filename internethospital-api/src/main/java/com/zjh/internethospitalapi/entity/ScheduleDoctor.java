@@ -80,7 +80,9 @@ public class ScheduleDoctor {
      * 两种情况会使排班开始 1：今天的排班会在0点自动开始 2：有第一个患者挂号的情况下，排班也会开始（用于避免预约排班被修改）
      * 排班过期即结束
      */
-    private Integer isStart;
+    private Integer isMorningStart;
+    private Integer isAfternoonStart;
+    private Integer isNightStart;
 
     /**
      * 特定时段所剩号源

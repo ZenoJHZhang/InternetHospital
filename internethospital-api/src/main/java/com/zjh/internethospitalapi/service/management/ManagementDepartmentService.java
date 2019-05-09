@@ -32,7 +32,6 @@ public interface ManagementDepartmentService {
 
     /**
      * 更新科室
-     * 重复或科室下有排班（即 isStart ！= 2）不可更新
      * @param department 科室
      * @return 科室id
      */

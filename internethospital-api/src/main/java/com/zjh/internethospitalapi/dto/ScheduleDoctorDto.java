@@ -18,4 +18,6 @@ public class ScheduleDoctorDto {
     Integer totalNumber;
 
     Integer scheduleDoctorId;
+
+    boolean start;
 }

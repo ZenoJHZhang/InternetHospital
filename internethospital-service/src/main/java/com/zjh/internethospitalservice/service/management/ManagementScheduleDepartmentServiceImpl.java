@@ -1,7 +1,5 @@
 package com.zjh.internethospitalservice.service.management;
 
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
 import com.zjh.internethospitalapi.common.constants.Constants;
 import com.zjh.internethospitalapi.common.constants.ExceptionConstants;
 import com.zjh.internethospitalapi.common.exception.InternetHospitalException;
@@ -16,7 +14,6 @@ import org.springframework.stereotype.Service;
 import tk.mybatis.mapper.entity.Example;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -68,7 +65,7 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
 
     @Override
     public void updateScheduleDepartment(Integer scheduleDepartmentId, String timeInterval, Integer totalNumber) {
-        ScheduleDepartment scheduleDepartment = isScheduleDepartmentStarting(scheduleDepartmentId);
+        ScheduleDepartment scheduleDepartment = isScheduleDepartmentStarting(scheduleDepartmentId,timeInterval);
         scheduleDepartment.setUpdateTime(new Date());
         scheduleDepartmentMapper.updateByPrimaryKeySelective(
                 setScheduleDepartmentTotalNumberByTimeInterval(scheduleDepartment, timeInterval, totalNumber)
@@ -80,14 +77,14 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
     public ScheduleDepartment getScheduleDepartmentByDepartmentIdAndScheduleTime(Integer departmentId, String scheduleTime) {
         Example example = new Example(ScheduleDepartment.class);
         example.createCriteria().andEqualTo("departmentId", departmentId)
-                .andEqualTo("scheduleTime", scheduleTime).andNotEqualTo("isStart", 2);
+                .andEqualTo("scheduleTime", scheduleTime);
         return scheduleDepartmentMapper.selectOneByExample(example);
     }
 
     @Override
     public List<ScheduleDepartmentDto> listScheduleDepartmentOfScheduleTime(Integer departmentId, String scheduleTime) {
         Example example = new Example(ScheduleDepartment.class);
-        example.createCriteria().andEqualTo("departmentId", departmentId).andEqualTo("scheduleTime", scheduleTime).andNotEqualTo("isStart", 2);
+        example.createCriteria().andEqualTo("departmentId", departmentId).andEqualTo("scheduleTime", scheduleTime);
         ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.selectOneByExample(example);
         List<ScheduleDepartmentDto> scheduleDepartmentDtoList = new ArrayList<>();
         if (scheduleDepartment != null) {
@@ -97,6 +94,7 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
                 scheduleDepartmentDto.setTotalNumber(scheduleDepartment.getMorningTotalNumber());
                 scheduleDepartmentDto.setScheduleTime(scheduleDepartment.getScheduleTime());
                 scheduleDepartmentDto.setScheduleDepartmentId(scheduleDepartment.getId());
+                scheduleDepartmentDto.setStart(scheduleDepartment.getIsMorningStart().equals(1));
                 scheduleDepartmentDtoList.add(scheduleDepartmentDto);
             }
             if (scheduleDepartment.getAfternoonHas().equals("1")) {
@@ -105,6 +103,7 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
                 scheduleDepartmentDto.setTotalNumber(scheduleDepartment.getAfternoonTotalNumber());
                 scheduleDepartmentDto.setScheduleTime(scheduleDepartment.getScheduleTime());
                 scheduleDepartmentDto.setScheduleDepartmentId(scheduleDepartment.getId());
+                scheduleDepartmentDto.setStart(scheduleDepartment.getIsAfternoonStart().equals(1));
                 scheduleDepartmentDtoList.add(scheduleDepartmentDto);
             }
             if (scheduleDepartment.getNightHas().equals("1")) {
@@ -113,6 +112,7 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
                 scheduleDepartmentDto.setTotalNumber(scheduleDepartment.getNightTotalNumber());
                 scheduleDepartmentDto.setScheduleTime(scheduleDepartment.getScheduleTime());
                 scheduleDepartmentDto.setScheduleDepartmentId(scheduleDepartment.getId());
+                scheduleDepartmentDto.setStart(scheduleDepartment.getIsNightStart().equals(1));
                 scheduleDepartmentDtoList.add(scheduleDepartmentDto);
             }
         }
@@ -122,7 +122,7 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
 
     @Override
     public Integer deleteScheduleDepartmentByIdWithTimeInterval(Integer scheduleDepartmentId, String timeInterval) {
-        ScheduleDepartment scheduleDepartment = isScheduleDepartmentStarting(scheduleDepartmentId);
+        ScheduleDepartment scheduleDepartment = isScheduleDepartmentStarting(scheduleDepartmentId,timeInterval);
         Integer departmentId = scheduleDepartment.getDepartmentId();
         switch (timeInterval) {
             case Constants.MORNING:
@@ -153,22 +153,27 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
     @Override
     public void setScheduleDepartmentStart() {
         ScheduleDepartment scheduleDepartment = new ScheduleDepartment();
-        scheduleDepartment.setIsStart(1);
+        scheduleDepartment.setIsMorningStart(1);
+        scheduleDepartment.setIsAfternoonStart(1);
+        scheduleDepartment.setIsNightStart(1);
         LocalDate date = LocalDate.now();
         Example example = new Example(ScheduleDepartment.class);
-        example.createCriteria().andEqualTo("scheduleTime", date.toString());
+        example.createCriteria().andEqualTo("scheduleTime", date.toString())
+                .andEqualTo("isDelete",0);
         scheduleDepartmentMapper.updateByExampleSelective(scheduleDepartment, example);
     }
 
     @Override
-    public PageInfo<ScheduleDepartment> listScheduleDepartmentNotEnd(Integer departmentId, Integer
-            pageNumber, Integer pageSize) {
+    public void setScheduleDepartmentEnd() {
+        ScheduleDepartment scheduleDepartment = new ScheduleDepartment();
+        scheduleDepartment.setIsMorningStart(2);
+        scheduleDepartment.setIsAfternoonStart(2);
+        scheduleDepartment.setIsNightStart(2);
+        LocalDate date = LocalDate.now();
         Example example = new Example(ScheduleDepartment.class);
-        example.createCriteria().andEqualTo("departmentId", departmentId).
-                andEqualTo("isDelete", 0).andNotEqualTo("isStart", 2);
-        PageHelper.startPage(pageNumber, pageSize);
-        List<ScheduleDepartment> scheduleDepartments = scheduleDepartmentMapper.selectByExample(example);
-        return new PageInfo<>(scheduleDepartments);
+        example.createCriteria().andEqualTo("scheduleTime", date.toString())
+                .andEqualTo("isDelete",0);
+        scheduleDepartmentMapper.updateByExampleSelective(scheduleDepartment, example);
     }
 
     /**
@@ -212,13 +217,27 @@ public class ManagementScheduleDepartmentServiceImpl implements ManagementSchedu
      * @param scheduleDepartmentId 科室排班id
      * @return 科室排班
      */
-    private ScheduleDepartment isScheduleDepartmentStarting(Integer scheduleDepartmentId) {
+    private ScheduleDepartment isScheduleDepartmentStarting(Integer scheduleDepartmentId,String timeInterval) {
         ScheduleDepartment scheduleDepartment = scheduleDepartmentMapper.selectByPrimaryKey(scheduleDepartmentId);
         if (scheduleDepartment == null) {
             throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DEPARTMENT_NOT_EXIST);
         }
-        if (scheduleDepartment.getIsStart() == 1) {
-            throw new InternetHospitalException(ExceptionConstants.SCHEDULE_DEPARTMENT_HAS_STARTED);
+        switch (timeInterval) {
+            case Constants.MORNING:
+                if (scheduleDepartment.getIsMorningStart() == 1){
+                    throw new InternetHospitalException(ExceptionConstants.MORNING_SCHEDULE_DEPARTMENT_HAS_STARTED);
+                }
+                break;
+            case Constants.AFTERNOON:
+                if (scheduleDepartment.getIsAfternoonStart() == 1){
+                    throw new InternetHospitalException(ExceptionConstants.AFTERNOON_SCHEDULE_DEPARTMENT_HAS_STARTED);
+                }
+                break;
+            default:
+                if (scheduleDepartment.getIsNightStart() == 1){
+                    throw new InternetHospitalException(ExceptionConstants.NIGHT_SCHEDULE_DEPARTMENT_HAS_STARTED);
+                }
+                break;
         }
         return scheduleDepartment;
     }

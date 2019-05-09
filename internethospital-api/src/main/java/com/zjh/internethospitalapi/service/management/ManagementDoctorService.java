@@ -25,7 +25,7 @@ public interface ManagementDoctorService {
 
     /**
      * 更新医生
-     * 重复医生信息或医生下有排班（即 isStart ！= 2）不可更新
+     * 重复医生信息或医生下有排班不可更新
      * @param doctor 医生信息
      * @return doctorId
      */

@@ -113,7 +113,17 @@ public class UserReservationServiceImpl implements UserReservationService {
         BeanUtils.copyProperties(userReservationDto, userReservation);
         userReservation.setType(3);
         ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(userReservation.getScheduleDoctorId());
-        scheduleDoctor.setIsStart(1);
+        String timeInterval = userReservation.getTimeInterval();
+        if(timeInterval.equals(Constants.MORNING))
+        {
+            scheduleDoctor.setIsMorningStart(1);
+        }
+        else if(timeInterval.equals(Constants.AFTERNOON)){
+            scheduleDoctor.setIsAfternoonStart(1);
+        }
+        else if(timeInterval.equals(Constants.NIGHT)){
+            scheduleDoctor.setIsNightStart(1);
+        }
         scheduleDoctor.setUpdateTime(new Date());
         scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
         commonGenerateUserReservation(userReservationDto, userReservation);
@@ -299,65 +309,98 @@ public class UserReservationServiceImpl implements UserReservationService {
         scheduleDepartment.setId(userReservationDto.getScheduleDepartmentId());
         scheduleDepartment = scheduleDepartmentMapper.selectOne(scheduleDepartment);
         //根据时间段选取医生，构建待分配号源医生列表
-        if (timeInterval.equals(Constants.MORNING)) {
-            //判断是否还有号源
-            int timeExistNumber = scheduleDepartment.getMorningTotalNumber() - scheduleDepartment.getMorningNumber();
-            if (timeExistNumber <= 0) {
-                throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+        switch (timeInterval) {
+            case Constants.MORNING: {
+                //判断是否还有号源
+                int timeExistNumber = scheduleDepartment.getMorningTotalNumber() - scheduleDepartment.getMorningNumber();
+                if (timeExistNumber <= 0) {
+                    throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+                }
+                example.and().andEqualTo("doctorMorningHas", 1);
+                scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
+                for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
+                ) {
+                    DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
+                    dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorMorningNumber() + 1);
+                    dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorMorningTotalNumber());
+                    dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
+                    dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
+                    dispensingDoctorDto.setDoctorName(scheduleDoctor.getDoctorName());
+                    dispensingDoctorDto.setTimeInterval(timeInterval);
+                    dispensingDoctorDtoList.add(dispensingDoctorDto);
+
+                    //开始上午医生排班
+                    scheduleDoctor.setIsMorningStart(1);
+                    scheduleDoctor.setUpdateTime(new Date());
+                    scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
+                }
+
+                //开始上午科室排班
+                scheduleDepartment.setIsMorningStart(1);
+
+                break;
             }
-            example.and().andEqualTo("doctorMorningHas", 1);
-            scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
-            for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
-            ) {
-                DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
-                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorMorningNumber() + 1);
-                dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorMorningTotalNumber());
-                dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
-                dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
-                dispensingDoctorDto.setDoctorName(scheduleDoctor.getDoctorName());
-                dispensingDoctorDto.setTimeInterval(timeInterval);
-                dispensingDoctorDtoList.add(dispensingDoctorDto);
+            case Constants.AFTERNOON: {
+                int timeExistNumber = scheduleDepartment.getAfternoonTotalNumber() - scheduleDepartment.getAfternoonNumber();
+                if (timeExistNumber <= 0) {
+                    throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+                }
+                example.and().andEqualTo("doctorAfternoonHas", 1);
+                scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
+                for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
+                ) {
+                    DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
+                    dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorAfternoonNumber() + 1);
+                    dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorAfternoonTotalNumber());
+                    dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
+                    dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
+                    dispensingDoctorDto.setDoctorName(scheduleDoctor.getDoctorName());
+                    dispensingDoctorDto.setTimeInterval(timeInterval);
+                    dispensingDoctorDtoList.add(dispensingDoctorDto);
+
+                    //开始下午医生排班
+                    scheduleDoctor.setIsAfternoonStart(1);
+                    scheduleDoctor.setUpdateTime(new Date());
+                    scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
+                }
+
+                //开始下午排班
+                scheduleDepartment.setIsAfternoonStart(1);
+
+                break;
             }
-        } else if (timeInterval.equals(Constants.AFTERNOON)) {
-            int timeExistNumber = scheduleDepartment.getAfternoonTotalNumber() - scheduleDepartment.getAfternoonNumber();
-            if (timeExistNumber <= 0) {
-                throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
-            }
-            example.and().andEqualTo("doctorAfternoonHas", 1);
-            scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
-            for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
-            ) {
-                DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
-                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorAfternoonNumber() + 1);
-                dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorAfternoonTotalNumber());
-                dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
-                dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
-                dispensingDoctorDto.setDoctorName(scheduleDoctor.getDoctorName());
-                dispensingDoctorDto.setTimeInterval(timeInterval);
-                dispensingDoctorDtoList.add(dispensingDoctorDto);
-            }
-        } else if (timeInterval.equals(Constants.NIGHT)) {
-            int timeExistNumber = scheduleDepartment.getNightTotalNumber() - scheduleDepartment.getNightNumber();
-            if (timeExistNumber <= 0) {
-                throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
-            }
-            example.and().andEqualTo("doctorNightHas", 1);
-            scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
-            for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
-            ) {
-                DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
-                dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorNightNumber() + 1);
-                dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorNightTotalNumber());
-                dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
-                dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
-                dispensingDoctorDto.setDoctorName(scheduleDoctor.getDoctorName());
-                dispensingDoctorDto.setTimeInterval(timeInterval);
-                dispensingDoctorDtoList.add(dispensingDoctorDto);
+            case Constants.NIGHT: {
+                int timeExistNumber = scheduleDepartment.getNightTotalNumber() - scheduleDepartment.getNightNumber();
+                if (timeExistNumber <= 0) {
+                    throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
+                }
+                example.and().andEqualTo("doctorNightHas", 1);
+                scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
+                for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
+                ) {
+                    DispensingDoctorDto dispensingDoctorDto = new DispensingDoctorDto();
+                    dispensingDoctorDto.setDoctorAppointmentNumber(scheduleDoctor.getDoctorNightNumber() + 1);
+                    dispensingDoctorDto.setDoctorTotalAppointmentNumber(scheduleDoctor.getDoctorNightTotalNumber());
+                    dispensingDoctorDto.setDoctorId(scheduleDoctor.getDoctorId());
+                    dispensingDoctorDto.setScheduleDoctorId(scheduleDoctor.getId());
+                    dispensingDoctorDto.setDoctorName(scheduleDoctor.getDoctorName());
+                    dispensingDoctorDto.setTimeInterval(timeInterval);
+                    dispensingDoctorDtoList.add(dispensingDoctorDto);
+
+                    //开始晚上医生排班
+                    scheduleDoctor.setIsNightStart(1);
+                    scheduleDoctor.setUpdateTime(new Date());
+                    scheduleDoctorMapper.updateByPrimaryKeySelective(scheduleDoctor);
+                }
+
+                //开始晚上排班
+                scheduleDepartment.setIsNightStart(1);
+
+                break;
             }
         }
 
-        //开始此科室排班
-        scheduleDepartment.setIsStart(1);
+
         scheduleDepartment.setUpdateTime(new Date());
         scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
 
