@@ -99,7 +99,14 @@ public class CallNumberController {
             }
 
             //发送短信,写死为自己手机
-//            ShortMessageUtil.callNoMessage(patientName,clinicDate,clinicTime,departmentName,doctorName,regNo.toString(),"15868154079");
+            ShortMessageUtil.callNoMessage(
+                    userReservation.getPatientName(),
+                    userReservation.getClinicDate(),
+                    userReservation.getClinicTime(),
+                    userReservation.getDepartmentName(),
+                    userReservation.getDoctorName(),
+                    userReservation.getRegNo().toString(),
+                    "15868154079");
 
             //现在叫到几号
             Integer callNo = null;

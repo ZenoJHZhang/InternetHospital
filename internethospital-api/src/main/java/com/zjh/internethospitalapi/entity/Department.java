@@ -65,11 +65,6 @@ public class Department {
     private Integer deptType;
 
     /**
-     * 排序  越大越前面
-     */
-    private Integer sort;
-
-    /**
      * 科室介绍
      */
     private String introduce;

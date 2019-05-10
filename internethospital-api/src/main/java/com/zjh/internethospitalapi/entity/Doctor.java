@@ -68,11 +68,6 @@ public class Doctor {
     private Integer deptNum;
 
     /**
-     * 排序  越大越前面
-     */
-    private Integer sort;
-
-    /**
      * 医生星级
      */
     @Column(name = "star_level")

@@ -117,16 +117,6 @@ public class UserReservation {
     private Integer status;
 
     /**
-     * 取号返回的错误信息（预约/挂号）
-     */
-    private String errorMsg;
-
-    /**
-     * 是否被点击查看0未被，1已被点击
-     */
-    @Column(name = "is_click")
-    private String isClick;
-    /**
      * 评价星级
      */
     private String evaluateStar;
@@ -212,27 +202,6 @@ public class UserReservation {
     @Column(name = "call_number_time")
     private Date callNumberTime;
 
-    /**
-     * 1拒绝退款，0未拒绝
-     */
-    private String repulse;
-
-    /**
-     * 取消就诊原因
-     */
-    @Column(name = "cancel_reason")
-    private String cancelReason;
-    /**
-     * 是否第一次进入候诊间 0不是 1是
-     */
-    @Column(name = "first_waitroom")
-    private String firstWaitroom;
-
-    /**
-     * 诊断意见（0：医师诊断 ，1：药师诊断，2：门诊诊断）
-     */
-    @Column(name = "clinic_type")
-    private String clinicType;
     /**
      * 创建时间
      */
