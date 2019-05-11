@@ -114,14 +114,11 @@ public class UserReservationServiceImpl implements UserReservationService {
         userReservation.setType(3);
         ScheduleDoctor scheduleDoctor = scheduleDoctorMapper.selectByPrimaryKey(userReservation.getScheduleDoctorId());
         String timeInterval = userReservation.getTimeInterval();
-        if(timeInterval.equals(Constants.MORNING))
-        {
+        if (timeInterval.equals(Constants.MORNING)) {
             scheduleDoctor.setIsMorningStart(1);
-        }
-        else if(timeInterval.equals(Constants.AFTERNOON)){
+        } else if (timeInterval.equals(Constants.AFTERNOON)) {
             scheduleDoctor.setIsAfternoonStart(1);
-        }
-        else if(timeInterval.equals(Constants.NIGHT)){
+        } else if (timeInterval.equals(Constants.NIGHT)) {
             scheduleDoctor.setIsNightStart(1);
         }
         scheduleDoctor.setUpdateTime(new Date());
@@ -311,11 +308,6 @@ public class UserReservationServiceImpl implements UserReservationService {
         //根据时间段选取医生，构建待分配号源医生列表
         switch (timeInterval) {
             case Constants.MORNING: {
-                //判断是否还有号源
-                int timeExistNumber = scheduleDepartment.getMorningTotalNumber() - scheduleDepartment.getMorningNumber();
-                if (timeExistNumber <= 0) {
-                    throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
-                }
                 example.and().andEqualTo("doctorMorningHas", 1);
                 scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
                 for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
@@ -341,10 +333,6 @@ public class UserReservationServiceImpl implements UserReservationService {
                 break;
             }
             case Constants.AFTERNOON: {
-                int timeExistNumber = scheduleDepartment.getAfternoonTotalNumber() - scheduleDepartment.getAfternoonNumber();
-                if (timeExistNumber <= 0) {
-                    throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
-                }
                 example.and().andEqualTo("doctorAfternoonHas", 1);
                 scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
                 for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
@@ -370,10 +358,6 @@ public class UserReservationServiceImpl implements UserReservationService {
                 break;
             }
             case Constants.NIGHT: {
-                int timeExistNumber = scheduleDepartment.getNightTotalNumber() - scheduleDepartment.getNightNumber();
-                if (timeExistNumber <= 0) {
-                    throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
-                }
                 example.and().andEqualTo("doctorNightHas", 1);
                 scheduleDoctorList = scheduleDoctorMapper.selectByExample(example);
                 for (ScheduleDoctor scheduleDoctor : scheduleDoctorList
@@ -399,8 +383,6 @@ public class UserReservationServiceImpl implements UserReservationService {
                 break;
             }
         }
-
-
         scheduleDepartment.setUpdateTime(new Date());
         scheduleDepartmentMapper.updateByPrimaryKeySelective(scheduleDepartment);
 
@@ -450,28 +432,16 @@ public class UserReservationServiceImpl implements UserReservationService {
         //区分时间段
         switch (timeInterval) {
             case Constants.MORNING: {
-                int timeExistNumber = scheduleDoctor.getDoctorMorningTotalNumber() - scheduleDoctor.getDoctorMorningNumber();
-                if (timeExistNumber <= 0) {
-                    throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
-                }
                 scheduleDoctor.setDoctorMorningNumber(scheduleDoctor.getDoctorMorningNumber() + 1);
                 userReservation.setRegNo(scheduleDoctor.getDoctorMorningNumber());
                 break;
             }
             case Constants.AFTERNOON: {
-                int timeExistNumber = scheduleDoctor.getDoctorAfternoonTotalNumber() - scheduleDoctor.getDoctorAfternoonNumber();
-                if (timeExistNumber <= 0) {
-                    throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
-                }
                 scheduleDoctor.setDoctorAfternoonNumber(scheduleDoctor.getDoctorAfternoonNumber() + 1);
                 userReservation.setRegNo(scheduleDoctor.getDoctorAfternoonNumber());
                 break;
             }
             case Constants.NIGHT: {
-                int timeExistNumber = scheduleDoctor.getDoctorNightTotalNumber() - scheduleDoctor.getDoctorNightNumber();
-                if (timeExistNumber <= 0) {
-                    throw new InternetHospitalException(ExceptionConstants.HAS_NO_CLINIC_NUMBER);
-                }
                 scheduleDoctor.setDoctorNightNumber(scheduleDoctor.getDoctorNightNumber() + 1);
                 userReservation.setRegNo(scheduleDoctor.getDoctorNightNumber());
                 break;
@@ -501,9 +471,9 @@ public class UserReservationServiceImpl implements UserReservationService {
     }
 
     @Override
-    public void applyRefund(String userReservationUuId,String reason,String refundAmount) {
+    public void applyRefund(String userReservationUuId, String reason, String refundAmount) {
         UserReservation userReservation = getUserReservationByUuId(userReservationUuId);
-        if (userReservation.getStatus().equals(4) || userReservation.getStatus().equals(5)){
+        if (userReservation.getStatus().equals(4) || userReservation.getStatus().equals(5)) {
             Integer doctorId = userReservation.getDoctorId();
             String doctorName = userReservation.getDoctorName();
             String departmentName = userReservation.getDepartmentName();
@@ -531,9 +501,30 @@ public class UserReservationServiceImpl implements UserReservationService {
             userReservation.setStatus(6);
             userReservation.setUpdateTime(new Date());
             updateUserReservationSelective(userReservation);
-        }
-        else {
+        } else {
             throw new InternetHospitalException(ExceptionConstants.NOT_REFUND_STATUS);
+        }
+    }
+
+    @Override
+    public boolean hasClinicNumber(UserReservation userReservation) {
+        String timeInterval = userReservation.getTimeInterval();
+        Integer scheduleDoctorId = userReservation.getScheduleDoctorId();
+        ScheduleDoctor scheduleDoctor = scheduleDoctorService.getScheduleDoctor(scheduleDoctorId);
+        //区分时间段
+        switch (timeInterval) {
+            case Constants.MORNING: {
+                int timeExistNumber = scheduleDoctor.getDoctorMorningTotalNumber() - scheduleDoctor.getDoctorMorningNumber();
+                return timeExistNumber > 0;
+            }
+            case Constants.AFTERNOON: {
+                int timeExistNumber = scheduleDoctor.getDoctorAfternoonTotalNumber() - scheduleDoctor.getDoctorAfternoonNumber();
+                    return timeExistNumber > 0;
+            }
+            default:  {
+                int timeExistNumber = scheduleDoctor.getDoctorNightTotalNumber() - scheduleDoctor.getDoctorNightNumber();
+                    return timeExistNumber > 0;
+            }
         }
     }
 

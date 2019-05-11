@@ -106,4 +106,12 @@ public interface UserReservationService {
      * @param refundAmount 申请退款金额
      */
     void applyRefund(String userReservationUuId,String reason,String refundAmount);
+
+    /**
+     * 判断就诊是否仍有号
+     * true 有 fasle 无
+     * @param userReservation 就诊
+     * @return boolean
+     */
+    boolean hasClinicNumber(UserReservation userReservation);
 }

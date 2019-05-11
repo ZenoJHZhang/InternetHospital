@@ -127,14 +127,32 @@ public class UserReservationController {
     @ApiOperation(value = "退款申请")
     @RequiresRoles(value = "user")
     public ResponseEntity<ApiResponse> applyRefund(
-            @RequestParam @ApiParam(value = "就诊UuId",required = true) String userReservationUuId,
-            @RequestParam @ApiParam(value = "退款理由",required = true) String reason,
-            @RequestParam @ApiParam(value = "申请退款金额",required = true) String refundAmount) {
+            @RequestParam @ApiParam(value = "就诊UuId", required = true) String userReservationUuId,
+            @RequestParam @ApiParam(value = "退款理由", required = true) String reason,
+            @RequestParam @ApiParam(value = "申请退款金额", required = true) String refundAmount) {
         boolean matches = Pattern.matches(Constants.NUMBER_PATTERN, refundAmount);
-        if (!matches){
-            return ApiResponse.response(400,"退款金额需大于0",null);
+        if (!matches) {
+            return ApiResponse.response(400, "退款金额需大于0", null);
         }
-        userReservationService.applyRefund(userReservationUuId,reason,refundAmount);
+        userReservationService.applyRefund(userReservationUuId, reason, refundAmount);
         return ApiResponse.successResponse(null);
+    }
+
+    @GetMapping("/hasClinicNumber")
+    @ApiOperation(value = "获取就诊详情信息")
+    @RequiresRoles(value = "user")
+    public ResponseEntity<ApiResponse> hasClinicNumber(
+            @RequestParam @ApiParam(value = "就诊信息id", required = true, example = "1") String userReservationUuId) {
+        UserReservation userReservationDetail = userReservationService.getUserReservationDetail(userReservationUuId);
+        boolean b = true;
+        if (userReservationDetail.getStatus().equals(1)) {
+            b = userReservationService.hasClinicNumber(userReservationDetail);
+            if (!b) {
+                userReservationDetail.setStatus(2);
+                userReservationService.updateUserReservationSelective(userReservationDetail);
+            }
+        }
+        userReservationDetail.setClinicNumberStatus(b);
+        return ApiResponse.successResponse(userReservationDetail);
     }
 }

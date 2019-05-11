@@ -229,13 +229,10 @@ public class UserReservation {
     private Integer callNo;
 
     /**
-     * 就诊状态
-     * -1：未到
-     * 0：已到
-     * 1： 过号
+     * 号源状态 true 仍有号源 false 无号源
      */
     @Transient
-    private Integer clinicState;
+    private boolean clinicNumberStatus;
 
     /**
      * 支付状态描述
