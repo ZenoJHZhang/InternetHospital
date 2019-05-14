@@ -43,8 +43,8 @@ public class ScheduleTask {
     @Scheduled(cron = "0 0 23 * * ?  ")
     @Transactional(rollbackFor = Exception.class)
     void makeScheduleEnd() {
-        managementScheduleDepartmentService.setScheduleDepartmentStart();
-        managementScheduleDoctorService.setScheduleDoctorStart();
+        managementScheduleDepartmentService.setScheduleDepartmentEnd();
+        managementScheduleDoctorService.setScheduleDoctorEnd();
     }
 
 }

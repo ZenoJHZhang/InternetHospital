@@ -106,5 +106,5 @@ public interface ManagementScheduleDoctorService {
     /**
      * 结束今日排班
      */
-    void setScheduleDepartmentEnd();
+    void setScheduleDoctorEnd();
 }

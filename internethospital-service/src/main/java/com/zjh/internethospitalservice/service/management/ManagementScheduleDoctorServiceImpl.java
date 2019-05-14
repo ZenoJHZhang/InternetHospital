@@ -261,7 +261,7 @@ public class ManagementScheduleDoctorServiceImpl implements ManagementScheduleDo
         }
 
     @Override
-    public void setScheduleDepartmentEnd() {
+    public void setScheduleDoctorEnd() {
         ScheduleDoctor scheduleDoctor = new ScheduleDoctor();
         scheduleDoctor.setIsMorningStart(2);
         scheduleDoctor.setIsAfternoonStart(2);
